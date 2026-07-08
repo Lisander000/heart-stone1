@@ -4,8 +4,8 @@ import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { fadeUp } from "@/lib/motion";
-import { ArrowLeft, ExternalLink, Check, X, RotateCcw, Send, Trash2, Circle, Loader2, Undo2, Ban, ShieldCheck, PackageCheck, BadgeEuro, Flag, ListChecks, MessageSquare, ClipboardList, ArrowRight } from "lucide-react";
-import { useSteps, useNotes, addNote, removeNote, useOutcome, setOutcome, ladderState, refundPct, useLog, addLog, useOwner, setOwner, clearOwner, useMeta, setMeta, type LogKind } from "@/lib/returnsSteps";
+import { ArrowLeft, ExternalLink, Check, X, RotateCcw, Send, Trash2, Circle, Loader2, Undo2, Ban, ShieldCheck, PackageCheck, BadgeEuro, Flag, ListChecks, MessageSquare, ClipboardList, ArrowRight, CreditCard, Wallet } from "lucide-react";
+import { useSteps, useNotes, addNote, removeNote, useOutcome, setOutcome, ladderState, refundPct, useLog, addLog, useOwner, setOwner, clearOwner, useMeta, setMeta, useReturnMethod, setReturnMethod, METHOD_GROUPS, methodLabel, type MethodGroup, type LogKind } from "@/lib/returnsSteps";
 import { pingReturns } from "@/lib/returnsData";
 import { useCurrentUser } from "@/lib/superuser";
 
@@ -35,7 +35,8 @@ export default function ReturnDetail() {
   const [note, setNote] = useState("");
 
   const me = useCurrentUser();
-  const steps = useSteps();
+  const method = useReturnMethod(id);
+  const steps = useSteps(method ?? "other");
   const outcomes = useOutcome(id);
   const notes = useNotes(id);
   const log = useLog(id);
@@ -108,6 +109,9 @@ export default function ReturnDetail() {
   const undo = (i: number) => { setOutcome(id, i, null); addLog(id, `Beslissing stap ${i + 1} teruggedraaid`, "step", actor()); };
   const submitNote = () => { if (!note.trim()) return; ensureOwner(); addNote(id, note.trim(), actor()); setNote(""); };
 
+  const chooseMethod = (g: MethodGroup) => { ensureOwner(); setReturnMethod(id, g); addLog(id, `Betaalmethode gekozen: ${methodLabel(g)} — stappenplan geladen`, "step", actor()); };
+  const changeMethod = () => { Object.keys(outcomes).forEach((k) => setOutcome(id, Number(k), null)); setReturnMethod(id, null); addLog(id, `Betaalmethode gewijzigd — stappenplan opnieuw te kiezen`, "step", actor()); };
+
   if (loading) return <div className="min-h-screen grid place-items-center"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>;
   if (!ret) return (
     <div className="min-h-screen grid place-items-center px-6 text-center">
@@ -178,11 +182,39 @@ export default function ReturnDetail() {
             {/* STATUS CARD */}
             <StatusCard status={ret.status} currency={ret.currency ?? "EUR"} refundedTotal={meta.refundedTotal ?? 0} refundedPct={meta.refundedPct ?? 100} pendingPayout={expectedPayout} payoutPct={pct} resolvedAt={meta.resolvedAt ?? null} onSet={setStatus} />
 
-            {/* CS STEP PLAN with accept / reject */}
+            {/* CS STEP PLAN — first pick the payment method, then follow that ladder */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-sm font-semibold text-foreground">CS-stappenplan</h2>
-                {lastDecided >= 0 && !locked && <button onClick={() => undo(lastDecided)} className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1"><Undo2 className="h-3.5 w-3.5" /> Ongedaan</button>}
+                {method && lastDecided >= 0 && !locked && <button onClick={() => undo(lastDecided)} className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1"><Undo2 className="h-3.5 w-3.5" /> Ongedaan</button>}
+              </div>
+
+              {!method ? (
+                /* payment-method gate — nothing else shows until a method is chosen */
+                <div>
+                  <p className="text-xs text-muted-foreground mb-3">Kies eerst de betaalmethode. Het passende stappenplan verschijnt daarna.</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {METHOD_GROUPS.map((g) => {
+                      const Icon = g.id === "creditcard" ? CreditCard : Wallet;
+                      return (
+                        <button key={g.id} onClick={() => chooseMethod(g.id)}
+                          className="group text-left rounded-2xl border border-border bg-card p-4 hover:border-primary/40 hover:bg-primary/[0.03] transition-all">
+                          <span className="h-10 w-10 rounded-xl grid place-items-center bg-primary/10 mb-2.5"><Icon className="h-5 w-5 text-primary" /></span>
+                          <p className="text-sm font-semibold text-foreground">{g.label}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{g.hint}</p>
+                          <span className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity">Stappenplan openen <ArrowRight className="h-3 w-3" /></span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+              <>
+              {/* chosen method bar */}
+              <div className="flex items-center gap-2 mb-3 rounded-xl border border-border bg-muted/30 px-3 py-2">
+                {method === "creditcard" ? <CreditCard className="h-4 w-4 text-primary shrink-0" /> : <Wallet className="h-4 w-4 text-primary shrink-0" />}
+                <p className="text-xs text-foreground"><span className="font-semibold">{methodLabel(method)}</span><span className="text-muted-foreground"> · stappenplan</span></p>
+                {!locked && <button onClick={changeMethod} className="ml-auto text-[11px] text-muted-foreground hover:text-foreground">wijzig</button>}
               </div>
 
               <div className="space-y-2">
@@ -227,6 +259,8 @@ export default function ReturnDetail() {
                 <div className="mt-3 flex items-center gap-2 rounded-xl bg-bad/10 border border-bad/20 px-4 py-2.5">
                   <Ban className="h-4 w-4 text-bad shrink-0" /><p className="text-[13px] font-medium text-foreground">Geen enkel aanbod geaccepteerd — volledige terugbetaling van <span className="font-semibold">{eur(expectedPayout, ret.currency ?? "EUR")}</span> verwerken.</p>
                 </div>
+              )}
+              </>
               )}
             </motion.div>
 

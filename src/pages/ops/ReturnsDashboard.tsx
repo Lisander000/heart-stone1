@@ -32,7 +32,7 @@ export default function ReturnsDashboard() {
   const [period, setPeriod] = useState<Period>("30d");
   const [customDate, setCustomDate] = useState("");
 
-  const steps = useSteps();
+  const steps = useSteps("other"); // representative ladder for phase labels (both have 4 phases by default)
   const allOutcomes = useAllOutcomes();
 
   const load = async () => { setLoading(true); setRows(await loadReturns()); setLoading(false); };

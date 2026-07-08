@@ -8,7 +8,7 @@ import { Plus, RefreshCw, Trash2, RotateCcw, Check, Settings2, X, ChevronRight, 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ConfirmDelete } from "@/components/ConfirmDelete";
 import { useIsSuperUser, SUPERUSER_BLOCK } from "@/lib/superuser";
-import { useSteps, saveSteps, useAllOutcomes, useAllOwners, ladderState, type ReturnStep } from "@/lib/returnsSteps";
+import { useAllStepPlans, saveSteps, useAllOutcomes, useAllOwners, useAllReturnMethods, ladderState, methodLabel, METHOD_GROUPS, type ReturnStep, type MethodGroup } from "@/lib/returnsSteps";
 import { isOpenReturn, pingReturns } from "@/lib/returnsData";
 
 type Ret = { id: string; order_id: string | null; reason: string | null; status: string; refund_amount: number | null; currency: string | null; created_at?: string };
@@ -40,7 +40,8 @@ export default function Returns() {
   const [planOpen, setPlanOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const steps = useSteps();
+  const plans = useAllStepPlans();
+  const methods = useAllReturnMethods();
   const outcomes = useAllOutcomes();
   const owners = useAllOwners();
   const iAmSuper = useIsSuperUser();
@@ -106,7 +107,7 @@ export default function Returns() {
         <div className="rounded-2xl border border-primary/15 bg-primary/[0.04] px-4 py-3 flex items-center gap-3">
           <span className="h-8 w-8 rounded-xl bg-primary/10 grid place-items-center shrink-0"><ListChecks className="h-4 w-4 text-primary" /></span>
           <p className="text-sm text-foreground">Volg <span className="font-semibold">te allen tijde</span> het CS-stappenplan.</p>
-          <span className="ml-auto text-xs text-muted-foreground shrink-0">{steps.length} stappen</span>
+          <span className="ml-auto text-xs text-muted-foreground shrink-0">per betaalmethode</span>
         </div>
 
         {/* unassigned cases need someone to pick them up */}
@@ -139,7 +140,9 @@ export default function Returns() {
                   {rows.map((r) => {
                     const o = orderOf(r.order_id);
                     const c = `hsl(var(--${statusTone(r.status)}))`;
-                    const ls = ladderState(outcomes[r.id] ?? {}, steps.length);
+                    const g = methods[r.id];
+                    const rSteps = g ? plans[g] : null;
+                    const ls = ladderState(outcomes[r.id] ?? {}, rSteps?.length ?? 0);
                     const owner = owners[r.id];
                     const needsPickup = isOpenReturn(r.status) && !owner;
                     return (
@@ -151,11 +154,13 @@ export default function Returns() {
                           <span className="inline-flex items-center gap-1.5 rounded-full pl-2 pr-2.5 py-0.5 text-[11px] font-medium capitalize" style={{ background: `${c}18`, color: c }}><span className="dot" style={{ background: c, width: 6, height: 6 }} />{r.status}</span>
                         </div>
                         <div className="px-4 py-3">
-                          {ls.resolved
+                          {!g
+                            ? <span className="text-[11px] font-medium" style={{ color: "hsl(var(--ember))" }}>Methode kiezen</span>
+                            : ls.resolved
                             ? <span className="inline-flex items-center gap-1 text-[11px] font-medium text-ok"><Check className="h-3.5 w-3.5" /> Geaccepteerd</span>
-                            : ls.currentIdx >= steps.length
+                            : ls.currentIdx >= (rSteps?.length ?? 0)
                             ? <span className="text-[11px] font-medium text-bad">Volledig refund</span>
-                            : <span className="text-[11px] font-medium text-muted-foreground tabular-nums">stap {ls.currentIdx + 1}/{steps.length}</span>}
+                            : <span className="text-[11px] font-medium text-muted-foreground tabular-nums">stap {ls.currentIdx + 1}/{rSteps?.length ?? 0}</span>}
                         </div>
                         <div className="px-4 py-3 min-w-0">
                           {owner ? (
@@ -185,7 +190,7 @@ export default function Returns() {
       </div>
 
       <AddReturnDialog open={addOpen} onOpenChange={setAddOpen} orders={orders} onAdd={addRet} />
-      <PlanDialog open={planOpen} onOpenChange={setPlanOpen} steps={steps} onSave={saveSteps} />
+      <PlanDialog open={planOpen} onOpenChange={setPlanOpen} plans={plans} onSave={saveSteps} />
       <ConfirmDelete open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)} onConfirm={() => { if (deleteId) removeRet(deleteId); setDeleteId(null); }} title="Retour verwijderen?" description="Dit retour en zijn voortgang worden verwijderd." />
     </div>
   );
@@ -222,18 +227,33 @@ function AddReturnDialog({ open, onOpenChange, orders, onAdd }: { open: boolean;
   );
 }
 
-/* ─── super-user step plan editor ────────────────────────────────────────── */
-function PlanDialog({ open, onOpenChange, steps, onSave }: { open: boolean; onOpenChange: (o: boolean) => void; steps: ReturnStep[]; onSave: (s: ReturnStep[]) => void }) {
-  const [draft, setDraft] = useState<ReturnStep[]>(steps);
-  useEffect(() => { if (open) setDraft(steps); }, [open, steps]);
-  const set = (i: number, patch: Partial<ReturnStep>) => setDraft((d) => d.map((x, j) => j === i ? { ...x, ...patch } : x));
+/* ─── super-user step plan editor — one ladder per payment method ─────────── */
+function PlanDialog({ open, onOpenChange, plans, onSave }: { open: boolean; onOpenChange: (o: boolean) => void; plans: Record<MethodGroup, ReturnStep[]>; onSave: (group: MethodGroup, steps: ReturnStep[]) => void }) {
+  const [group, setGroup] = useState<MethodGroup>("other");
+  const [drafts, setDrafts] = useState<Record<MethodGroup, ReturnStep[]>>(plans);
+  useEffect(() => { if (open) { setDrafts(plans); setGroup("other"); } }, [open, plans]);
+  const draft = drafts[group];
+  const set = (i: number, patch: Partial<ReturnStep>) => setDrafts((d) => ({ ...d, [group]: d[group].map((x, j) => j === i ? { ...x, ...patch } : x) }));
   const IN = "w-full rounded-lg border border-border bg-card px-2.5 py-1.5 text-sm outline-none focus:border-ring/50";
+  const saveAll = () => {
+    (Object.keys(drafts) as MethodGroup[]).forEach((g) => onSave(g, drafts[g].filter((s) => s.label.trim())));
+    onOpenChange(false); toast.success("Stappenplannen opgeslagen.");
+  };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader><DialogTitle className="font-display text-lg flex items-center gap-2"><Settings2 className="h-4.5 w-4.5 text-primary" /> Stappenplan bewerken</DialogTitle></DialogHeader>
-        <p className="text-xs text-muted-foreground -mt-2">De de-escalatiestappen die een CS-rep doorloopt. Alleen super users kunnen dit aanpassen.</p>
-        <div className="space-y-2 max-h-[50vh] overflow-y-auto py-1">
+        <p className="text-xs text-muted-foreground -mt-2">Eén de-escalatieladder per betaalmethode. Alleen super users kunnen dit aanpassen.</p>
+        {/* method toggle */}
+        <div className="flex gap-1 p-1 rounded-xl bg-muted">
+          {METHOD_GROUPS.map((mg) => (
+            <button key={mg.id} onClick={() => setGroup(mg.id)}
+              className={`flex-1 h-9 rounded-lg text-[13px] font-medium transition-colors ${group === mg.id ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+              {mg.label}
+            </button>
+          ))}
+        </div>
+        <div className="space-y-2 max-h-[42vh] overflow-y-auto py-1">
           {draft.map((s, i) => (
             <div key={i} className="flex items-start gap-2 rounded-xl border border-border bg-muted/30 p-2.5">
               <span className="h-6 w-6 rounded-full bg-primary/10 text-primary grid place-items-center text-xs font-bold shrink-0 mt-0.5">{i + 1}</span>
@@ -241,14 +261,15 @@ function PlanDialog({ open, onOpenChange, steps, onSave }: { open: boolean; onOp
                 <input value={s.label} onChange={(e) => set(i, { label: e.target.value })} className={IN} placeholder={`Stap ${i + 1} — bv. 10% korting`} />
                 <input value={s.note} onChange={(e) => set(i, { note: e.target.value })} className={`${IN} text-xs`} placeholder="Toelichting (optioneel)" />
               </div>
-              <button onClick={() => setDraft((d) => d.filter((_, j) => j !== i))} className="h-7 w-7 grid place-items-center rounded-lg text-muted-foreground/50 hover:text-bad shrink-0"><X className="h-4 w-4" /></button>
+              <button onClick={() => setDrafts((d) => ({ ...d, [group]: d[group].filter((_, j) => j !== i) }))} className="h-7 w-7 grid place-items-center rounded-lg text-muted-foreground/50 hover:text-bad shrink-0"><X className="h-4 w-4" /></button>
             </div>
           ))}
-          <button onClick={() => setDraft((d) => [...d, { label: "", note: "" }])} className="w-full h-10 rounded-xl border-2 border-dashed border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:border-foreground/30 flex items-center justify-center gap-1.5"><Plus className="h-4 w-4" /> Stap toevoegen</button>
+          <button onClick={() => setDrafts((d) => ({ ...d, [group]: [...d[group], { label: "", note: "" }] }))} className="w-full h-10 rounded-xl border-2 border-dashed border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:border-foreground/30 flex items-center justify-center gap-1.5"><Plus className="h-4 w-4" /> Stap toevoegen</button>
         </div>
-        <div className="flex justify-end gap-2 mt-2">
+        <p className="text-[11px] text-muted-foreground">Tip: het % in de staptitel (bv. "10% korting") bepaalt automatisch het terugbetaalde bedrag.</p>
+        <div className="flex justify-end gap-2 mt-1">
           <button onClick={() => onOpenChange(false)} className="h-9 px-4 rounded-full border border-border bg-card text-sm font-medium text-muted-foreground hover:text-foreground">Annuleer</button>
-          <button onClick={() => { onSave(draft.filter((s) => s.label.trim())); onOpenChange(false); toast.success("Stappenplan opgeslagen."); }} className="h-9 px-4 rounded-full bg-primary text-primary-foreground text-sm font-medium flex items-center gap-1.5"><Check className="h-4 w-4" /> Opslaan</button>
+          <button onClick={saveAll} className="h-9 px-4 rounded-full bg-primary text-primary-foreground text-sm font-medium flex items-center gap-1.5"><Check className="h-4 w-4" /> Beide opslaan</button>
         </div>
       </DialogContent>
     </Dialog>

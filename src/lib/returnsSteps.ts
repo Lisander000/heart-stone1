@@ -4,45 +4,80 @@ import { useEffect, useState } from "react";
 
 export type ReturnStep = { label: string; note: string };
 
+/* Payment-method group — the CS rep first picks one, then follows that ladder.
+   Credit-card refunds are costlier (the % fee isn't recovered), so that plan can differ. */
+export type MethodGroup = "creditcard" | "other";
+export const METHOD_GROUPS: { id: MethodGroup; label: string; hint: string }[] = [
+  { id: "creditcard", label: "Creditcard", hint: "Visa · Mastercard · Amex" },
+  { id: "other", label: "Andere betaalmethode", hint: "Bancontact · iDEAL · PayPal · overschrijving" },
+];
+export const methodLabel = (g: MethodGroup) => METHOD_GROUPS.find((m) => m.id === g)?.label ?? g;
+
 const LS = "gb_returns_steps";
-const PROG = "gb_return_progress";
+const METHOD = "gb_return_method";
 const EV = "gb:returnsteps";
 
-const SEED: ReturnStep[] = [
-  { label: "10% korting aanbieden", note: "Klant houdt het product — kleine tegemoetkoming." },
-  { label: "25% korting aanbieden", note: "Als de klant nog twijfelt of aandringt." },
-  { label: "50% korting of gratis retourlabel", note: "Laatste poging om een retour te vermijden." },
-  { label: "Volledige terugbetaling", note: "Retour goedkeuren en verwerken." },
-];
+const SEED: Record<MethodGroup, ReturnStep[]> = {
+  creditcard: [
+    { label: "15% korting aanbieden", note: "Klant houdt het product — kaartrefund is duur, dus iets guller." },
+    { label: "30% korting aanbieden", note: "Als de klant nog twijfelt of aandringt." },
+    { label: "50% korting of gratis retourlabel", note: "Laatste poging om een retour te vermijden." },
+    { label: "Volledige terugbetaling", note: "Retour goedkeuren — let op: de kaartfee komt niet terug." },
+  ],
+  other: [
+    { label: "10% korting aanbieden", note: "Klant houdt het product — kleine tegemoetkoming." },
+    { label: "25% korting aanbieden", note: "Als de klant nog twijfelt of aandringt." },
+    { label: "50% korting of gratis retourlabel", note: "Laatste poging om een retour te vermijden." },
+    { label: "Volledige terugbetaling", note: "Retour goedkeuren en verwerken." },
+  ],
+};
 
-export function getSteps(): ReturnStep[] {
-  try { const raw = localStorage.getItem(LS); if (raw) return JSON.parse(raw); } catch { /* ignore */ }
+function getAllStepPlans(): Record<MethodGroup, ReturnStep[]> {
+  try {
+    const raw = localStorage.getItem(LS);
+    if (raw) {
+      const p = JSON.parse(raw);
+      if (Array.isArray(p)) return { creditcard: p, other: p }; // migrate old single ladder
+      return { creditcard: p.creditcard ?? SEED.creditcard, other: p.other ?? SEED.other };
+    }
+  } catch { /* ignore */ }
   return SEED;
 }
-export function saveSteps(steps: ReturnStep[]) {
-  try { localStorage.setItem(LS, JSON.stringify(steps)); } catch { /* ignore */ }
+export function getSteps(group: MethodGroup): ReturnStep[] { return getAllStepPlans()[group] ?? SEED[group]; }
+export function saveSteps(group: MethodGroup, steps: ReturnStep[]) {
+  const all = getAllStepPlans(); all[group] = steps;
+  try { localStorage.setItem(LS, JSON.stringify(all)); } catch { /* ignore */ }
   try { window.dispatchEvent(new CustomEvent(EV)); } catch { /* ignore */ }
 }
-export function useSteps(): ReturnStep[] {
-  const [s, setS] = useState<ReturnStep[]>(getSteps);
-  useEffect(() => { const on = () => setS(getSteps()); window.addEventListener(EV, on); return () => window.removeEventListener(EV, on); }, []);
+export function useSteps(group: MethodGroup): ReturnStep[] {
+  const [s, setS] = useState<ReturnStep[]>(() => getSteps(group));
+  useEffect(() => { const on = () => setS(getSteps(group)); window.addEventListener(EV, on); return () => window.removeEventListener(EV, on); }, [group]);
   return s;
 }
-
-/* per-return progress: how far the rep has climbed the ladder (0 = none done) */
-export function getProgress(): Record<string, number> {
-  try { return JSON.parse(localStorage.getItem(PROG) || "{}"); } catch { return {}; }
+export function useAllStepPlans(): Record<MethodGroup, ReturnStep[]> {
+  const [p, setP] = useState<Record<MethodGroup, ReturnStep[]>>(getAllStepPlans);
+  useEffect(() => { const on = () => setP(getAllStepPlans()); window.addEventListener(EV, on); return () => window.removeEventListener(EV, on); }, []);
+  return p;
 }
-export function setProgress(id: string, done: number) {
-  const m = getProgress();
-  m[id] = done;
-  try { localStorage.setItem(PROG, JSON.stringify(m)); } catch { /* ignore */ }
+
+/* per-return: which payment-method group the CS rep chose (drives which ladder shows) */
+function allMethods(): Record<string, MethodGroup> { try { return JSON.parse(localStorage.getItem(METHOD) || "{}"); } catch { return {}; } }
+export function getReturnMethod(id: string): MethodGroup | null { return allMethods()[id] ?? null; }
+export function setReturnMethod(id: string, group: MethodGroup | null) {
+  const m = allMethods();
+  if (group === null) delete m[id]; else m[id] = group;
+  try { localStorage.setItem(METHOD, JSON.stringify(m)); } catch { /* ignore */ }
   try { window.dispatchEvent(new CustomEvent(EV)); } catch { /* ignore */ }
 }
-export function useProgress(): Record<string, number> {
-  const [p, setP] = useState<Record<string, number>>(getProgress);
-  useEffect(() => { const on = () => setP(getProgress()); window.addEventListener(EV, on); return () => window.removeEventListener(EV, on); }, []);
-  return p;
+export function useReturnMethod(id: string): MethodGroup | null {
+  const [g, setG] = useState<MethodGroup | null>(() => getReturnMethod(id));
+  useEffect(() => { const on = () => setG(getReturnMethod(id)); window.addEventListener(EV, on); return () => window.removeEventListener(EV, on); }, [id]);
+  return g;
+}
+export function useAllReturnMethods(): Record<string, MethodGroup> {
+  const [m, setM] = useState<Record<string, MethodGroup>>(allMethods);
+  useEffect(() => { const on = () => setM(allMethods()); window.addEventListener(EV, on); return () => window.removeEventListener(EV, on); }, []);
+  return m;
 }
 
 /* per-return, per-step outcome — did the customer accept that offer? */
