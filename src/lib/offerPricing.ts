@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 export type SubOption = { label: string; price: number };
 export type OfferPricing = {
+  usesSub?: boolean;     // false = enkel single buy (geen abonnement) — default abonnement
   units?: number;        // aantal stuks (chews per pack)
   gramsPerUnit?: number; // gram per stuk
   unitsPerDay?: number;  // dosering — stuks per dag (default 1)
@@ -38,6 +39,10 @@ export const supplyDays = (p: OfferPricing): number => { const u = p.units ?? 0,
 export const perDay = (total: number | null | undefined, p: OfferPricing): number => { const d = supplyDays(p); return d > 0 && total ? total / d : 0; };
 /** price for a 90-day supply at that price-per-day */
 export const per90 = (total: number | null | undefined, p: OfferPricing): number => perDay(total, p) * 90;
+/** price per single piece (single buy price ÷ units) — the key metric when there's no subscription */
+export const perUnit = (total: number | null | undefined, p: OfferPricing): number => { const u = p.units ?? 0; return u > 0 && total ? total / u : 0; };
+/** does this offer use a subscription model? (default yes, unless explicitly turned off) */
+export const usesSubscription = (p: OfferPricing): boolean => p.usesSub !== false;
 /** the cheapest-per-day subscription option (best value) */
 export const bestSub = (p: OfferPricing): SubOption | undefined => {
   const opts = (p.subOptions ?? []).filter((o) => o.price > 0);

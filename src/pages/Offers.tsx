@@ -45,7 +45,7 @@ import {
   Trophy,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { getPricing, setPricing, usePricing, useAllPricing, supplyDays, perDay, per90, bestSub, type OfferPricing, type SubOption } from "@/lib/offerPricing";
+import { getPricing, setPricing, usePricing, useAllPricing, supplyDays, perDay, per90, perUnit, bestSub, usesSubscription, type OfferPricing, type SubOption } from "@/lib/offerPricing";
 
 const BORDEAUX = "hsl(var(--primary))";
 const CREAM    = "hsl(var(--primary-foreground))";
@@ -102,10 +102,12 @@ const POSITIONING_META: Record<string, { label: string; bg: string; text: string
 const CURRENCIES = ["EUR", "USD", "GBP"];
 
 const CRITERIA = [
-  { key: "price", label: "Single buy prijs" },
-  { key: "price_per_day", label: "Prijs / dag" },
-  { key: "per90", label: "Per 90 dagen" },
-  { key: "sub_per_day", label: "Abonnement / dag (beste)" },
+  { key: "model", label: "Verkoopmodel" },
+  { key: "sub_per_day", label: "Abonnement / dag" },
+  { key: "sub_per90", label: "Per 90 dagen (abonnement)" },
+  { key: "per_unit", label: "Prijs per stuk" },
+  { key: "price", label: "Single buy prijs (extra)" },
+  { key: "single_per_day", label: "Single buy / dag (extra)" },
   { key: "units", label: "Aantal stuks" },
   { key: "grams", label: "Gram / stuk" },
   { key: "supply", label: "Dagen supply" },
@@ -118,7 +120,7 @@ const WINNER_KEY_FOR_CRITERION: Record<string, string> = {
   ai_value_score: "best_value",
 };
 // criteria where the lowest value wins (computed locally, cheapest = best)
-const LOWEST_WINS = new Set(["price_per_day", "per90", "sub_per_day"]);
+const LOWEST_WINS = new Set(["sub_per_day", "sub_per90", "per_unit", "single_per_day"]);
 
 function formatPrice(o: Offer) {
   if (o.price == null) return "—";
@@ -564,6 +566,8 @@ function OfferCard({
   const pricing = usePricing(offer.id);
   const days = supplyDays(pricing);
   const sub = bestSub(pricing);
+  const su = usesSubscription(pricing);
+  const hasUnits = (pricing.units ?? 0) > 0;
 
   return (
     <div
@@ -629,26 +633,26 @@ function OfferCard({
         )}
 
         <div className="text-xs space-y-1.5 pt-2 border-t" style={{ borderColor: "hsl(var(--border))" }}>
-          {days > 0 && offer.price != null ? (
-            <>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Single buy / dag</span>
-                <span className="font-semibold" style={{ color: EMBER }}>{perDayFmt(perDay(offer.price, pricing), offer.currency)}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Per 90 dagen</span>
-                <span className="tabular-nums text-foreground/80">{money(per90(offer.price, pricing), offer.currency)}</span>
-              </div>
-              {sub && (
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Abonnement / dag{sub.label ? ` · ${sub.label}` : ""}</span>
-                  <span className="font-semibold" style={{ color: "hsl(var(--ok))" }}>{perDayFmt(perDay(sub.price, pricing), offer.currency)}</span>
-                </div>
-              )}
-              <div className="text-[11px] text-muted-foreground pt-0.5">{pricing.units ?? "?"} stuks · {pricing.gramsPerUnit ?? "?"} g/stuk · {Math.round(days)} dagen supply</div>
-            </>
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={su ? { background: "hsl(var(--ok) / 0.15)", color: "hsl(var(--ok))" } : { background: "hsl(var(--muted))", color: "hsl(var(--muted-foreground))" }}>{su ? "Abonnement" : "Single buy only"}</span>
+          </div>
+          {su ? (
+            sub && days > 0 ? (
+              <>
+                <div className="flex items-center justify-between"><span className="text-muted-foreground">Abonnement / dag{sub.label ? ` · ${sub.label}` : ""}</span><span className="font-semibold" style={{ color: EMBER }}>{perDayFmt(perDay(sub.price, pricing), offer.currency)}</span></div>
+                <div className="flex items-center justify-between"><span className="text-muted-foreground">Per 90 dagen</span><span className="tabular-nums text-foreground/80">{money(per90(sub.price, pricing), offer.currency)}</span></div>
+                {offer.price != null && <div className="flex items-center justify-between text-muted-foreground"><span>Single buy / dag <span className="opacity-60">· extra</span></span><span className="tabular-nums">{perDayFmt(perDay(offer.price, pricing), offer.currency)}</span></div>}
+                <div className="text-[11px] text-muted-foreground pt-0.5">{pricing.units ?? "?"} stuks · {pricing.gramsPerUnit ?? "?"} g/stuk · {Math.round(days)} dagen supply</div>
+              </>
+            ) : <p className="text-muted-foreground italic">Nog geen abonnement-optie/dosering — klik Bewerken.</p>
           ) : (
-            <p className="text-muted-foreground italic">Nog geen supplement-prijzen — klik Bewerken.</p>
+            offer.price != null && hasUnits ? (
+              <>
+                <div className="flex items-center justify-between"><span className="text-muted-foreground">Prijs per stuk</span><span className="font-semibold" style={{ color: EMBER }}>{money(perUnit(offer.price, pricing), offer.currency)}</span></div>
+                <div className="flex items-center justify-between"><span className="text-muted-foreground">Single buy</span><span className="tabular-nums text-foreground/80">{money(offer.price, offer.currency)} · {pricing.units} stuks</span></div>
+                {days > 0 && <div className="flex items-center justify-between text-muted-foreground"><span>Single buy / dag</span><span className="tabular-nums">{perDayFmt(perDay(offer.price, pricing), offer.currency)}</span></div>}
+              </>
+            ) : <p className="text-muted-foreground italic">Nog geen prijs/stuks — klik Bewerken.</p>
           )}
         </div>
 
@@ -688,10 +692,11 @@ function CompareMatrix({
   const allPricing = useAllPricing();
   const P = (o: Offer) => allPricing[o.id] ?? {};
   const metric = (o: Offer, key: string): number | null => {
-    const p = P(o);
-    if (key === "price_per_day") return o.price != null && supplyDays(p) > 0 ? perDay(o.price, p) : null;
-    if (key === "per90") return o.price != null && supplyDays(p) > 0 ? per90(o.price, p) : null;
-    if (key === "sub_per_day") { const s = bestSub(p); return s ? perDay(s.price, p) : null; }
+    const p = P(o); const su = usesSubscription(p);
+    if (key === "sub_per_day") { if (!su) return null; const s = bestSub(p); return s ? perDay(s.price, p) : null; }
+    if (key === "sub_per90") { if (!su) return null; const s = bestSub(p); return s ? per90(s.price, p) : null; }
+    if (key === "per_unit") return o.price != null && (p.units ?? 0) > 0 ? perUnit(o.price, p) : null;
+    if (key === "single_per_day") return o.price != null && supplyDays(p) > 0 ? perDay(o.price, p) : null;
     return null;
   };
   const localWinner = (key: string): string | undefined => {
@@ -749,11 +754,14 @@ function CompareMatrix({
                 {offers.map((o) => {
                   const p = P(o);
                   const isWinner = winnerId && winnerId === o.id;
+                  const su = usesSubscription(p);
                   let content: any = "—";
-                  if (c.key === "price") content = formatPrice(o);
-                  else if (c.key === "price_per_day") content = o.price != null && supplyDays(p) > 0 ? perDayFmt(perDay(o.price, p), o.currency) : "—";
-                  else if (c.key === "per90") content = o.price != null && supplyDays(p) > 0 ? money(per90(o.price, p), o.currency) : "—";
-                  else if (c.key === "sub_per_day") { const s = bestSub(p); content = s ? `${perDayFmt(perDay(s.price, p), o.currency)}${s.label ? ` · ${s.label}` : ""}` : "—"; }
+                  if (c.key === "model") content = su ? "Abonnement" : "Enkel single buy";
+                  else if (c.key === "sub_per_day") { if (!su) content = "—"; else { const s = bestSub(p); content = s && supplyDays(p) > 0 ? `${perDayFmt(perDay(s.price, p), o.currency)}${s.label ? ` · ${s.label}` : ""}` : "—"; } }
+                  else if (c.key === "sub_per90") { if (!su) content = "—"; else { const s = bestSub(p); content = s && supplyDays(p) > 0 ? money(per90(s.price, p), o.currency) : "—"; } }
+                  else if (c.key === "per_unit") content = o.price != null && (p.units ?? 0) > 0 ? `${money(perUnit(o.price, p), o.currency)}/stuk` : "—";
+                  else if (c.key === "price") content = formatPrice(o);
+                  else if (c.key === "single_per_day") content = o.price != null && supplyDays(p) > 0 ? perDayFmt(perDay(o.price, p), o.currency) : "—";
                   else if (c.key === "units") content = p.units != null ? String(p.units) : "—";
                   else if (c.key === "grams") content = p.gramsPerUnit != null ? `${p.gramsPerUnit} g` : "—";
                   else if (c.key === "supply") content = supplyDays(p) > 0 ? `${Math.round(supplyDays(p))} dagen` : "—";
@@ -814,6 +822,9 @@ function OfferDialog({
   const subs = pricing.subOptions ?? [];
   const setSub = (i: number, patch: Partial<SubOption>) => setP({ subOptions: subs.map((s, j) => (j === i ? { ...s, ...patch } : s)) });
   const cur = draft.currency || "EUR";
+  const su = usesSubscription(pricing);
+  const days = supplyDays(pricing);
+  const hasUnits = (pricing.units ?? 0) > 0;
 
   async function submit() {
     if (!draft.name?.trim()) return;
@@ -895,7 +906,16 @@ function OfferDialog({
           </section>
 
           <section className="space-y-3">
-            <h4 className="text-xs uppercase tracking-widest text-muted-foreground">Supplement — hoeveelheid & dosering</h4>
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs uppercase tracking-widest text-muted-foreground">Supplement-prijzen</h4>
+              {/* sales model — subscription vs single-buy-only */}
+              <div className="flex gap-0.5 p-0.5 rounded-lg" style={{ background: "hsl(var(--muted))" }}>
+                {([["Abonnement", true], ["Enkel single buy", false]] as const).map(([lbl, val]) => (
+                  <button key={lbl} type="button" onClick={() => setP({ usesSub: val })}
+                    className={`h-7 px-3 rounded-md text-[11px] font-semibold transition-colors ${su === val ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}>{lbl}</button>
+                ))}
+              </div>
+            </div>
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1.5">
                 <Label>Aantal stuks</Label>
@@ -915,35 +935,34 @@ function OfferDialog({
             </div>
             {/* live derived metrics */}
             <div className="flex flex-wrap gap-2 text-xs">
-              <span className="rounded-full px-2.5 py-1" style={{ background: "hsl(var(--muted))" }}>{supplyDays(pricing) ? `${Math.round(supplyDays(pricing))} dagen supply` : "supply = stuks ÷ dosering"}</span>
-              {draft.price != null && supplyDays(pricing) > 0 && (
-                <>
-                  <span className="rounded-full px-2.5 py-1 font-medium" style={{ background: "hsl(var(--sun) / 0.18)", color: EMBER }}>{perDayFmt(perDay(draft.price, pricing), cur)}</span>
-                  <span className="rounded-full px-2.5 py-1" style={{ background: "hsl(var(--muted))" }}>{money(per90(draft.price, pricing), cur)} / 90 dagen</span>
-                </>
-              )}
+              {days > 0 && <span className="rounded-full px-2.5 py-1" style={{ background: "hsl(var(--muted))" }}>{Math.round(days)} dagen supply</span>}
+              {draft.price != null && hasUnits && <span className="rounded-full px-2.5 py-1 font-medium" style={su ? { background: "hsl(var(--muted))" } : { background: "hsl(var(--sun) / 0.18)", color: EMBER }}>{money(perUnit(draft.price, pricing), cur)} / stuk</span>}
+              {draft.price != null && days > 0 && <span className="rounded-full px-2.5 py-1" style={{ background: "hsl(var(--muted))" }}>single buy: {perDayFmt(perDay(draft.price, pricing), cur)}</span>}
+              {!su && <span className="rounded-full px-2.5 py-1 text-muted-foreground">geen abonnement — enkel single buy</span>}
             </div>
           </section>
 
-          <section className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h4 className="text-xs uppercase tracking-widest text-muted-foreground">Abonnement-opties</h4>
-              <Button size="sm" variant="outline" onClick={() => setP({ subOptions: [...subs, { label: "", price: 0 }] })}>
-                <Plus size={12} /> Optie
-              </Button>
-            </div>
-            {subs.length === 0 && <p className="text-xs text-muted-foreground">Nog geen abonnement-opties. Voeg er een toe (bv. "Maandelijks", "Elke 90 dagen").</p>}
-            <div className="space-y-2">
-              {subs.map((s, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <Input className="flex-1" placeholder="Naam (bv. Maandelijks)" value={s.label} onChange={(e) => setSub(i, { label: e.target.value })} />
-                  <Input className="w-28" type="number" step="0.01" placeholder="prijs" value={s.price || ""} onChange={(e) => setSub(i, { price: Number(e.target.value) || 0 })} />
-                  <span className="text-xs text-muted-foreground w-24 text-right tabular-nums">{supplyDays(pricing) > 0 && s.price ? perDayFmt(perDay(s.price, pricing), cur) : "—"}</span>
-                  <Button size="sm" variant="ghost" className="text-destructive" onClick={() => setP({ subOptions: subs.filter((_, j) => j !== i) })}><Trash2 size={12} /></Button>
-                </div>
-              ))}
-            </div>
-          </section>
+          {su && (
+            <section className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs uppercase tracking-widest text-muted-foreground">Abonnement-opties <span className="normal-case tracking-normal opacity-70">· prijs/dag rekent hierop</span></h4>
+                <Button size="sm" variant="outline" onClick={() => setP({ subOptions: [...subs, { label: "", price: 0 }] })}>
+                  <Plus size={12} /> Optie
+                </Button>
+              </div>
+              {subs.length === 0 && <p className="text-xs text-muted-foreground">Nog geen abonnement-opties. Voeg er een toe (bv. "Maandelijks", "Elke 90 dagen").</p>}
+              <div className="space-y-2">
+                {subs.map((s, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <Input className="flex-1" placeholder="Naam (bv. Maandelijks)" value={s.label} onChange={(e) => setSub(i, { label: e.target.value })} />
+                    <Input className="w-28" type="number" step="0.01" placeholder="prijs" value={s.price || ""} onChange={(e) => setSub(i, { price: Number(e.target.value) || 0 })} />
+                    <span className="text-xs font-medium w-24 text-right tabular-nums" style={{ color: days > 0 && s.price ? EMBER : "hsl(var(--muted-foreground))" }}>{days > 0 && s.price ? perDayFmt(perDay(s.price, pricing), cur) : "—"}</span>
+                    <Button size="sm" variant="ghost" className="text-destructive" onClick={() => setP({ subOptions: subs.filter((_, j) => j !== i) })}><Trash2 size={12} /></Button>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Annuleren</Button>
