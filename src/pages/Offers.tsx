@@ -111,13 +111,10 @@ const CRITERIA = [
   { key: "units", label: "Aantal stuks" },
   { key: "grams", label: "Gram / stuk" },
   { key: "supply", label: "Dagen supply" },
-  { key: "ai_value_score", label: "Value-score" },
-  { key: "ai_positioning", label: "Positionering" },
 ] as const;
 
 const WINNER_KEY_FOR_CRITERION: Record<string, string> = {
   price: "cheapest",
-  ai_value_score: "best_value",
 };
 // criteria where the lowest value wins (computed locally, cheapest = best)
 const LOWEST_WINS = new Set(["sub_per_day", "sub_per90", "per_unit", "single_per_day"]);
