@@ -45,7 +45,7 @@ import {
   Trophy,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { getPricing, setPricing, usePricing, useAllPricing, supplyDays, perDay, per90, perUnit, bestSub, usesSubscription, type OfferPricing, type SubOption } from "@/lib/offerPricing";
+import { getPricing, setPricing, usePricing, useAllPricing, supplyDays, perDay, per30, per90, perUnit, bestSub, usesSubscription, type OfferPricing, type SubOption } from "@/lib/offerPricing";
 
 const BORDEAUX = "hsl(var(--primary))";
 const CREAM    = "hsl(var(--primary-foreground))";
@@ -104,6 +104,7 @@ const CURRENCIES = ["EUR", "USD", "GBP"];
 const CRITERIA = [
   { key: "model", label: "Verkoopmodel" },
   { key: "sub_per_day", label: "Abonnement / dag" },
+  { key: "sub_per30", label: "Per 30 dagen (abonnement)" },
   { key: "sub_per90", label: "Per 90 dagen (abonnement)" },
   { key: "per_unit", label: "Prijs per stuk" },
   { key: "price", label: "Single buy prijs (extra)" },
@@ -117,7 +118,7 @@ const WINNER_KEY_FOR_CRITERION: Record<string, string> = {
   price: "cheapest",
 };
 // criteria where the lowest value wins (computed locally, cheapest = best)
-const LOWEST_WINS = new Set(["sub_per_day", "sub_per90", "per_unit", "single_per_day"]);
+const LOWEST_WINS = new Set(["sub_per_day", "sub_per30", "sub_per90", "per_unit", "single_per_day"]);
 
 function formatPrice(o: Offer) {
   if (o.price == null) return "—";
@@ -637,6 +638,7 @@ function OfferCard({
             sub && days > 0 ? (
               <>
                 <div className="flex items-center justify-between"><span className="text-muted-foreground">Abonnement / dag{sub.label ? ` · ${sub.label}` : ""}</span><span className="font-semibold" style={{ color: EMBER }}>{perDayFmt(perDay(sub.price, pricing), offer.currency)}</span></div>
+                <div className="flex items-center justify-between"><span className="text-muted-foreground">Per 30 dagen</span><span className="tabular-nums text-foreground/80">{money(per30(sub.price, pricing), offer.currency)}</span></div>
                 <div className="flex items-center justify-between"><span className="text-muted-foreground">Per 90 dagen</span><span className="tabular-nums text-foreground/80">{money(per90(sub.price, pricing), offer.currency)}</span></div>
                 {offer.price != null && <div className="flex items-center justify-between text-muted-foreground"><span>Single buy / dag <span className="opacity-60">· extra</span></span><span className="tabular-nums">{perDayFmt(perDay(offer.price, pricing), offer.currency)}</span></div>}
                 <div className="text-[11px] text-muted-foreground pt-0.5">{pricing.units ?? "?"} stuks · {pricing.gramsPerUnit ?? "?"} g/stuk · {Math.round(days)} dagen supply</div>
@@ -691,6 +693,7 @@ function CompareMatrix({
   const metric = (o: Offer, key: string): number | null => {
     const p = P(o); const su = usesSubscription(p);
     if (key === "sub_per_day") { if (!su) return null; const s = bestSub(p); return s ? perDay(s.price, p) : null; }
+    if (key === "sub_per30") { if (!su) return null; const s = bestSub(p); return s ? per30(s.price, p) : null; }
     if (key === "sub_per90") { if (!su) return null; const s = bestSub(p); return s ? per90(s.price, p) : null; }
     if (key === "per_unit") return o.price != null && (p.units ?? 0) > 0 ? perUnit(o.price, p) : null;
     if (key === "single_per_day") return o.price != null && supplyDays(p) > 0 ? perDay(o.price, p) : null;
@@ -755,6 +758,7 @@ function CompareMatrix({
                   let content: any = "—";
                   if (c.key === "model") content = su ? "Abonnement" : "Enkel single buy";
                   else if (c.key === "sub_per_day") { if (!su) content = "—"; else { const s = bestSub(p); content = s && supplyDays(p) > 0 ? `${perDayFmt(perDay(s.price, p), o.currency)}${s.label ? ` · ${s.label}` : ""}` : "—"; } }
+                  else if (c.key === "sub_per30") { if (!su) content = "—"; else { const s = bestSub(p); content = s && supplyDays(p) > 0 ? money(per30(s.price, p), o.currency) : "—"; } }
                   else if (c.key === "sub_per90") { if (!su) content = "—"; else { const s = bestSub(p); content = s && supplyDays(p) > 0 ? money(per90(s.price, p), o.currency) : "—"; } }
                   else if (c.key === "per_unit") content = o.price != null && (p.units ?? 0) > 0 ? `${money(perUnit(o.price, p), o.currency)}/stuk` : "—";
                   else if (c.key === "price") content = formatPrice(o);
@@ -950,11 +954,19 @@ function OfferDialog({
               {subs.length === 0 && <p className="text-xs text-muted-foreground">Nog geen abonnement-opties. Voeg er een toe (bv. "Maandelijks", "Elke 90 dagen").</p>}
               <div className="space-y-2">
                 {subs.map((s, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <Input className="flex-1" placeholder="Naam (bv. Maandelijks)" value={s.label} onChange={(e) => setSub(i, { label: e.target.value })} />
-                    <Input className="w-28" type="number" step="0.01" placeholder="prijs" value={s.price || ""} onChange={(e) => setSub(i, { price: Number(e.target.value) || 0 })} />
-                    <span className="text-xs font-medium w-24 text-right tabular-nums" style={{ color: days > 0 && s.price ? EMBER : "hsl(var(--muted-foreground))" }}>{days > 0 && s.price ? perDayFmt(perDay(s.price, pricing), cur) : "—"}</span>
-                    <Button size="sm" variant="ghost" className="text-destructive" onClick={() => setP({ subOptions: subs.filter((_, j) => j !== i) })}><Trash2 size={12} /></Button>
+                  <div key={i} className="rounded-lg border p-2 space-y-1.5" style={{ borderColor: "hsl(var(--border))" }}>
+                    <div className="flex items-center gap-2">
+                      <Input className="flex-1" placeholder="Naam (bv. Maandelijks)" value={s.label} onChange={(e) => setSub(i, { label: e.target.value })} />
+                      <Input className="w-28" type="number" step="0.01" placeholder="prijs" value={s.price || ""} onChange={(e) => setSub(i, { price: Number(e.target.value) || 0 })} />
+                      <Button size="sm" variant="ghost" className="text-destructive" onClick={() => setP({ subOptions: subs.filter((_, j) => j !== i) })}><Trash2 size={12} /></Button>
+                    </div>
+                    {days > 0 && s.price > 0 && (
+                      <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-[11px] pl-1">
+                        <span className="font-semibold" style={{ color: EMBER }}>{perDayFmt(perDay(s.price, pricing), cur)}</span>
+                        <span className="text-muted-foreground">30 dagen: <span className="font-medium text-foreground/80">{money(per30(s.price, pricing), cur)}</span></span>
+                        <span className="text-muted-foreground">90 dagen: <span className="font-medium text-foreground/80">{money(per90(s.price, pricing), cur)}</span></span>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

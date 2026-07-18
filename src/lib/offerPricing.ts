@@ -37,6 +37,8 @@ export function useAllPricing(): Record<string, OfferPricing> {
 export const supplyDays = (p: OfferPricing): number => { const u = p.units ?? 0, d = p.unitsPerDay || 1; return d > 0 ? u / d : 0; };
 /** price per day for a given total pack price */
 export const perDay = (total: number | null | undefined, p: OfferPricing): number => { const d = supplyDays(p); return d > 0 && total ? total / d : 0; };
+/** price for a 30-day supply at that price-per-day */
+export const per30 = (total: number | null | undefined, p: OfferPricing): number => perDay(total, p) * 30;
 /** price for a 90-day supply at that price-per-day */
 export const per90 = (total: number | null | undefined, p: OfferPricing): number => perDay(total, p) * 90;
 /** price per single piece (single buy price ÷ units) — the key metric when there's no subscription */
