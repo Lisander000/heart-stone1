@@ -45,11 +45,14 @@ import {
   Trophy,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { getPricing, setPricing, usePricing, useAllPricing, supplyDays, perDay, per90, bestSub, type OfferPricing, type SubOption } from "@/lib/offerPricing";
 
 const BORDEAUX = "hsl(var(--primary))";
 const CREAM    = "hsl(var(--primary-foreground))";
 const SUN   = "hsl(var(--sun))";
 const EMBER = "hsl(var(--ember))";
+const money = (v: number, c = "EUR") => `${c} ${(v || 0).toFixed(2)}`;
+const perDayFmt = (v: number, c = "EUR") => `${c} ${(v || 0).toFixed(2)}/dag`;
 
 type Offer = {
   id: string;
@@ -99,27 +102,23 @@ const POSITIONING_META: Record<string, { label: string; bg: string; text: string
 const CURRENCIES = ["EUR", "USD", "GBP"];
 
 const CRITERIA = [
-  { key: "price", label: "Prijs" },
-  { key: "discount", label: "Korting" },
-  { key: "bundle", label: "Bundel" },
-  { key: "guarantee", label: "Garantie" },
-  { key: "shipping", label: "Verzending" },
-  { key: "upsell", label: "Upsell" },
-  { key: "format", label: "Formaat" },
-  { key: "ingredients", label: "Ingrediënten / materiaal" },
-  { key: "target_audience", label: "Doelgroep" },
-  { key: "claims", label: "Claims" },
+  { key: "price", label: "Single buy prijs" },
+  { key: "price_per_day", label: "Prijs / dag" },
+  { key: "per90", label: "Per 90 dagen" },
+  { key: "sub_per_day", label: "Abonnement / dag (beste)" },
+  { key: "units", label: "Aantal stuks" },
+  { key: "grams", label: "Gram / stuk" },
+  { key: "supply", label: "Dagen supply" },
   { key: "ai_value_score", label: "Value-score" },
   { key: "ai_positioning", label: "Positionering" },
 ] as const;
 
 const WINNER_KEY_FOR_CRITERION: Record<string, string> = {
   price: "cheapest",
-  bundle: "strongest_bundle",
-  guarantee: "best_guarantee",
-  shipping: "best_shipping",
   ai_value_score: "best_value",
 };
+// criteria where the lowest value wins (computed locally, cheapest = best)
+const LOWEST_WINS = new Set(["price_per_day", "per90", "sub_per_day"]);
 
 function formatPrice(o: Offer) {
   if (o.price == null) return "—";
@@ -193,7 +192,7 @@ export default function Offers() {
     setLoading(false);
   }
 
-  async function saveOffer(draft: Partial<Offer>, id?: string) {
+  async function saveOffer(draft: Partial<Offer>, pricing: OfferPricing, id?: string) {
     const { data: userData } = await supabase.auth.getUser();
     const userId = userData.user?.id;
     if (!userId) return;
@@ -230,6 +229,7 @@ export default function Offers() {
         return false;
       }
       setOffers((prev) => prev.map((o) => (o.id === id ? (data as Offer) : { ...o, is_own: payload.is_own && o.id !== id ? false : o.is_own })));
+      setPricing(id, pricing);
     } else {
       const { data, error } = await supabase
         .from("offers")
@@ -242,6 +242,7 @@ export default function Offers() {
       }
       setOffers((prev) => [...prev.map((o) => (payload.is_own ? { ...o, is_own: false } : o)), data as Offer]);
       setSelectedCompare((prev) => new Set(prev).add((data as Offer).id));
+      setPricing((data as Offer).id, pricing);
     }
     return true;
   }
@@ -262,6 +263,7 @@ export default function Offers() {
     }
     setOffers((prev) => [...prev, data as Offer]);
     setSelectedCompare((prev) => new Set(prev).add((data as Offer).id));
+    setPricing((data as Offer).id, getPricing(o.id)); // carry supplement pricing to the copy
   }
 
   async function removeOffer(id: string) {
@@ -514,8 +516,8 @@ export default function Offers() {
         onOpenChange={setDialogOpen}
         competitors={competitors}
         initial={editing}
-        onSave={async (draft) => {
-          const ok = await saveOffer(draft, editing?.id);
+        onSave={async (draft, pricing) => {
+          const ok = await saveOffer(draft, pricing, editing?.id);
           if (ok) setDialogOpen(false);
         }}
       />
@@ -559,6 +561,9 @@ function OfferCard({
   const pos = offer.ai_positioning ? POSITIONING_META[offer.ai_positioning] : null;
   const isStale =
     offer.ai_analyzed_at && new Date(offer.updated_at) > new Date(offer.ai_analyzed_at);
+  const pricing = usePricing(offer.id);
+  const days = supplyDays(pricing);
+  const sub = bestSub(pricing);
 
   return (
     <div
@@ -623,12 +628,28 @@ function OfferCard({
           <p className="text-sm italic text-foreground/70 leading-relaxed">{offer.ai_reasoning}</p>
         )}
 
-        <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t" style={{ borderColor: "hsl(var(--border))" }}>
-          {offer.discount && <div><span className="font-medium text-foreground/70">Korting:</span> {offer.discount}</div>}
-          {offer.bundle && <div><span className="font-medium text-foreground/70">Bundel:</span> {offer.bundle}</div>}
-          {offer.guarantee && <div><span className="font-medium text-foreground/70">Garantie:</span> {offer.guarantee}</div>}
-          {offer.shipping && <div><span className="font-medium text-foreground/70">Verzending:</span> {offer.shipping}</div>}
-          {offer.format && <div><span className="font-medium text-foreground/70">Formaat:</span> {offer.format}</div>}
+        <div className="text-xs space-y-1.5 pt-2 border-t" style={{ borderColor: "hsl(var(--border))" }}>
+          {days > 0 && offer.price != null ? (
+            <>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Single buy / dag</span>
+                <span className="font-semibold" style={{ color: EMBER }}>{perDayFmt(perDay(offer.price, pricing), offer.currency)}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Per 90 dagen</span>
+                <span className="tabular-nums text-foreground/80">{money(per90(offer.price, pricing), offer.currency)}</span>
+              </div>
+              {sub && (
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Abonnement / dag{sub.label ? ` · ${sub.label}` : ""}</span>
+                  <span className="font-semibold" style={{ color: "hsl(var(--ok))" }}>{perDayFmt(perDay(sub.price, pricing), offer.currency)}</span>
+                </div>
+              )}
+              <div className="text-[11px] text-muted-foreground pt-0.5">{pricing.units ?? "?"} stuks · {pricing.gramsPerUnit ?? "?"} g/stuk · {Math.round(days)} dagen supply</div>
+            </>
+          ) : (
+            <p className="text-muted-foreground italic">Nog geen supplement-prijzen — klik Bewerken.</p>
+          )}
         </div>
 
         <div className="mt-auto flex items-center gap-2 pt-3">
@@ -664,6 +685,21 @@ function CompareMatrix({
   offers: Offer[];
   winners: Record<string, string>;
 }) {
+  const allPricing = useAllPricing();
+  const P = (o: Offer) => allPricing[o.id] ?? {};
+  const metric = (o: Offer, key: string): number | null => {
+    const p = P(o);
+    if (key === "price_per_day") return o.price != null && supplyDays(p) > 0 ? perDay(o.price, p) : null;
+    if (key === "per90") return o.price != null && supplyDays(p) > 0 ? per90(o.price, p) : null;
+    if (key === "sub_per_day") { const s = bestSub(p); return s ? perDay(s.price, p) : null; }
+    return null;
+  };
+  const localWinner = (key: string): string | undefined => {
+    let best: { id: string; v: number } | null = null;
+    for (const o of offers) { const v = metric(o, key); if (v != null && v > 0 && (!best || v < best.v)) best = { id: o.id, v }; }
+    return best?.id;
+  };
+
   if (offers.length === 0) {
     return (
       <div className="text-sm text-muted-foreground text-center py-12">
@@ -702,17 +738,25 @@ function CompareMatrix({
         </thead>
         <tbody>
           {CRITERIA.map((c) => {
-            const winnerKey = WINNER_KEY_FOR_CRITERION[c.key];
-            const winnerId = winnerKey ? winners[winnerKey] : undefined;
+            const winnerId = LOWEST_WINS.has(c.key)
+              ? localWinner(c.key)
+              : (WINNER_KEY_FOR_CRITERION[c.key] ? winners[WINNER_KEY_FOR_CRITERION[c.key]] : undefined);
             return (
               <tr key={c.key} className="border-t" style={{ borderColor: "hsl(var(--border))" }}>
                 <td className="px-4 py-3 text-xs uppercase tracking-widest text-muted-foreground font-medium sticky left-0 bg-card align-top">
                   {c.label}
                 </td>
                 {offers.map((o) => {
+                  const p = P(o);
                   const isWinner = winnerId && winnerId === o.id;
                   let content: any = "—";
                   if (c.key === "price") content = formatPrice(o);
+                  else if (c.key === "price_per_day") content = o.price != null && supplyDays(p) > 0 ? perDayFmt(perDay(o.price, p), o.currency) : "—";
+                  else if (c.key === "per90") content = o.price != null && supplyDays(p) > 0 ? money(per90(o.price, p), o.currency) : "—";
+                  else if (c.key === "sub_per_day") { const s = bestSub(p); content = s ? `${perDayFmt(perDay(s.price, p), o.currency)}${s.label ? ` · ${s.label}` : ""}` : "—"; }
+                  else if (c.key === "units") content = p.units != null ? String(p.units) : "—";
+                  else if (c.key === "grams") content = p.gramsPerUnit != null ? `${p.gramsPerUnit} g` : "—";
+                  else if (c.key === "supply") content = supplyDays(p) > 0 ? `${Math.round(supplyDays(p))} dagen` : "—";
                   else if (c.key === "ai_value_score") content = o.ai_value_score != null ? `${Math.round(o.ai_value_score)}/100` : "—";
                   else if (c.key === "ai_positioning")
                     content = o.ai_positioning ? POSITIONING_META[o.ai_positioning]?.label ?? o.ai_positioning : "—";
@@ -750,23 +794,31 @@ function OfferDialog({
   onOpenChange: (o: boolean) => void;
   competitors: Competitor[];
   initial: Offer | null;
-  onSave: (draft: Partial<Offer>) => Promise<void>;
+  onSave: (draft: Partial<Offer>, pricing: OfferPricing) => Promise<void>;
 }) {
   const [draft, setDraft] = useState<Partial<Offer>>(emptyOffer());
+  const [pricing, setPricingState] = useState<OfferPricing>({});
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (open) setDraft(initial ? { ...initial } : emptyOffer());
+    if (open) {
+      setDraft(initial ? { ...initial } : emptyOffer());
+      setPricingState(initial ? getPricing(initial.id) : {});
+    }
   }, [open, initial]);
 
   function set<K extends keyof Offer>(k: K, v: any) {
     setDraft((d) => ({ ...d, [k]: v }));
   }
+  const setP = (patch: Partial<OfferPricing>) => setPricingState((p) => ({ ...p, ...patch }));
+  const subs = pricing.subOptions ?? [];
+  const setSub = (i: number, patch: Partial<SubOption>) => setP({ subOptions: subs.map((s, j) => (j === i ? { ...s, ...patch } : s)) });
+  const cur = draft.currency || "EUR";
 
   async function submit() {
     if (!draft.name?.trim()) return;
     setSaving(true);
-    await onSave(draft);
+    await onSave(draft, pricing);
     setSaving(false);
   }
 
@@ -806,7 +858,7 @@ function OfferDialog({
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label>Prijs</Label>
+                <Label>Single buy prijs (totaal)</Label>
                 <Input
                   type="number"
                   step="0.01"
@@ -843,35 +895,51 @@ function OfferDialog({
           </section>
 
           <section className="space-y-3">
-            <h4 className="text-xs uppercase tracking-widest text-muted-foreground">Offer-mechaniek</h4>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                ["discount", "Korting"],
-                ["bundle", "Bundel"],
-                ["guarantee", "Garantie"],
-                ["shipping", "Verzending"],
-                ["upsell", "Upsell / add-ons"],
-              ].map(([k, label]) => (
-                <div key={k} className="space-y-1.5">
-                  <Label>{label}</Label>
-                  <Textarea rows={2} value={(draft as any)[k] ?? ""} onChange={(e) => set(k as any, e.target.value)} />
-                </div>
-              ))}
+            <h4 className="text-xs uppercase tracking-widest text-muted-foreground">Supplement — hoeveelheid & dosering</h4>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1.5">
+                <Label>Aantal stuks</Label>
+                <Input type="number" step="1" value={pricing.units ?? ""} placeholder="bv. 60"
+                  onChange={(e) => setP({ units: e.target.value === "" ? undefined : Number(e.target.value) })} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Gram per stuk</Label>
+                <Input type="number" step="0.1" value={pricing.gramsPerUnit ?? ""} placeholder="bv. 5"
+                  onChange={(e) => setP({ gramsPerUnit: e.target.value === "" ? undefined : Number(e.target.value) })} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Stuks per dag</Label>
+                <Input type="number" step="1" value={pricing.unitsPerDay ?? ""} placeholder="1"
+                  onChange={(e) => setP({ unitsPerDay: e.target.value === "" ? undefined : Number(e.target.value) })} />
+              </div>
+            </div>
+            {/* live derived metrics */}
+            <div className="flex flex-wrap gap-2 text-xs">
+              <span className="rounded-full px-2.5 py-1" style={{ background: "hsl(var(--muted))" }}>{supplyDays(pricing) ? `${Math.round(supplyDays(pricing))} dagen supply` : "supply = stuks ÷ dosering"}</span>
+              {draft.price != null && supplyDays(pricing) > 0 && (
+                <>
+                  <span className="rounded-full px-2.5 py-1 font-medium" style={{ background: "hsl(var(--sun) / 0.18)", color: EMBER }}>{perDayFmt(perDay(draft.price, pricing), cur)}</span>
+                  <span className="rounded-full px-2.5 py-1" style={{ background: "hsl(var(--muted))" }}>{money(per90(draft.price, pricing), cur)} / 90 dagen</span>
+                </>
+              )}
             </div>
           </section>
 
           <section className="space-y-3">
-            <h4 className="text-xs uppercase tracking-widest text-muted-foreground">Product-details</h4>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                ["format", "Formaat"],
-                ["ingredients", "Ingrediënten / materiaal"],
-                ["target_audience", "Doelgroep"],
-                ["claims", "Claims"],
-              ].map(([k, label]) => (
-                <div key={k} className="space-y-1.5">
-                  <Label>{label}</Label>
-                  <Textarea rows={2} value={(draft as any)[k] ?? ""} onChange={(e) => set(k as any, e.target.value)} />
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs uppercase tracking-widest text-muted-foreground">Abonnement-opties</h4>
+              <Button size="sm" variant="outline" onClick={() => setP({ subOptions: [...subs, { label: "", price: 0 }] })}>
+                <Plus size={12} /> Optie
+              </Button>
+            </div>
+            {subs.length === 0 && <p className="text-xs text-muted-foreground">Nog geen abonnement-opties. Voeg er een toe (bv. "Maandelijks", "Elke 90 dagen").</p>}
+            <div className="space-y-2">
+              {subs.map((s, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <Input className="flex-1" placeholder="Naam (bv. Maandelijks)" value={s.label} onChange={(e) => setSub(i, { label: e.target.value })} />
+                  <Input className="w-28" type="number" step="0.01" placeholder="prijs" value={s.price || ""} onChange={(e) => setSub(i, { price: Number(e.target.value) || 0 })} />
+                  <span className="text-xs text-muted-foreground w-24 text-right tabular-nums">{supplyDays(pricing) > 0 && s.price ? perDayFmt(perDay(s.price, pricing), cur) : "—"}</span>
+                  <Button size="sm" variant="ghost" className="text-destructive" onClick={() => setP({ subOptions: subs.filter((_, j) => j !== i) })}><Trash2 size={12} /></Button>
                 </div>
               ))}
             </div>
