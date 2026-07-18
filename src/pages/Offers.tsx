@@ -45,7 +45,7 @@ import {
   Trophy,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { getPricing, setPricing, usePricing, useAllPricing, supplyDays, perDay, per30, per90, perUnit, bestSub, usesSubscription, type OfferPricing, type SubOption } from "@/lib/offerPricing";
+import { getPricing, setPricing, usePricing, useAllPricing, isSub, singleDays, singleDayPrice, singleDayPriceBundle, singlePerUnit, SUB_TIERS, tierDayPrice, subBestDayPrice, dayPrice, headlinePrice, type OfferPricing, type OfferModel } from "@/lib/offerPricing";
 
 const BORDEAUX = "hsl(var(--primary))";
 const CREAM    = "hsl(var(--primary-foreground))";
@@ -103,22 +103,20 @@ const CURRENCIES = ["EUR", "USD", "GBP"];
 
 const CRITERIA = [
   { key: "model", label: "Verkoopmodel" },
-  { key: "sub_per_day", label: "Abonnement / dag" },
-  { key: "sub_per30", label: "Per 30 dagen (abonnement)" },
-  { key: "sub_per90", label: "Per 90 dagen (abonnement)" },
+  { key: "day_price", label: "Prijs / dag (beste)" },
+  { key: "price30", label: "Prijs 30 dagen" },
+  { key: "price90", label: "Prijs 90 dagen" },
+  { key: "price180", label: "Prijs 180 dagen" },
   { key: "per_unit", label: "Prijs per stuk" },
-  { key: "price", label: "Single buy prijs (extra)" },
-  { key: "single_per_day", label: "Single buy / dag (extra)" },
-  { key: "units", label: "Aantal stuks" },
+  { key: "total", label: "Prijs totaal / single buy" },
+  { key: "bundle", label: "Bundelkorting" },
   { key: "grams", label: "Gram / stuk" },
-  { key: "supply", label: "Dagen supply" },
+  { key: "perday", label: "Aantal / dag" },
 ] as const;
 
-const WINNER_KEY_FOR_CRITERION: Record<string, string> = {
-  price: "cheapest",
-};
+const WINNER_KEY_FOR_CRITERION: Record<string, string> = {};
 // criteria where the lowest value wins (computed locally, cheapest = best)
-const LOWEST_WINS = new Set(["sub_per_day", "sub_per30", "sub_per90", "per_unit", "single_per_day"]);
+const LOWEST_WINS = new Set(["day_price", "price30", "price90", "price180", "per_unit"]);
 
 function formatPrice(o: Offer) {
   if (o.price == null) return "—";
@@ -200,7 +198,7 @@ export default function Offers() {
     const payload: any = {
       name: (draft.name ?? "").trim(),
       brand_name: (draft.brand_name ?? "").trim() || null,
-      price: draft.price === null || draft.price === undefined || Number.isNaN(draft.price as any) ? null : Number(draft.price),
+      price: headlinePrice(pricing),
       currency: draft.currency || "EUR",
       url: (draft.url ?? "").trim() || null,
       image_url: (draft.image_url ?? "").trim() || null,
@@ -562,10 +560,8 @@ function OfferCard({
   const isStale =
     offer.ai_analyzed_at && new Date(offer.updated_at) > new Date(offer.ai_analyzed_at);
   const pricing = usePricing(offer.id);
-  const days = supplyDays(pricing);
-  const sub = bestSub(pricing);
-  const su = usesSubscription(pricing);
-  const hasUnits = (pricing.units ?? 0) > 0;
+  const sub = isSub(pricing);
+  const dp = dayPrice(pricing);
 
   return (
     <div
@@ -632,27 +628,26 @@ function OfferCard({
 
         <div className="text-xs space-y-1.5 pt-2 border-t" style={{ borderColor: "hsl(var(--border))" }}>
           <div className="flex items-center gap-1.5 mb-0.5">
-            <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={su ? { background: "hsl(var(--ok) / 0.15)", color: "hsl(var(--ok))" } : { background: "hsl(var(--muted))", color: "hsl(var(--muted-foreground))" }}>{su ? "Abonnement" : "Single buy only"}</span>
+            <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={sub ? { background: "hsl(var(--ok) / 0.15)", color: "hsl(var(--ok))" } : { background: "hsl(var(--muted))", color: "hsl(var(--muted-foreground))" }}>{sub ? "Abonnement" : "Single buy"}</span>
           </div>
-          {su ? (
-            sub && days > 0 ? (
-              <>
-                <div className="flex items-center justify-between"><span className="text-muted-foreground">Abonnement / dag{sub.label ? ` · ${sub.label}` : ""}</span><span className="font-semibold" style={{ color: EMBER }}>{perDayFmt(perDay(sub.price, pricing), offer.currency)}</span></div>
-                <div className="flex items-center justify-between"><span className="text-muted-foreground">Per 30 dagen</span><span className="tabular-nums text-foreground/80">{money(per30(sub.price, pricing), offer.currency)}</span></div>
-                <div className="flex items-center justify-between"><span className="text-muted-foreground">Per 90 dagen</span><span className="tabular-nums text-foreground/80">{money(per90(sub.price, pricing), offer.currency)}</span></div>
-                {offer.price != null && <div className="flex items-center justify-between text-muted-foreground"><span>Single buy / dag <span className="opacity-60">· extra</span></span><span className="tabular-nums">{perDayFmt(perDay(offer.price, pricing), offer.currency)}</span></div>}
-                <div className="text-[11px] text-muted-foreground pt-0.5">{pricing.units ?? "?"} stuks · {pricing.gramsPerUnit ?? "?"} g/stuk · {Math.round(days)} dagen supply</div>
-              </>
-            ) : <p className="text-muted-foreground italic">Nog geen abonnement-optie/dosering — klik Bewerken.</p>
+          {dp > 0 ? (
+            <div className="flex items-center justify-between"><span className="text-muted-foreground">Prijs / dag</span><span className="font-semibold" style={{ color: EMBER }}>{perDayFmt(dp, offer.currency)}</span></div>
+          ) : <p className="text-muted-foreground italic">Nog geen prijzen — klik Bewerken.</p>}
+          {sub ? (
+            <>
+              {pricing.price30 != null && <div className="flex items-center justify-between"><span className="text-muted-foreground">30 dagen</span><span className="tabular-nums text-foreground/80">{money(pricing.price30, offer.currency)}</span></div>}
+              {pricing.price90 != null && <div className="flex items-center justify-between"><span className="text-muted-foreground">90 dagen</span><span className="tabular-nums text-foreground/80">{money(pricing.price90, offer.currency)}</span></div>}
+              {pricing.price180 != null && <div className="flex items-center justify-between"><span className="text-muted-foreground">180 dagen</span><span className="tabular-nums text-foreground/80">{money(pricing.price180, offer.currency)}</span></div>}
+              {pricing.singleRef != null && <div className="flex items-center justify-between text-muted-foreground"><span>Single buy <span className="opacity-60">· ref</span></span><span className="tabular-nums">{money(pricing.singleRef, offer.currency)}</span></div>}
+            </>
           ) : (
-            offer.price != null && hasUnits ? (
-              <>
-                <div className="flex items-center justify-between"><span className="text-muted-foreground">Prijs per stuk</span><span className="font-semibold" style={{ color: EMBER }}>{money(perUnit(offer.price, pricing), offer.currency)}</span></div>
-                <div className="flex items-center justify-between"><span className="text-muted-foreground">Single buy</span><span className="tabular-nums text-foreground/80">{money(offer.price, offer.currency)} · {pricing.units} stuks</span></div>
-                {days > 0 && <div className="flex items-center justify-between text-muted-foreground"><span>Single buy / dag</span><span className="tabular-nums">{perDayFmt(perDay(offer.price, pricing), offer.currency)}</span></div>}
-              </>
-            ) : <p className="text-muted-foreground italic">Nog geen prijs/stuks — klik Bewerken.</p>
+            <>
+              {singlePerUnit(pricing) > 0 && <div className="flex items-center justify-between"><span className="text-muted-foreground">Prijs / stuk</span><span className="tabular-nums text-foreground/80">{money(singlePerUnit(pricing), offer.currency)}</span></div>}
+              {pricing.total != null && <div className="flex items-center justify-between"><span className="text-muted-foreground">Totaal</span><span className="tabular-nums text-foreground/80">{money(pricing.total, offer.currency)}{pricing.units ? ` · ${pricing.units} stuks` : ""}</span></div>}
+              {pricing.bundleDiscount ? <div className="flex items-center justify-between text-muted-foreground"><span>Met bundelkorting ({pricing.bundleDiscount}%)</span><span className="tabular-nums">{perDayFmt(singleDayPriceBundle(pricing), offer.currency)}</span></div> : null}
+            </>
           )}
+          <div className="text-[11px] text-muted-foreground pt-0.5">{pricing.gramsPerUnit != null ? `${pricing.gramsPerUnit} g/stuk` : "—"} · {pricing.perDay != null ? `${pricing.perDay}/dag` : "—"}</div>
         </div>
 
         <div className="mt-auto flex items-center gap-2 pt-3">
@@ -691,12 +686,12 @@ function CompareMatrix({
   const allPricing = useAllPricing();
   const P = (o: Offer) => allPricing[o.id] ?? {};
   const metric = (o: Offer, key: string): number | null => {
-    const p = P(o); const su = usesSubscription(p);
-    if (key === "sub_per_day") { if (!su) return null; const s = bestSub(p); return s ? perDay(s.price, p) : null; }
-    if (key === "sub_per30") { if (!su) return null; const s = bestSub(p); return s ? per30(s.price, p) : null; }
-    if (key === "sub_per90") { if (!su) return null; const s = bestSub(p); return s ? per90(s.price, p) : null; }
-    if (key === "per_unit") return o.price != null && (p.units ?? 0) > 0 ? perUnit(o.price, p) : null;
-    if (key === "single_per_day") return o.price != null && supplyDays(p) > 0 ? perDay(o.price, p) : null;
+    const p = P(o); const sub = isSub(p);
+    if (key === "day_price") { const d = dayPrice(p); return d > 0 ? d : null; }
+    if (key === "price30") return sub && p.price30 ? p.price30 : null;
+    if (key === "price90") return sub && p.price90 ? p.price90 : null;
+    if (key === "price180") return sub && p.price180 ? p.price180 : null;
+    if (key === "per_unit") { if (sub) return null; const v = singlePerUnit(p); return v > 0 ? v : null; }
     return null;
   };
   const localWinner = (key: string): string | undefined => {
@@ -754,22 +749,18 @@ function CompareMatrix({
                 {offers.map((o) => {
                   const p = P(o);
                   const isWinner = winnerId && winnerId === o.id;
-                  const su = usesSubscription(p);
+                  const sub = isSub(p);
                   let content: any = "—";
-                  if (c.key === "model") content = su ? "Abonnement" : "Enkel single buy";
-                  else if (c.key === "sub_per_day") { if (!su) content = "—"; else { const s = bestSub(p); content = s && supplyDays(p) > 0 ? `${perDayFmt(perDay(s.price, p), o.currency)}${s.label ? ` · ${s.label}` : ""}` : "—"; } }
-                  else if (c.key === "sub_per30") { if (!su) content = "—"; else { const s = bestSub(p); content = s && supplyDays(p) > 0 ? money(per30(s.price, p), o.currency) : "—"; } }
-                  else if (c.key === "sub_per90") { if (!su) content = "—"; else { const s = bestSub(p); content = s && supplyDays(p) > 0 ? money(per90(s.price, p), o.currency) : "—"; } }
-                  else if (c.key === "per_unit") content = o.price != null && (p.units ?? 0) > 0 ? `${money(perUnit(o.price, p), o.currency)}/stuk` : "—";
-                  else if (c.key === "price") content = formatPrice(o);
-                  else if (c.key === "single_per_day") content = o.price != null && supplyDays(p) > 0 ? perDayFmt(perDay(o.price, p), o.currency) : "—";
-                  else if (c.key === "units") content = p.units != null ? String(p.units) : "—";
+                  if (c.key === "model") content = sub ? "Abonnement" : "Single buy";
+                  else if (c.key === "day_price") { const d = dayPrice(p); content = d > 0 ? perDayFmt(d, o.currency) : "—"; }
+                  else if (c.key === "price30") content = sub && p.price30 ? `${money(p.price30, o.currency)} · ${perDayFmt(tierDayPrice(p.price30, 30), o.currency)}` : "—";
+                  else if (c.key === "price90") content = sub && p.price90 ? `${money(p.price90, o.currency)} · ${perDayFmt(tierDayPrice(p.price90, 90), o.currency)}` : "—";
+                  else if (c.key === "price180") content = sub && p.price180 ? `${money(p.price180, o.currency)} · ${perDayFmt(tierDayPrice(p.price180, 180), o.currency)}` : "—";
+                  else if (c.key === "per_unit") content = !sub && singlePerUnit(p) > 0 ? `${money(singlePerUnit(p), o.currency)}/stuk` : "—";
+                  else if (c.key === "total") content = sub ? (p.singleRef ? `${money(p.singleRef, o.currency)} (ref)` : "—") : (p.total ? money(p.total, o.currency) : "—");
+                  else if (c.key === "bundle") content = !sub && p.bundleDiscount ? `${p.bundleDiscount}%` : "—";
                   else if (c.key === "grams") content = p.gramsPerUnit != null ? `${p.gramsPerUnit} g` : "—";
-                  else if (c.key === "supply") content = supplyDays(p) > 0 ? `${Math.round(supplyDays(p))} dagen` : "—";
-                  else if (c.key === "ai_value_score") content = o.ai_value_score != null ? `${Math.round(o.ai_value_score)}/100` : "—";
-                  else if (c.key === "ai_positioning")
-                    content = o.ai_positioning ? POSITIONING_META[o.ai_positioning]?.label ?? o.ai_positioning : "—";
-                  else content = (o as any)[c.key] || "—";
+                  else if (c.key === "perday") content = p.perDay != null ? String(p.perDay) : "—";
                   return (
                     <td
                       key={o.id}
@@ -820,12 +811,10 @@ function OfferDialog({
     setDraft((d) => ({ ...d, [k]: v }));
   }
   const setP = (patch: Partial<OfferPricing>) => setPricingState((p) => ({ ...p, ...patch }));
-  const subs = pricing.subOptions ?? [];
-  const setSub = (i: number, patch: Partial<SubOption>) => setP({ subOptions: subs.map((s, j) => (j === i ? { ...s, ...patch } : s)) });
+  const numP = (k: keyof OfferPricing) => (e: any) => setP({ [k]: e.target.value === "" ? undefined : Number(e.target.value) } as any);
   const cur = draft.currency || "EUR";
-  const su = usesSubscription(pricing);
-  const days = supplyDays(pricing);
-  const hasUnits = (pricing.units ?? 0) > 0;
+  const model: OfferModel = pricing.model ?? "single";
+  const sub = model === "subscription";
 
   async function submit() {
     if (!draft.name?.trim()) return;
@@ -870,15 +859,6 @@ function OfferDialog({
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label>Single buy prijs (totaal)</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={draft.price ?? ""}
-                  onChange={(e) => set("price", e.target.value === "" ? null : Number(e.target.value))}
-                />
-              </div>
-              <div className="space-y-1.5">
                 <Label>Valuta</Label>
                 <Select value={draft.currency ?? "EUR"} onValueChange={(v) => set("currency", v)}>
                   <SelectTrigger>
@@ -908,70 +888,56 @@ function OfferDialog({
 
           <section className="space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="text-xs uppercase tracking-widest text-muted-foreground">Supplement-prijzen</h4>
-              {/* sales model — subscription vs single-buy-only */}
+              <h4 className="text-xs uppercase tracking-widest text-muted-foreground">Verkoopmodel</h4>
               <div className="flex gap-0.5 p-0.5 rounded-lg" style={{ background: "hsl(var(--muted))" }}>
-                {([["Abonnement", true], ["Enkel single buy", false]] as const).map(([lbl, val]) => (
-                  <button key={lbl} type="button" onClick={() => setP({ usesSub: val })}
-                    className={`h-7 px-3 rounded-md text-[11px] font-semibold transition-colors ${su === val ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}>{lbl}</button>
+                {([["Single buy", "single"], ["Abonnement", "subscription"]] as const).map(([lbl, val]) => (
+                  <button key={val} type="button" onClick={() => setP({ model: val })}
+                    className={`h-7 px-3 rounded-md text-[11px] font-semibold transition-colors ${model === val ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}>{lbl}</button>
                 ))}
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-3">
-              <div className="space-y-1.5">
-                <Label>Aantal stuks</Label>
-                <Input type="number" step="1" value={pricing.units ?? ""} placeholder="bv. 60"
-                  onChange={(e) => setP({ units: e.target.value === "" ? undefined : Number(e.target.value) })} />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Gram per stuk</Label>
-                <Input type="number" step="0.1" value={pricing.gramsPerUnit ?? ""} placeholder="bv. 5"
-                  onChange={(e) => setP({ gramsPerUnit: e.target.value === "" ? undefined : Number(e.target.value) })} />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Stuks per dag</Label>
-                <Input type="number" step="1" value={pricing.unitsPerDay ?? ""} placeholder="1"
-                  onChange={(e) => setP({ unitsPerDay: e.target.value === "" ? undefined : Number(e.target.value) })} />
-              </div>
-            </div>
-            {/* live derived metrics */}
-            <div className="flex flex-wrap gap-2 text-xs">
-              {days > 0 && <span className="rounded-full px-2.5 py-1" style={{ background: "hsl(var(--muted))" }}>{Math.round(days)} dagen supply</span>}
-              {draft.price != null && hasUnits && <span className="rounded-full px-2.5 py-1 font-medium" style={su ? { background: "hsl(var(--muted))" } : { background: "hsl(var(--sun) / 0.18)", color: EMBER }}>{money(perUnit(draft.price, pricing), cur)} / stuk</span>}
-              {draft.price != null && days > 0 && <span className="rounded-full px-2.5 py-1" style={{ background: "hsl(var(--muted))" }}>single buy: {perDayFmt(perDay(draft.price, pricing), cur)}</span>}
-              {!su && <span className="rounded-full px-2.5 py-1 text-muted-foreground">geen abonnement — enkel single buy</span>}
-            </div>
-          </section>
 
-          {su && (
-            <section className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h4 className="text-xs uppercase tracking-widest text-muted-foreground">Abonnement-opties <span className="normal-case tracking-normal opacity-70">· prijs/dag rekent hierop</span></h4>
-                <Button size="sm" variant="outline" onClick={() => setP({ subOptions: [...subs, { label: "", price: 0 }] })}>
-                  <Plus size={12} /> Optie
-                </Button>
-              </div>
-              {subs.length === 0 && <p className="text-xs text-muted-foreground">Nog geen abonnement-opties. Voeg er een toe (bv. "Maandelijks", "Elke 90 dagen").</p>}
-              <div className="space-y-2">
-                {subs.map((s, i) => (
-                  <div key={i} className="rounded-lg border p-2 space-y-1.5" style={{ borderColor: "hsl(var(--border))" }}>
-                    <div className="flex items-center gap-2">
-                      <Input className="flex-1" placeholder="Naam (bv. Maandelijks)" value={s.label} onChange={(e) => setSub(i, { label: e.target.value })} />
-                      <Input className="w-28" type="number" step="0.01" placeholder="prijs" value={s.price || ""} onChange={(e) => setSub(i, { price: Number(e.target.value) || 0 })} />
-                      <Button size="sm" variant="ghost" className="text-destructive" onClick={() => setP({ subOptions: subs.filter((_, j) => j !== i) })}><Trash2 size={12} /></Button>
+            {/* shared product info */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5"><Label>Gram per stuk</Label><Input type="number" step="0.1" value={pricing.gramsPerUnit ?? ""} placeholder="bv. 5" onChange={numP("gramsPerUnit")} /></div>
+              <div className="space-y-1.5"><Label>Aantal per dag</Label><Input type="number" step="1" value={pricing.perDay ?? ""} placeholder="1" onChange={numP("perDay")} /></div>
+            </div>
+
+            {!sub ? (
+              /* ── SINGLE BUY ── */
+              <>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="space-y-1.5"><Label>Prijs totaal ({cur})</Label><Input type="number" step="0.01" value={pricing.total ?? ""} placeholder="bv. 45" onChange={numP("total")} /></div>
+                  <div className="space-y-1.5"><Label>Aantal stuks</Label><Input type="number" step="1" value={pricing.units ?? ""} placeholder="bv. 60" onChange={numP("units")} /></div>
+                  <div className="space-y-1.5"><Label>Bundelkorting (%)</Label><Input type="number" step="1" value={pricing.bundleDiscount ?? ""} placeholder="0" onChange={numP("bundleDiscount")} /></div>
+                </div>
+                <div className="flex flex-wrap gap-2 text-xs">
+                  {singleDays(pricing) > 0 && <span className="rounded-full px-2.5 py-1" style={{ background: "hsl(var(--muted))" }}>{Math.round(singleDays(pricing))} dagen supply</span>}
+                  {singleDayPrice(pricing) > 0 && <span className="rounded-full px-2.5 py-1 font-medium" style={{ background: "hsl(var(--sun) / 0.18)", color: EMBER }}>{perDayFmt(singleDayPrice(pricing), cur)}</span>}
+                  {singlePerUnit(pricing) > 0 && <span className="rounded-full px-2.5 py-1" style={{ background: "hsl(var(--muted))" }}>{money(singlePerUnit(pricing), cur)} / stuk</span>}
+                  {(pricing.bundleDiscount ?? 0) > 0 && singleDayPrice(pricing) > 0 && <span className="rounded-full px-2.5 py-1" style={{ background: "hsl(var(--ok) / 0.15)", color: "hsl(var(--ok))" }}>met bundel: {perDayFmt(singleDayPriceBundle(pricing), cur)}</span>}
+                </div>
+              </>
+            ) : (
+              /* ── SUBSCRIPTION ── */
+              <>
+                <div className="grid grid-cols-3 gap-3">
+                  {SUB_TIERS.map((t) => (
+                    <div key={t.key} className="space-y-1.5">
+                      <Label>Prijs {t.label} ({cur})</Label>
+                      <Input type="number" step="0.01" value={(pricing as any)[t.key] ?? ""} placeholder="prijs" onChange={numP(t.key)} />
+                      <p className="text-[11px] h-4" style={{ color: EMBER }}>{(pricing as any)[t.key] ? perDayFmt(tierDayPrice((pricing as any)[t.key], t.days), cur) : ""}</p>
                     </div>
-                    {days > 0 && s.price > 0 && (
-                      <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-[11px] pl-1">
-                        <span className="font-semibold" style={{ color: EMBER }}>{perDayFmt(perDay(s.price, pricing), cur)}</span>
-                        <span className="text-muted-foreground">30 dagen: <span className="font-medium text-foreground/80">{money(per30(s.price, pricing), cur)}</span></span>
-                        <span className="text-muted-foreground">90 dagen: <span className="font-medium text-foreground/80">{money(per90(s.price, pricing), cur)}</span></span>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
+                  ))}
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Single buy prijs <span className="text-muted-foreground font-normal">· referentie, geen berekening</span></Label>
+                  <Input className="max-w-[220px]" type="number" step="0.01" value={pricing.singleRef ?? ""} placeholder="optioneel" onChange={numP("singleRef")} />
+                </div>
+                {subBestDayPrice(pricing) > 0 && <span className="inline-block rounded-full px-2.5 py-1 text-xs font-medium" style={{ background: "hsl(var(--sun) / 0.18)", color: EMBER }}>beste prijs/dag: {perDayFmt(subBestDayPrice(pricing), cur)}</span>}
+              </>
+            )}
+          </section>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Annuleren</Button>
