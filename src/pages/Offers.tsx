@@ -107,9 +107,6 @@ const CRITERIA = [
   { key: "price30", label: "Abo 30 dagen" },
   { key: "price90", label: "Abo 90 dagen" },
   { key: "price180", label: "Abo 180 dagen" },
-  { key: "singleref30", label: "Single buy 30 dagen" },
-  { key: "singleref90", label: "Single buy 90 dagen" },
-  { key: "singleref180", label: "Single buy 180 dagen" },
   { key: "total", label: "Prijs totaal (single)" },
   { key: "bundle", label: "Bundelkorting" },
   { key: "grams", label: "Gram / stuk" },
@@ -118,7 +115,7 @@ const CRITERIA = [
 
 const WINNER_KEY_FOR_CRITERION: Record<string, string> = {};
 // criteria where the lowest value wins (computed locally, cheapest = best)
-const LOWEST_WINS = new Set(["day_price", "price30", "price90", "price180", "singleref30", "singleref90", "singleref180"]);
+const LOWEST_WINS = new Set(["day_price", "price30", "price90", "price180"]);
 
 function formatPrice(o: Offer) {
   if (o.price == null) return "—";
@@ -698,9 +695,6 @@ function CompareMatrix({
     if (key === "price30") return sub && p.price30 ? p.price30 : null;
     if (key === "price90") return sub && p.price90 ? p.price90 : null;
     if (key === "price180") return sub && p.price180 ? p.price180 : null;
-    if (key === "singleref30") return sub && p.singleRef30 ? p.singleRef30 : null;
-    if (key === "singleref90") return sub && p.singleRef90 ? p.singleRef90 : null;
-    if (key === "singleref180") return sub && p.singleRef180 ? p.singleRef180 : null;
     if (key === "per_unit") { if (sub) return null; const v = singlePerUnit(p); return v > 0 ? v : null; }
     return null;
   };
@@ -766,11 +760,8 @@ function CompareMatrix({
                   else if (c.key === "price30") content = sub && p.price30 ? `${money(p.price30, o.currency)} · ${perDayFmt(tierDayPrice(p.price30, 30), o.currency)}` : "—";
                   else if (c.key === "price90") content = sub && p.price90 ? `${money(p.price90, o.currency)} · ${perDayFmt(tierDayPrice(p.price90, 90), o.currency)}` : "—";
                   else if (c.key === "price180") content = sub && p.price180 ? `${money(p.price180, o.currency)} · ${perDayFmt(tierDayPrice(p.price180, 180), o.currency)}` : "—";
-                  else if (c.key === "singleref30") content = sub && p.singleRef30 ? `${money(p.singleRef30, o.currency)} · ${perDayFmt(tierDayPrice(p.singleRef30, 30), o.currency)}` : "—";
-                  else if (c.key === "singleref90") content = sub && p.singleRef90 ? `${money(p.singleRef90, o.currency)} · ${perDayFmt(tierDayPrice(p.singleRef90, 90), o.currency)}` : "—";
-                  else if (c.key === "singleref180") content = sub && p.singleRef180 ? `${money(p.singleRef180, o.currency)} · ${perDayFmt(tierDayPrice(p.singleRef180, 180), o.currency)}` : "—";
                   else if (c.key === "per_unit") content = !sub && singlePerUnit(p) > 0 ? `${money(singlePerUnit(p), o.currency)}/stuk` : "—";
-                  else if (c.key === "total") content = sub ? "—" : (p.total ? money(p.total, o.currency) : "—");
+                  else if (c.key === "total") content = sub ? (p.singleRef30 ? `${money(p.singleRef30, o.currency)} (30 dagen)` : "—") : (p.total ? money(p.total, o.currency) : "—");
                   else if (c.key === "bundle") content = !sub && p.bundleDiscount ? `${p.bundleDiscount}%` : "—";
                   else if (c.key === "grams") content = p.gramsPerUnit != null ? `${p.gramsPerUnit} g` : "—";
                   else if (c.key === "perday") content = p.perDay != null ? String(p.perDay) : "—";
