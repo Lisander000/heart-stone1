@@ -180,9 +180,17 @@ export function AppSidebar() {
   // also light up /finance (a prefix). Longest matching url wins.
   const activeUrl = useMemo(() => {
     const urls = navGroups.flatMap((g) => [...("pinnedItems" in g ? g.pinnedItems : []), ...g.items]).map((i) => i.url);
+    // a generic ops detail (/ops/<table>/<id|new|edit>) belongs to that resource's nav
+    // item (e.g. /ops/tickets/123 → Tickets), not to the /ops "Ops overview" item.
+    let matchPath = pathname;
+    const m = pathname.match(/^\/ops\/([a-z_]+)\/.+/);
+    if (m) {
+      const cand = "/" + m[1].replace(/_/g, "-");
+      if (urls.includes(cand)) matchPath = cand;
+    }
     let best = "", bestLen = -1;
     for (const u of urls) {
-      const hit = u === "/" ? pathname === "/" : (pathname === u || pathname.startsWith(u + "/"));
+      const hit = u === "/" ? matchPath === "/" : (matchPath === u || matchPath.startsWith(u + "/"));
       if (hit && u.length > bestLen) { best = u; bestLen = u.length; }
     }
     return best;
