@@ -7,8 +7,9 @@ export default function Tickets() {
   return (
     <ResourcePage
       title="Tickets"
-      description="Klantenservice-tickets per kanaal."
+      description="Klantenservice-tickets per kanaal. Open er een om het ticket af te handelen."
       table="tickets"
+      rowLinkTo={(r) => `/tickets/${r.id}`}
       fields={[
         { key: "subject", label: "Onderwerp", required: true, placeholder: "Waar gaat het over?" },
         { key: "customer_email", label: "Klant e-mail", type: "email" },

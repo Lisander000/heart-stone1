@@ -181,7 +181,7 @@ export default function OrderDetail() {
               <RelatedList
                 items={tickets}
                 empty="Nog geen tickets voor deze order."
-                to={(t) => `/ops/tickets/${t.id}`}
+                to={(t) => `/tickets/${t.id}`}
                 render={(t) => (
                   <Row
                     title={t.subject ?? "—"}
