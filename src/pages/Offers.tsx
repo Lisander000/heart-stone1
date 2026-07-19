@@ -110,7 +110,6 @@ const CRITERIA = [
   { key: "singleref30", label: "Single buy 30 dagen" },
   { key: "singleref90", label: "Single buy 90 dagen" },
   { key: "singleref180", label: "Single buy 180 dagen" },
-  { key: "per_unit", label: "Prijs per stuk" },
   { key: "total", label: "Prijs totaal (single)" },
   { key: "bundle", label: "Bundelkorting" },
   { key: "grams", label: "Gram / stuk" },
@@ -119,7 +118,7 @@ const CRITERIA = [
 
 const WINNER_KEY_FOR_CRITERION: Record<string, string> = {};
 // criteria where the lowest value wins (computed locally, cheapest = best)
-const LOWEST_WINS = new Set(["day_price", "price30", "price90", "price180", "singleref30", "singleref90", "singleref180", "per_unit"]);
+const LOWEST_WINS = new Set(["day_price", "price30", "price90", "price180", "singleref30", "singleref90", "singleref180"]);
 
 function formatPrice(o: Offer) {
   if (o.price == null) return "—";
