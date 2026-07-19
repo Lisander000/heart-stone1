@@ -104,11 +104,14 @@ const CURRENCIES = ["EUR", "USD", "GBP"];
 const CRITERIA = [
   { key: "model", label: "Verkoopmodel" },
   { key: "day_price", label: "Prijs / dag (beste)" },
-  { key: "price30", label: "Prijs 30 dagen" },
-  { key: "price90", label: "Prijs 90 dagen" },
-  { key: "price180", label: "Prijs 180 dagen" },
+  { key: "price30", label: "Abo 30 dagen" },
+  { key: "price90", label: "Abo 90 dagen" },
+  { key: "price180", label: "Abo 180 dagen" },
+  { key: "singleref30", label: "Single buy 30 dagen" },
+  { key: "singleref90", label: "Single buy 90 dagen" },
+  { key: "singleref180", label: "Single buy 180 dagen" },
   { key: "per_unit", label: "Prijs per stuk" },
-  { key: "total", label: "Prijs totaal / single buy" },
+  { key: "total", label: "Prijs totaal (single)" },
   { key: "bundle", label: "Bundelkorting" },
   { key: "grams", label: "Gram / stuk" },
   { key: "perday", label: "Aantal / dag" },
@@ -116,7 +119,7 @@ const CRITERIA = [
 
 const WINNER_KEY_FOR_CRITERION: Record<string, string> = {};
 // criteria where the lowest value wins (computed locally, cheapest = best)
-const LOWEST_WINS = new Set(["day_price", "price30", "price90", "price180", "per_unit"]);
+const LOWEST_WINS = new Set(["day_price", "price30", "price90", "price180", "singleref30", "singleref90", "singleref180", "per_unit"]);
 
 function formatPrice(o: Offer) {
   if (o.price == null) return "—";
@@ -638,7 +641,12 @@ function OfferCard({
               {pricing.price30 != null && <div className="flex items-center justify-between"><span className="text-muted-foreground">30 dagen</span><span className="tabular-nums text-foreground/80">{money(pricing.price30, offer.currency)}</span></div>}
               {pricing.price90 != null && <div className="flex items-center justify-between"><span className="text-muted-foreground">90 dagen</span><span className="tabular-nums text-foreground/80">{money(pricing.price90, offer.currency)}</span></div>}
               {pricing.price180 != null && <div className="flex items-center justify-between"><span className="text-muted-foreground">180 dagen</span><span className="tabular-nums text-foreground/80">{money(pricing.price180, offer.currency)}</span></div>}
-              {pricing.singleRef != null && <div className="flex items-center justify-between text-muted-foreground"><span>Single buy <span className="opacity-60">· ref</span></span><span className="tabular-nums">{money(pricing.singleRef, offer.currency)}</span></div>}
+              {(pricing.singleRef30 != null || pricing.singleRef90 != null || pricing.singleRef180 != null) && (
+                <div className="flex items-center justify-between text-muted-foreground gap-2">
+                  <span className="shrink-0">Single buy <span className="opacity-60">· ref</span></span>
+                  <span className="tabular-nums text-right">{[[30, pricing.singleRef30], [90, pricing.singleRef90], [180, pricing.singleRef180]].filter(([, v]) => v != null).map(([d, v]) => `${d}d ${money(v as number, offer.currency)}`).join(" · ")}</span>
+                </div>
+              )}
             </>
           ) : (
             <>
@@ -691,6 +699,9 @@ function CompareMatrix({
     if (key === "price30") return sub && p.price30 ? p.price30 : null;
     if (key === "price90") return sub && p.price90 ? p.price90 : null;
     if (key === "price180") return sub && p.price180 ? p.price180 : null;
+    if (key === "singleref30") return sub && p.singleRef30 ? p.singleRef30 : null;
+    if (key === "singleref90") return sub && p.singleRef90 ? p.singleRef90 : null;
+    if (key === "singleref180") return sub && p.singleRef180 ? p.singleRef180 : null;
     if (key === "per_unit") { if (sub) return null; const v = singlePerUnit(p); return v > 0 ? v : null; }
     return null;
   };
@@ -756,8 +767,11 @@ function CompareMatrix({
                   else if (c.key === "price30") content = sub && p.price30 ? `${money(p.price30, o.currency)} · ${perDayFmt(tierDayPrice(p.price30, 30), o.currency)}` : "—";
                   else if (c.key === "price90") content = sub && p.price90 ? `${money(p.price90, o.currency)} · ${perDayFmt(tierDayPrice(p.price90, 90), o.currency)}` : "—";
                   else if (c.key === "price180") content = sub && p.price180 ? `${money(p.price180, o.currency)} · ${perDayFmt(tierDayPrice(p.price180, 180), o.currency)}` : "—";
+                  else if (c.key === "singleref30") content = sub && p.singleRef30 ? `${money(p.singleRef30, o.currency)} · ${perDayFmt(tierDayPrice(p.singleRef30, 30), o.currency)}` : "—";
+                  else if (c.key === "singleref90") content = sub && p.singleRef90 ? `${money(p.singleRef90, o.currency)} · ${perDayFmt(tierDayPrice(p.singleRef90, 90), o.currency)}` : "—";
+                  else if (c.key === "singleref180") content = sub && p.singleRef180 ? `${money(p.singleRef180, o.currency)} · ${perDayFmt(tierDayPrice(p.singleRef180, 180), o.currency)}` : "—";
                   else if (c.key === "per_unit") content = !sub && singlePerUnit(p) > 0 ? `${money(singlePerUnit(p), o.currency)}/stuk` : "—";
-                  else if (c.key === "total") content = sub ? (p.singleRef ? `${money(p.singleRef, o.currency)} (ref)` : "—") : (p.total ? money(p.total, o.currency) : "—");
+                  else if (c.key === "total") content = sub ? "—" : (p.total ? money(p.total, o.currency) : "—");
                   else if (c.key === "bundle") content = !sub && p.bundleDiscount ? `${p.bundleDiscount}%` : "—";
                   else if (c.key === "grams") content = p.gramsPerUnit != null ? `${p.gramsPerUnit} g` : "—";
                   else if (c.key === "perday") content = p.perDay != null ? String(p.perDay) : "—";
@@ -923,8 +937,12 @@ function OfferDialog({
                   ))}
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Single buy prijs <span className="text-muted-foreground font-normal">· referentie, geen berekening</span></Label>
-                  <Input className="max-w-[220px]" type="number" step="0.01" value={pricing.singleRef ?? ""} placeholder="optioneel" onChange={numP("singleRef")} />
+                  <Label>Single buy prijs <span className="text-muted-foreground font-normal">· per periode, referentie (geen berekening)</span></Label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {([["singleRef30", "30 dagen"], ["singleRef90", "90 dagen"], ["singleRef180", "180 dagen"]] as const).map(([k, l]) => (
+                      <Input key={k} type="number" step="0.01" value={(pricing as any)[k] ?? ""} placeholder={l} onChange={numP(k)} />
+                    ))}
+                  </div>
                 </div>
                 {subBestDayPrice(pricing) > 0 && <span className="inline-block rounded-full px-2.5 py-1 text-xs font-medium" style={{ background: "hsl(var(--sun) / 0.18)", color: EMBER }}>beste prijs/dag: {perDayFmt(subBestDayPrice(pricing), cur)}</span>}
               </>

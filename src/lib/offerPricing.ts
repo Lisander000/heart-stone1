@@ -14,10 +14,13 @@ export type OfferPricing = {
   units?: number;            // aantal stuks in de verpakking
   bundleDiscount?: number;   // korting bij bundel (%)
   // ── subscription (duration-priced tiers) ──
-  price30?: number;          // prijs per 30 dagen
-  price90?: number;          // prijs per 90 dagen
-  price180?: number;         // prijs per 180 dagen
-  singleRef?: number;        // single buy prijs (referentie, geen berekening)
+  price30?: number;          // abonnement prijs per 30 dagen
+  price90?: number;          // abonnement prijs per 90 dagen
+  price180?: number;         // abonnement prijs per 180 dagen
+  // single buy referentieprijzen per periode (geen berekening, enkel ter vergelijking)
+  singleRef30?: number;
+  singleRef90?: number;
+  singleRef180?: number;
 };
 
 const LS = "gb_offer_pricing";
@@ -70,6 +73,6 @@ export const subBestDayPrice = (p: OfferPricing): number => {
 export const dayPrice = (p: OfferPricing): number => (isSub(p) ? subBestDayPrice(p) : singleDayPrice(p));
 /** the representative total to mirror into offers.price (for the DB / card headline) */
 export const headlinePrice = (p: OfferPricing): number | null => {
-  if (isSub(p)) return p.price90 ?? p.price30 ?? p.price180 ?? p.singleRef ?? null;
+  if (isSub(p)) return p.price90 ?? p.price30 ?? p.price180 ?? p.singleRef90 ?? null;
   return p.total ?? null;
 };
