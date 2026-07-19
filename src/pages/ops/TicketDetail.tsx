@@ -7,12 +7,12 @@ import { fadeUp } from "@/lib/motion";
 import {
   ArrowLeft, LifeBuoy, ExternalLink, User, Mail, ShieldCheck, AlertTriangle, Clock,
   Send, Trash2, Check, RotateCcw, Loader2, MessageSquare, ClipboardList, Copy,
-  ArrowDownLeft, ArrowUpRight, Flag, Circle, Tag, Zap,
+  Flag, Circle, Tag, Zap,
 } from "lucide-react";
 import {
   FLOW, STATUS_LABEL, statusIndex, PRIORITIES, prioMeta, computeUrgency, fmtWaited, toneColor, TEMPLATES, RESOLUTIONS,
   useTicketOwner, setTicketOwner, clearTicketOwner, useTicketLog, addTicketLog, useTicketNotes, addTicketNote, removeTicketNote,
-  useTicketComms, addTicketComm, useTicketMeta, setTicketMeta, type TicketStatus, type Priority, type TicketLogKind, type CommDir,
+  useTicketMeta, setTicketMeta, type TicketStatus, type Priority, type TicketLogKind,
 } from "@/lib/ticketCase";
 import { useCurrentUser } from "@/lib/superuser";
 
@@ -37,13 +37,11 @@ export default function TicketDetail() {
   const [loading, setLoading] = useState(true);
   const [note, setNote] = useState("");
   const [reply, setReply] = useState("");
-  const [replyDir, setReplyDir] = useState<CommDir>("out");
 
   const me = useCurrentUser();
   const owner = useTicketOwner(id);
   const log = useTicketLog(id);
   const notes = useTicketNotes(id);
-  const comms = useTicketComms(id);
   const meta = useTicketMeta(id);
 
   const iAmOwner = !!owner && !!me.email && owner.email.toLowerCase() === me.email.toLowerCase();
@@ -84,7 +82,6 @@ export default function TicketDetail() {
   const reopen = () => { patch({ status: "open" }); setTicketMeta(id, { resolvedAt: null as any }); addTicketLog(id, "Ticket heropend", "resolution", actor()); };
 
   const submitNote = () => { if (!note.trim()) return; ensureOwner(); addTicketNote(id, note.trim(), actor()); setNote(""); };
-  const logReply = () => { if (!reply.trim()) return; ensureOwner(); addTicketComm(id, { text: reply.trim(), dir: replyDir }, actor()); addTicketLog(id, `${replyDir === "out" ? "Antwoord aan klant" : "Klantreactie"} gelogd`, "reply", actor()); if (replyDir === "out" && ticket?.status === "open") patch({ status: "pending" }); setReply(""); };
   const copyReply = async (text: string) => { try { await navigator.clipboard.writeText(text); toast.success("Gekopieerd."); } catch { toast.error("Kopiëren niet gelukt."); } };
 
   if (loading) return <div className="min-h-screen grid place-items-center"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>;
@@ -98,9 +95,11 @@ export default function TicketDetail() {
   const resolved = ticket.status === "solved" || ticket.status === "resolved" || ticket.status === "closed";
   const sIdx = statusIndex(ticket.status);
   const tplCtx = { name: ticket.customer_email ?? undefined, subject: ticket.subject ?? undefined };
+  const hot = ticket.priority === "high" || ticket.priority === "urgent"; // Hoog/Urgent → rode pagina, daaronder wit
+  const bannerTone = hot ? "bad" : prioMeta(ticket.priority).tone;
 
   return (
-    <div className="min-h-screen" style={urg.overSla ? { background: "hsl(var(--bad)/0.04)" } : undefined}>
+    <div className="min-h-screen" style={hot ? { background: "hsl(var(--bad)/0.04)" } : undefined}>
       <div className="max-w-5xl mx-auto px-6 py-7 space-y-5">
         {/* header */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
@@ -133,13 +132,13 @@ export default function TicketDetail() {
         </motion.div>
 
         {/* URGENCY / SLA banner */}
-        <motion.div variants={fadeUp} initial="hidden" animate="visible" className="rounded-2xl px-4 py-3.5 flex items-center gap-3" style={{ background: `${toneColor(urg.tone)}14`, boxShadow: `inset 0 0 0 1px ${toneColor(urg.tone)}44` }}>
-          <span className="h-10 w-10 rounded-xl grid place-items-center shrink-0 text-white" style={{ background: toneColor(urg.tone) }}>{urg.overSla ? <AlertTriangle className="h-5 w-5" /> : <Zap className="h-5 w-5" />}</span>
+        <motion.div variants={fadeUp} initial="hidden" animate="visible" className="rounded-2xl px-4 py-3.5 flex items-center gap-3" style={{ background: `${toneColor(bannerTone)}14`, boxShadow: `inset 0 0 0 1px ${toneColor(bannerTone)}44` }}>
+          <span className="h-10 w-10 rounded-xl grid place-items-center shrink-0 text-white" style={{ background: toneColor(bannerTone) }}>{hot ? <AlertTriangle className="h-5 w-5" /> : <Zap className="h-5 w-5" />}</span>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold" style={{ color: toneColor(urg.tone) }}>{urg.label}{urg.overSla ? " · SLA overschreden" : ""}</p>
+            <p className="text-sm font-semibold" style={{ color: toneColor(bannerTone) }}>{urg.label}{urg.overSla ? " · SLA overschreden" : ""}</p>
             <p className="text-xs text-muted-foreground">Wachttijd klant: <span className="font-medium text-foreground">{fmtWaited(urg.waited)}</span> · {urg.sla}</p>
           </div>
-          {urg.overSla && <AlertTriangle className="h-5 w-5 shrink-0 animate-pulse" style={{ color: toneColor(urg.tone) }} />}
+          {hot && <AlertTriangle className="h-5 w-5 shrink-0 animate-pulse" style={{ color: toneColor(bannerTone) }} />}
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -151,29 +150,16 @@ export default function TicketDetail() {
               <div className="rounded-xl border border-border bg-muted/30 px-3 py-2.5 text-[13px] text-foreground/90 whitespace-pre-wrap leading-relaxed min-h-[60px]">{ticket.body || "Geen berichtinhoud."}</div>
             </motion.div>
 
-            {/* Reply to customer */}
+            {/* Reply to customer — compose from a template and copy */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
               <div className="flex items-center gap-2 mb-3"><MessageSquare className="h-4 w-4 text-muted-foreground" /><h2 className="text-sm font-semibold text-foreground">Antwoord aan de klant</h2></div>
               <div className="flex flex-wrap gap-1.5 mb-2">
                 <span className="text-[11px] text-muted-foreground self-center">Templates:</span>
-                {TEMPLATES.map((t) => <button key={t.id} onClick={() => { setReply(t.body(tplCtx)); setReplyDir("out"); }} className="h-7 px-2.5 rounded-full border border-border text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors">{t.label}</button>)}
+                {TEMPLATES.map((t) => <button key={t.id} onClick={() => setReply(t.body(tplCtx))} className="h-7 px-2.5 rounded-full border border-border text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors">{t.label}</button>)}
               </div>
-              <textarea value={reply} onChange={(e) => setReply(e.target.value)} rows={3} placeholder="Antwoord aan de klant… (of kies een template)" className="w-full rounded-xl border border-border bg-muted/40 px-3 py-2 text-[13px] outline-none focus:border-ring/50 focus:bg-card resize-none" />
-              <div className="flex items-center gap-2 mt-2">
-                <select value={replyDir} onChange={(e) => setReplyDir(e.target.value as CommDir)} className="h-8 rounded-lg border border-border bg-card px-2 text-xs outline-none"><option value="out">Naar klant</option><option value="in">Van klant</option></select>
-                <button onClick={() => copyReply(reply)} disabled={!reply.trim()} className="h-8 px-3 rounded-lg border border-border text-xs font-medium text-muted-foreground hover:text-foreground disabled:opacity-40 flex items-center gap-1.5"><Copy className="h-3.5 w-3.5" /> Kopieer</button>
-                <button onClick={logReply} disabled={!reply.trim()} className="ml-auto h-8 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-medium disabled:opacity-40 flex items-center gap-1.5"><Send className="h-3.5 w-3.5" /> Loggen</button>
-              </div>
-              <div className="mt-4 space-y-3">
-                {comms.length === 0 ? <p className="text-xs text-muted-foreground text-center py-2">Nog geen antwoorden gelogd.</p> : comms.map((c) => (
-                  <div key={c.at} className="flex gap-2.5">
-                    <span className="h-6 w-6 rounded-full grid place-items-center shrink-0 mt-0.5" style={{ background: c.dir === "out" ? "hsl(var(--primary)/0.1)" : "hsl(var(--info)/0.12)" }}>{c.dir === "out" ? <ArrowUpRight className="h-3.5 w-3.5 text-primary" /> : <ArrowDownLeft className="h-3.5 w-3.5" style={{ color: "hsl(var(--info))" }} />}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[13px] text-foreground whitespace-pre-wrap">{c.text}</p>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">{c.dir === "out" ? "naar klant" : "van klant"} · <span className="font-medium text-foreground/80">{c.byName || "Onbekend"}</span> · {relTime(c.at)}</p>
-                    </div>
-                  </div>
-                ))}
+              <textarea value={reply} onChange={(e) => setReply(e.target.value)} rows={4} placeholder="Antwoord aan de klant… (of kies een template)" className="w-full rounded-xl border border-border bg-muted/40 px-3 py-2 text-[13px] outline-none focus:border-ring/50 focus:bg-card resize-none" />
+              <div className="flex justify-end mt-2">
+                <button onClick={() => copyReply(reply)} disabled={!reply.trim()} className="h-8 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-medium disabled:opacity-40 flex items-center gap-1.5"><Copy className="h-3.5 w-3.5" /> Kopieer</button>
               </div>
             </motion.div>
 
@@ -211,20 +197,6 @@ export default function TicketDetail() {
 
           {/* SIDEBAR */}
           <div className="space-y-5">
-            {/* Ticket & klant */}
-            <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5 space-y-3">
-              <h2 className="text-sm font-semibold text-foreground">Ticket & klant</h2>
-              <div className="rounded-xl border border-border bg-muted/30 px-3 py-2 flex items-center gap-2"><User className="h-3.5 w-3.5 text-muted-foreground shrink-0" /><span className="text-[13px] text-foreground truncate">{ticket.customer_email || "—"}</span></div>
-              <div className="flex items-center justify-between text-xs"><span className="text-muted-foreground">Kanaal</span><span className="text-foreground capitalize">{ticket.channel || "—"}</span></div>
-              <div className="flex items-center justify-between text-xs"><span className="text-muted-foreground">Aangemaakt</span><span className="text-foreground">{fmtDate(ticket.created_at)}</span></div>
-              {order ? (
-                <Link to={`/orders/${order.id}`} className="block rounded-xl border border-border bg-card p-3 hover:border-primary/30 transition-colors">
-                  <div className="flex items-center justify-between"><span className="text-sm font-semibold text-foreground">{order.order_number || "Order"}</span><ExternalLink className="h-3.5 w-3.5 text-muted-foreground" /></div>
-                  {order.customer_name && <p className="text-xs text-muted-foreground mt-0.5">{order.customer_name}</p>}
-                </Link>
-              ) : <p className="text-xs text-muted-foreground flex items-center gap-1.5"><Circle className="h-3 w-3" /> Geen order gekoppeld</p>}
-            </motion.div>
-
             {/* Status & prioriteit */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5 space-y-4">
               <h2 className="text-sm font-semibold text-foreground">Status & prioriteit</h2>
@@ -254,6 +226,20 @@ export default function TicketDetail() {
                 </div>
                 <p className="text-[11px] text-muted-foreground mt-1.5 flex items-center gap-1"><Clock className="h-3 w-3" /> SLA: {computeUrgency(ticket.priority, ticket.created_at, "open").sla}</p>
               </div>
+            </motion.div>
+
+            {/* Ticket & klant */}
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5 space-y-3">
+              <h2 className="text-sm font-semibold text-foreground">Ticket & klant</h2>
+              <div className="rounded-xl border border-border bg-muted/30 px-3 py-2 flex items-center gap-2"><User className="h-3.5 w-3.5 text-muted-foreground shrink-0" /><span className="text-[13px] text-foreground truncate">{ticket.customer_email || "—"}</span></div>
+              <div className="flex items-center justify-between text-xs"><span className="text-muted-foreground">Kanaal</span><span className="text-foreground capitalize">{ticket.channel || "—"}</span></div>
+              <div className="flex items-center justify-between text-xs"><span className="text-muted-foreground">Aangemaakt</span><span className="text-foreground">{fmtDate(ticket.created_at)}</span></div>
+              {order ? (
+                <Link to={`/orders/${order.id}`} className="block rounded-xl border border-border bg-card p-3 hover:border-primary/30 transition-colors">
+                  <div className="flex items-center justify-between"><span className="text-sm font-semibold text-foreground">{order.order_number || "Order"}</span><ExternalLink className="h-3.5 w-3.5 text-muted-foreground" /></div>
+                  {order.customer_name && <p className="text-xs text-muted-foreground mt-0.5">{order.customer_name}</p>}
+                </Link>
+              ) : <p className="text-xs text-muted-foreground flex items-center gap-1.5"><Circle className="h-3 w-3" /> Geen order gekoppeld</p>}
             </motion.div>
 
             {/* Resolutie */}
