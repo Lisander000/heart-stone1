@@ -871,14 +871,6 @@ function OfferDialog({
                   </SelectContent>
                 </Select>
               </div>
-              <div className="col-span-2 space-y-1.5">
-                <Label>URL</Label>
-                <Input value={draft.url ?? ""} onChange={(e) => set("url", e.target.value)} placeholder="https://…" />
-              </div>
-              <div className="col-span-2 space-y-1.5">
-                <Label>Afbeelding URL</Label>
-                <Input value={draft.image_url ?? ""} onChange={(e) => set("image_url", e.target.value)} placeholder="https://…/product.jpg" />
-              </div>
               <label className="col-span-2 flex items-center gap-2 text-sm cursor-pointer pt-1">
                 <Checkbox checked={!!draft.is_own} onCheckedChange={(v) => set("is_own", !!v)} />
                 <span>Dit is mijn eigen Gooodboys-offer</span>
