@@ -143,6 +143,52 @@ export default function TicketDetail() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <div className="lg:col-span-2 space-y-5">
+            {/* Status, prioriteit & tijdlijn — the workspace to track the situation */}
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-sm font-semibold text-foreground">Status, prioriteit & tijdlijn</h2>
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: `${toneColor(bannerTone)}18`, color: toneColor(bannerTone) }}>{STATUS_LABEL[ticket.status] ?? ticket.status}</span>
+              </div>
+              {/* status stepper */}
+              <div className="flex items-start mb-5">
+                {FLOW.map((st, i) => {
+                  const done = i < sIdx, curNode = i === sIdx;
+                  const bg = done ? "hsl(var(--ok))" : curNode ? "hsl(var(--primary))" : "hsl(var(--muted))";
+                  const fg = done || curNode ? "#fff" : "hsl(var(--muted-foreground))";
+                  return (
+                    <div key={st} className="flex-1 flex flex-col items-center relative">
+                      {i > 0 && <span className="absolute top-4 right-1/2 w-full h-0.5" style={{ background: i <= sIdx ? "hsl(var(--ok))" : "hsl(var(--border))" }} />}
+                      <button onClick={() => setStatus(st as TicketStatus)} className="relative z-10 h-8 w-8 rounded-full grid place-items-center transition-transform hover:scale-105" style={{ background: bg, color: fg }} title={`Zet op ${STATUS_LABEL[st]}`}>{done ? <Check className="h-4 w-4" /> : <span className="text-xs font-bold">{i + 1}</span>}</button>
+                      <span className={`text-[11px] mt-1.5 text-center leading-tight ${curNode ? "text-foreground font-semibold" : "text-muted-foreground"}`}>{STATUS_LABEL[st]}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              {/* priority + SLA */}
+              <div className="flex items-end justify-between flex-wrap gap-3 pb-4 border-b" style={{ borderColor: "hsl(var(--border))" }}>
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Prioriteit</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {PRIORITIES.map((pr) => { const active = (ticket.priority || "normal") === pr.id; const col = toneColor(pr.tone); return <button key={pr.id} onClick={() => setPriority(pr.id)} className="h-7 px-2.5 rounded-lg text-[11px] font-medium border transition-colors" style={active ? { background: col, color: "#fff", borderColor: col } : { borderColor: "hsl(var(--border))", color: "hsl(var(--muted-foreground))" }}>{pr.label}</button>; })}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-[11px] text-muted-foreground flex items-center gap-1 justify-end"><Clock className="h-3 w-3" /> Wachttijd: <span className="font-medium text-foreground">{fmtWaited(urg.waited)}</span></p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">{urg.sla}</p>
+                </div>
+              </div>
+              {/* timeline */}
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mt-4 mb-2">Tijdlijn van de situatie</p>
+              {log.length === 0 ? <p className="text-xs text-muted-foreground py-2">Nog geen activiteit — statuswijzigingen, prioriteit, eigenaar en resolutie verschijnen hier.</p> : (
+                <div className="space-y-0">{log.map((l, i) => (
+                  <div key={l.at} className="flex gap-3">
+                    <div className="flex flex-col items-center"><span className="h-6 w-6 rounded-full grid place-items-center shrink-0" style={{ background: "hsl(var(--muted))" }}><LogIcon kind={l.kind} /></span>{i < log.length - 1 && <span className="w-px flex-1 bg-border my-1" />}</div>
+                    <div className="flex-1 min-w-0 pb-4"><p className="text-[13px] text-foreground">{l.text}</p><p className="text-[11px] text-muted-foreground mt-0.5"><span className="font-medium text-foreground/80">{l.byName || "Onbekend"}</span> · {relTime(l.at)}</p></div>
+                  </div>
+                ))}</div>
+              )}
+            </motion.div>
+
             {/* Message */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
               <div className="flex items-center gap-2 mb-3"><Mail className="h-4 w-4 text-muted-foreground" /><h2 className="text-sm font-semibold text-foreground">Bericht van de klant</h2></div>
@@ -181,53 +227,10 @@ export default function TicketDetail() {
               </div>
             </motion.div>
 
-            {/* Log */}
-            <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
-              <div className="flex items-center gap-2 mb-3"><ClipboardList className="h-4 w-4 text-muted-foreground" /><h2 className="text-sm font-semibold text-foreground">Log</h2><span className="text-[11px] text-muted-foreground">· wie deed wat</span></div>
-              {log.length === 0 ? <p className="text-xs text-muted-foreground text-center py-2">Nog geen activiteit.</p> : (
-                <div className="space-y-0">{log.map((l, i) => (
-                  <div key={l.at} className="flex gap-3">
-                    <div className="flex flex-col items-center"><span className="h-6 w-6 rounded-full grid place-items-center shrink-0" style={{ background: "hsl(var(--muted))" }}><LogIcon kind={l.kind} /></span>{i < log.length - 1 && <span className="w-px flex-1 bg-border my-1" />}</div>
-                    <div className="flex-1 min-w-0 pb-4"><p className="text-[13px] text-foreground">{l.text}</p><p className="text-[11px] text-muted-foreground mt-0.5"><span className="font-medium text-foreground/80">{l.byName || "Onbekend"}</span> · {relTime(l.at)}</p></div>
-                  </div>
-                ))}</div>
-              )}
-            </motion.div>
           </div>
 
           {/* SIDEBAR */}
           <div className="space-y-5">
-            {/* Status & prioriteit */}
-            <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5 space-y-4">
-              <h2 className="text-sm font-semibold text-foreground">Status & prioriteit</h2>
-              {/* status stepper */}
-              <div className="flex items-start">
-                {FLOW.map((st, i) => {
-                  const done = i < sIdx, curNode = i === sIdx;
-                  const bg = done ? "hsl(var(--ok))" : curNode ? "hsl(var(--primary))" : "hsl(var(--muted))";
-                  const fg = done || curNode ? "#fff" : "hsl(var(--muted-foreground))";
-                  return (
-                    <div key={st} className="flex-1 flex flex-col items-center relative">
-                      {i > 0 && <span className="absolute top-3 right-1/2 w-full h-0.5" style={{ background: i <= sIdx ? "hsl(var(--ok))" : "hsl(var(--border))" }} />}
-                      <button onClick={() => setStatus(st as TicketStatus)} className="relative z-10 h-6 w-6 rounded-full grid place-items-center transition-transform hover:scale-105" style={{ background: bg, color: fg }} title={`Zet op ${STATUS_LABEL[st]}`}>{done ? <Check className="h-3.5 w-3.5" /> : <span className="text-[10px] font-bold">{i + 1}</span>}</button>
-                      <span className={`text-[10px] mt-1.5 text-center leading-tight ${curNode ? "text-foreground font-medium" : "text-muted-foreground"}`}>{STATUS_LABEL[st]}</span>
-                    </div>
-                  );
-                })}
-              </div>
-              {/* priority */}
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Prioriteit</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {PRIORITIES.map((pr) => {
-                    const active = (ticket.priority || "normal") === pr.id; const col = toneColor(pr.tone);
-                    return <button key={pr.id} onClick={() => setPriority(pr.id)} className="h-7 px-2.5 rounded-lg text-[11px] font-medium border transition-colors" style={active ? { background: col, color: "#fff", borderColor: col } : { borderColor: "hsl(var(--border))", color: "hsl(var(--muted-foreground))" }}>{pr.label}</button>;
-                  })}
-                </div>
-                <p className="text-[11px] text-muted-foreground mt-1.5 flex items-center gap-1"><Clock className="h-3 w-3" /> SLA: {computeUrgency(ticket.priority, ticket.created_at, "open").sla}</p>
-              </div>
-            </motion.div>
-
             {/* Ticket & klant */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5 space-y-3">
               <h2 className="text-sm font-semibold text-foreground">Ticket & klant</h2>
