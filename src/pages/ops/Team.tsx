@@ -157,8 +157,9 @@ export default function Team() {
 }
 
 function Pill({ value, tone }: { value: string; tone: string }) {
-  const c = `hsl(var(--${toneVar(tone)}))`;
-  return <span className="inline-flex items-center gap-1.5 rounded-full pl-2 pr-2.5 py-0.5 text-[11px] font-medium capitalize" style={{ background: `${c}18`, color: c }}><span className="dot" style={{ background: c, width: 6, height: 6 }} />{value}</span>;
+  const v = toneVar(tone);
+  const c = `hsl(var(--${v}))`;
+  return <span className="inline-flex items-center gap-1.5 rounded-full border pl-2 pr-2.5 py-1 text-[11px] font-semibold capitalize" style={{ background: `hsl(var(--${v}) / 0.1)`, color: c, borderColor: `hsl(var(--${v}) / 0.35)`, boxShadow: `0 1px 1.5px hsl(var(--${v}) / 0.08)` }}><span className="dot" style={{ background: c, width: 6, height: 6 }} />{value}</span>;
 }
 
 function AddMemberDialog({ open, onOpenChange, onAdd }: { open: boolean; onOpenChange: (o: boolean) => void; onAdd: (d: { name: string; email: string; role: string; status: string }) => void }) {

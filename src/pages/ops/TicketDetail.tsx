@@ -132,7 +132,7 @@ export default function TicketDetail() {
         </motion.div>
 
         {/* URGENCY / SLA banner */}
-        <motion.div variants={fadeUp} initial="hidden" animate="visible" className="rounded-2xl px-4 py-3.5 flex items-center gap-3" style={{ background: `${toneColor(bannerTone)}14`, boxShadow: `inset 0 0 0 1px ${toneColor(bannerTone)}44` }}>
+        <motion.div variants={fadeUp} initial="hidden" animate="visible" className="rounded-2xl px-4 py-3.5 flex items-center gap-3" style={{ background: `hsl(var(--${bannerTone}) / 0.1)`, boxShadow: `inset 0 0 0 1px hsl(var(--${bannerTone}) / 0.35)` }}>
           <span className="h-10 w-10 rounded-xl grid place-items-center shrink-0 text-white" style={{ background: toneColor(bannerTone) }}>{hot ? <AlertTriangle className="h-5 w-5" /> : <Zap className="h-5 w-5" />}</span>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold" style={{ color: toneColor(bannerTone) }}>{urg.label}{urg.overSla ? " · SLA overschreden" : ""}</p>
@@ -147,7 +147,7 @@ export default function TicketDetail() {
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
               <div className="flex items-center justify-between mb-5">
                 <h2 className="text-sm font-semibold text-foreground">Status, prioriteit & tijdlijn</h2>
-                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ background: `${toneColor(bannerTone)}18`, color: toneColor(bannerTone) }}>{STATUS_LABEL[ticket.status] ?? ticket.status}</span>
+                <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full border" style={{ background: `hsl(var(--${bannerTone}) / 0.1)`, color: toneColor(bannerTone), borderColor: `hsl(var(--${bannerTone}) / 0.35)` }}>{STATUS_LABEL[ticket.status] ?? ticket.status}</span>
               </div>
               {/* status stepper */}
               <div className="flex items-start mb-5">

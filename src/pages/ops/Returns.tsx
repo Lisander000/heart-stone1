@@ -139,7 +139,8 @@ export default function Returns() {
                 <motion.div variants={stagger(0.02)} initial="hidden" animate="visible" className="divide-y divide-border/50">
                   {rows.map((r) => {
                     const o = orderOf(r.order_id);
-                    const c = `hsl(var(--${statusTone(r.status)}))`;
+                    const tone = statusTone(r.status);
+                    const c = `hsl(var(--${tone}))`;
                     const g = methods[r.id];
                     const rSteps = g ? plans[g] : null;
                     const ls = ladderState(outcomes[r.id] ?? {}, rSteps?.length ?? 0);
@@ -151,7 +152,7 @@ export default function Returns() {
                         <div className="px-4 py-3 text-[13px] font-medium text-foreground truncate">{o?.order_number || "—"}</div>
                         <div className="px-4 py-3 text-[13px] text-muted-foreground truncate">{r.reason || "—"}</div>
                         <div className="px-4 py-3">
-                          <span className="inline-flex items-center gap-1.5 rounded-full pl-2 pr-2.5 py-0.5 text-[11px] font-medium capitalize" style={{ background: `${c}18`, color: c }}><span className="dot" style={{ background: c, width: 6, height: 6 }} />{r.status}</span>
+                          <span className="inline-flex items-center gap-1.5 rounded-full border pl-2 pr-2.5 py-1 text-[11px] font-semibold capitalize" style={{ background: `hsl(var(--${tone}) / 0.1)`, color: c, borderColor: `hsl(var(--${tone}) / 0.35)`, boxShadow: `0 1px 1.5px hsl(var(--${tone}) / 0.08)` }}><span className="dot" style={{ background: c, width: 6, height: 6 }} />{r.status}</span>
                         </div>
                         <div className="px-4 py-3">
                           {!g

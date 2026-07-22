@@ -159,7 +159,7 @@ export default function ShipmentDetail() {
   const addr = orderAddress(order);
 
   return (
-    <div className="min-h-screen" style={phase.level >= 3 ? { background: `${toneColor(phase.tone)}0a` } : undefined}>
+    <div className="min-h-screen" style={phase.level >= 3 ? { background: `hsl(var(--${phase.tone}) / 0.04)` } : undefined}>
       <div className="max-w-5xl mx-auto px-6 py-7 space-y-5">
         {/* header */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
@@ -192,7 +192,7 @@ export default function ShipmentDetail() {
         </motion.div>
 
         {/* PHASE / urgency banner (auto-computed) */}
-        <motion.div variants={fadeUp} initial="hidden" animate="visible" className="rounded-2xl px-4 py-3.5 flex items-center gap-3" style={{ background: `${toneColor(phase.tone)}14`, boxShadow: `inset 0 0 0 1px ${toneColor(phase.tone)}44` }}>
+        <motion.div variants={fadeUp} initial="hidden" animate="visible" className="rounded-2xl px-4 py-3.5 flex items-center gap-3" style={{ background: `hsl(var(--${phase.tone}) / 0.1)`, boxShadow: `inset 0 0 0 1px hsl(var(--${phase.tone}) / 0.35)` }}>
           <span className="h-10 w-10 rounded-xl grid place-items-center shrink-0 text-white font-num font-bold" style={{ background: toneColor(phase.tone) }}>{phase.level >= 3 ? <AlertTriangle className="h-5 w-5" /> : phase.level > 0 ? `F${phase.level}` : <Check className="h-5 w-5" />}</span>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold" style={{ color: toneColor(phase.tone) }}>{phase.level > 0 ? `Fase ${phase.level} · ${phase.label}` : phase.label}</p>
@@ -398,7 +398,7 @@ export default function ShipmentDetail() {
             {/* SECTIE 3 — Fase & SLA detail */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5 space-y-3">
               <SectionHead n={3} title="Fase & urgentie" />
-              <div className="rounded-xl px-3 py-2.5" style={{ background: `${toneColor(phase.tone)}12` }}>
+              <div className="rounded-xl px-3 py-2.5" style={{ background: `hsl(var(--${phase.tone}) / 0.07)` }}>
                 <div className="flex items-center justify-between"><span className="text-[13px] font-semibold" style={{ color: toneColor(phase.tone) }}>{phase.level > 0 ? `Fase ${phase.level}` : "Op schema"}</span><span className="text-xs text-muted-foreground">{phase.label}</span></div>
                 <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1"><Clock className="h-3 w-3" /> SLA: <span className="font-medium text-foreground">{phase.sla}</span></p>
               </div>

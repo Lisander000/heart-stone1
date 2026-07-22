@@ -432,15 +432,16 @@ export function ResourcePage({ title, description, table, fields, columns, empty
 }
 
 export function StatusBadge({ value, tone = "default" }: { value: string; tone?: "default" | "success" | "warn" | "danger" }) {
-  const c = {
-    default: "hsl(var(--muted-foreground))",
-    success: "hsl(var(--ok))",
-    warn:    "hsl(var(--warn))",
-    danger:  "hsl(var(--bad))",
+  const token = {
+    default: "--muted-foreground",
+    success: "--ok",
+    warn:    "--warn",
+    danger:  "--bad",
   }[tone];
+  const c = `hsl(var(${token}))`;
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium capitalize"
-      style={{ background: `${c}18`, color: c }}>
+    <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold capitalize"
+      style={{ background: `hsl(var(${token}) / 0.1)`, color: c, borderColor: `hsl(var(${token}) / 0.35)`, boxShadow: `0 1px 1.5px hsl(var(${token}) / 0.08)` }}>
       <span className="dot" style={{ background: c, width: 6, height: 6 }} />
       {value ?? "—"}
     </span>
