@@ -165,12 +165,12 @@ export default function Returns() {
                         </div>
                         <div className="px-4 py-3 min-w-0">
                           {owner ? (
-                            <span className="inline-flex items-center gap-1.5 min-w-0" title={owner.email}>
+                            <span className="inline-flex items-center gap-1.5 min-w-0 max-w-full rounded-full border border-border bg-card pl-1 pr-2.5 py-0.5 shadow-[0_1px_1.5px_rgba(0,0,0,0.04)]" title={owner.email}>
                               <span className="h-5 w-5 rounded-full bg-primary/10 text-primary grid place-items-center text-[9px] font-bold shrink-0">{initials(owner.name)}</span>
-                              <span className="text-[12px] text-foreground truncate">{owner.name}</span>
+                              <span className="text-[12px] font-medium text-foreground truncate">{owner.name}</span>
                             </span>
                           ) : needsPickup ? (
-                            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold" style={{ color: "hsl(var(--ember))" }}>
+                            <span className="inline-flex items-center gap-1.5 rounded-full border pl-2 pr-2.5 py-1 text-[11px] font-semibold" style={{ background: "hsl(var(--ember) / 0.1)", color: "hsl(var(--ember))", borderColor: "hsl(var(--ember) / 0.35)", boxShadow: "0 1px 1.5px hsl(var(--ember) / 0.08)" }}>
                               <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ background: "hsl(var(--ember))" }} /> Nog op te nemen
                             </span>
                           ) : <span className="text-[12px] text-muted-foreground/50">—</span>}
