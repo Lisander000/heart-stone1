@@ -18,6 +18,9 @@ const STATUSES = ["requested", "approved", "received", "refunded", "rejected"];
 const statusTone = (s: string) => s === "refunded" ? "ok" : s === "rejected" ? "bad" : s === "received" || s === "approved" ? "info" : "warn";
 const eur = (v: number, c = "EUR") => new Intl.NumberFormat("nl-BE", { style: "currency", currency: c || "EUR" }).format(v || 0);
 const initials = (name: string) => name.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("") || "?";
+// shared status/phase pill — bordered "button" look, tone via a design token
+const pillCls = "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold";
+const pillStyle = (token: string) => ({ background: `hsl(var(--${token}) / 0.1)`, color: `hsl(var(--${token}))`, borderColor: `hsl(var(--${token}) / 0.35)`, boxShadow: `0 1px 1.5px hsl(var(--${token}) / 0.08)` });
 
 async function detect(table: string): Promise<"supabase" | "local"> {
   const { error } = await (supabase as any).from(table).select("id").limit(1);
@@ -156,12 +159,12 @@ export default function Returns() {
                         </div>
                         <div className="px-4 py-3 whitespace-nowrap">
                           {!g
-                            ? <span className="text-[11px] font-medium" style={{ color: "hsl(var(--ember))" }}>Methode kiezen</span>
+                            ? <span className={pillCls} style={pillStyle("ember")}>Methode kiezen</span>
                             : ls.resolved
-                            ? <span className="inline-flex items-center gap-1 text-[11px] font-medium text-ok"><Check className="h-3.5 w-3.5" /> Geaccepteerd</span>
+                            ? <span className={pillCls} style={pillStyle("ok")}><Check className="h-3.5 w-3.5" /> Geaccepteerd</span>
                             : ls.currentIdx >= (rSteps?.length ?? 0)
-                            ? <span className="text-[11px] font-medium text-bad">Volledig refund</span>
-                            : <span className="text-[11px] font-medium text-muted-foreground tabular-nums">stap {ls.currentIdx + 1}/{rSteps?.length ?? 0}</span>}
+                            ? <span className={pillCls} style={pillStyle("bad")}>Volledig refund</span>
+                            : <span className={`${pillCls} tabular-nums`} style={pillStyle("muted-foreground")}>stap {ls.currentIdx + 1}/{rSteps?.length ?? 0}</span>}
                         </div>
                         <div className="px-4 py-3 min-w-0">
                           {owner ? (
