@@ -76,7 +76,7 @@ export default function Returns() {
   };
 
   const openPlan = () => { if (!iAmSuper) { toast.error(SUPERUSER_BLOCK); return; } setPlanOpen(true); };
-  const GRID = "minmax(90px,0.7fr) minmax(180px,2.4fr) 132px 112px minmax(150px,1.2fr) 104px 40px";
+  const GRID = "minmax(90px,0.7fr) minmax(180px,2.4fr) 132px minmax(128px,0.9fr) minmax(150px,1.2fr) 104px 40px";
   const unassignedOpen = rows.filter((r) => isOpenReturn(r.status) && !owners[r.id]).length;
 
   return (
@@ -154,7 +154,7 @@ export default function Returns() {
                         <div className="px-4 py-3">
                           <span className="inline-flex items-center gap-1.5 rounded-full border pl-2 pr-2.5 py-1 text-[11px] font-semibold capitalize" style={{ background: `hsl(var(--${tone}) / 0.1)`, color: c, borderColor: `hsl(var(--${tone}) / 0.35)`, boxShadow: `0 1px 1.5px hsl(var(--${tone}) / 0.08)` }}><span className="dot" style={{ background: c, width: 6, height: 6 }} />{r.status}</span>
                         </div>
-                        <div className="px-4 py-3">
+                        <div className="px-4 py-3 whitespace-nowrap">
                           {!g
                             ? <span className="text-[11px] font-medium" style={{ color: "hsl(var(--ember))" }}>Methode kiezen</span>
                             : ls.resolved
