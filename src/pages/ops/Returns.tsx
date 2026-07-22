@@ -76,12 +76,12 @@ export default function Returns() {
   };
 
   const openPlan = () => { if (!iAmSuper) { toast.error(SUPERUSER_BLOCK); return; } setPlanOpen(true); };
-  const GRID = "minmax(110px,1fr) minmax(140px,1.4fr) 118px 104px 150px 96px 40px";
+  const GRID = "minmax(90px,0.7fr) minmax(180px,2.4fr) 132px 112px minmax(150px,1.2fr) 104px 40px";
   const unassignedOpen = rows.filter((r) => isOpenReturn(r.status) && !owners[r.id]).length;
 
   return (
     <div className="min-h-screen">
-      <div className="max-w-5xl mx-auto px-6 py-7 space-y-5">
+      <div className="w-full max-w-[1600px] mx-auto px-6 py-7 space-y-5">
         {/* header */}
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }}>
@@ -149,8 +149,8 @@ export default function Returns() {
                     return (
                       <motion.div key={r.id} variants={fadeUp} onClick={() => navigate(`/returns/${r.id}`)}
                         className="group grid items-center hover:bg-muted/40 transition-colors cursor-pointer" style={{ gridTemplateColumns: GRID }}>
-                        <div className="px-4 py-3 text-[13px] font-medium text-foreground truncate">{o?.order_number || "—"}</div>
-                        <div className="px-4 py-3 text-[13px] text-muted-foreground truncate">{r.reason || "—"}</div>
+                        <div className="px-4 py-3 text-[13px] font-medium text-foreground break-words">{o?.order_number || "—"}</div>
+                        <div className="px-4 py-3 text-[13px] text-muted-foreground break-words">{r.reason || "—"}</div>
                         <div className="px-4 py-3">
                           <span className="inline-flex items-center gap-1.5 rounded-full border pl-2 pr-2.5 py-1 text-[11px] font-semibold capitalize" style={{ background: `hsl(var(--${tone}) / 0.1)`, color: c, borderColor: `hsl(var(--${tone}) / 0.35)`, boxShadow: `0 1px 1.5px hsl(var(--${tone}) / 0.08)` }}><span className="dot" style={{ background: c, width: 6, height: 6 }} />{r.status}</span>
                         </div>
@@ -167,7 +167,7 @@ export default function Returns() {
                           {owner ? (
                             <span className="inline-flex items-center gap-1.5 min-w-0 max-w-full rounded-full border border-border bg-card pl-1 pr-2.5 py-0.5 shadow-[0_1px_1.5px_rgba(0,0,0,0.04)]" title={owner.email}>
                               <span className="h-5 w-5 rounded-full bg-primary/10 text-primary grid place-items-center text-[9px] font-bold shrink-0">{initials(owner.name)}</span>
-                              <span className="text-[12px] font-medium text-foreground truncate">{owner.name}</span>
+                              <span className="text-[12px] font-medium text-foreground break-words">{owner.name}</span>
                             </span>
                           ) : needsPickup ? (
                             <span className="inline-flex items-center gap-1.5 rounded-full border pl-2 pr-2.5 py-1 text-[11px] font-semibold" style={{ background: "hsl(var(--ember) / 0.1)", color: "hsl(var(--ember))", borderColor: "hsl(var(--ember) / 0.35)", boxShadow: "0 1px 1.5px hsl(var(--ember) / 0.08)" }}>
