@@ -217,7 +217,7 @@ export function AppSidebar() {
                 strokeWidth={2}
               />
               {badge > 0 && collapsed && (
-                <span className="absolute -top-1 -right-1 min-w-[15px] h-[15px] px-1 rounded-full grid place-items-center text-[9px] font-bold leading-none text-white bg-bad ring-2 ring-sidebar shadow-sm tabular-nums">
+                <span className="absolute -top-2 -right-2 min-w-[14px] h-[14px] px-1 rounded-full grid place-items-center text-[9px] font-bold leading-none text-white bg-bad ring-2 ring-sidebar shadow-sm tabular-nums">
                   {badge > 9 ? "9+" : badge}
                 </span>
               )}
