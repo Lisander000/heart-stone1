@@ -75,11 +75,11 @@ export default function Team() {
   };
 
   const superCount = useMemo(() => members.filter((m) => isSuperUser(m.email)).length, [members, superList]);
-  const GRID = "minmax(150px,1.4fr) minmax(180px,1.6fr) 120px 120px 130px 44px";
+  const GRID = "minmax(140px,1.4fr) minmax(200px,2.2fr) 120px 120px 130px 44px";
 
   return (
     <div className="min-h-screen">
-      <div className="max-w-5xl mx-auto px-6 py-7 space-y-5">
+      <div className="w-full max-w-[1600px] mx-auto px-6 py-7 space-y-5">
         {/* header */}
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }}>
@@ -104,7 +104,7 @@ export default function Team() {
           </span>
           <div className="min-w-0">
             <p className="text-sm font-semibold text-foreground">{iAmSuper ? "Jij bent super user" : "Jij bent een standaard gebruiker"}</p>
-            <p className="text-xs text-muted-foreground truncate">{myEmail || "—"} · {iAmSuper ? "je kunt beschermde instellingen aanpassen (zoals het returns-stappenplan)" : "beschermde instellingen zijn alleen-lezen voor jou"}</p>
+            <p className="text-xs text-muted-foreground">{myEmail || "—"} · {iAmSuper ? "je kunt beschermde instellingen aanpassen (zoals het returns-stappenplan)" : "beschermde instellingen zijn alleen-lezen voor jou"}</p>
           </div>
           <span className="ml-auto text-xs text-muted-foreground shrink-0">{superCount} super user{superCount === 1 ? "" : "s"}</span>
         </div>
@@ -112,7 +112,7 @@ export default function Team() {
         {/* members table */}
         <div className="card-soft overflow-hidden">
           <div className="overflow-x-auto">
-            <div className="w-max min-w-full">
+            <div className="min-w-full">
               <div className="grid bg-muted border-b border-border" style={{ gridTemplateColumns: GRID }}>
                 {["Naam", "E-mail", "Rol", "Status", "Super user", ""].map((h, i) => <div key={i} className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{h}</div>)}
               </div>
@@ -126,8 +126,8 @@ export default function Team() {
                     const su = isSuperUser(m.email);
                     return (
                       <motion.div key={m.id} variants={fadeUp} className="group grid items-center hover:bg-muted/40 transition-colors" style={{ gridTemplateColumns: GRID }}>
-                        <div className="px-4 py-3 text-[13px] font-medium text-foreground truncate">{m.name || "—"}</div>
-                        <div className="px-4 py-3 text-[13px] text-muted-foreground truncate">{m.email || "—"}</div>
+                        <div className="px-4 py-3 text-[13px] font-medium text-foreground break-words">{m.name || "—"}</div>
+                        <div className="px-4 py-3 text-[13px] text-muted-foreground break-words">{m.email || "—"}</div>
                         <div className="px-4 py-3"><Pill value={m.role} tone={roleTone(m.role)} /></div>
                         <div className="px-4 py-3"><Pill value={m.status} tone={statusTone(m.status)} /></div>
                         <div className="px-4 py-3">
