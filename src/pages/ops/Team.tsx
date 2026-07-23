@@ -75,7 +75,7 @@ export default function Team() {
   };
 
   const superCount = useMemo(() => members.filter((m) => isSuperUser(m.email)).length, [members, superList]);
-  const GRID = "minmax(140px,1.4fr) minmax(200px,2.2fr) 120px 120px 130px 44px";
+  const GRID = "minmax(140px,1.4fr) minmax(200px,2.2fr) minmax(120px,0.9fr) 120px 130px 44px";
 
   return (
     <div className="min-h-screen">
