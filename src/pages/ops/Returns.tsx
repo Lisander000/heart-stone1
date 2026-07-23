@@ -161,7 +161,7 @@ export default function Returns() {
                           {!g
                             ? <span className={pillCls} style={pillStyle("ember")}>Methode kiezen</span>
                             : ls.resolved
-                            ? <span className={pillCls} style={pillStyle("ok")}><Check className="h-3.5 w-3.5" /> Geaccepteerd</span>
+                            ? <span className={`${pillCls} tabular-nums`} style={pillStyle("ok")}><Check className="h-3.5 w-3.5" /> Geaccepteerd {(ls.acceptedIdx ?? 0) + 1}/{rSteps?.length ?? 0}</span>
                             : ls.currentIdx >= (rSteps?.length ?? 0)
                             ? <span className={pillCls} style={pillStyle("bad")}>Volledig refund</span>
                             : <span className={`${pillCls} tabular-nums`} style={pillStyle("muted-foreground")}>stap {ls.currentIdx + 1}/{rSteps?.length ?? 0}</span>}

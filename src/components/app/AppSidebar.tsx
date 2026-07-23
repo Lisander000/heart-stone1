@@ -206,7 +206,7 @@ export function AppSidebar() {
           asChild
           isActive={active}
           tooltip={badge > 0 ? `${item.title} · ${badge} open` : item.title}
-          className="group/nav h-9 rounded-xl px-2.5 !overflow-visible text-sidebar-foreground/70 transition-all duration-150
+          className="group/nav h-9 rounded-xl group-data-[collapsible=icon]:rounded-full px-2.5 !overflow-visible text-sidebar-foreground/70 transition-all duration-150
             hover:bg-sidebar-accent hover:text-sidebar-foreground
             data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:shadow-sm data-[active=true]:font-medium"
         >
