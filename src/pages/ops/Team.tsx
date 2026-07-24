@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { fadeUp, stagger } from "@/lib/motion";
-import { Plus, Shield, ShieldCheck, Star, RefreshCw, Trash2, UsersRound } from "lucide-react";
+import { Plus, Shield, ShieldCheck, Star, RefreshCw, Trash2, UsersRound, Pencil } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ConfirmDelete } from "@/components/ConfirmDelete";
 import { useIsSuperUser, useCurrentUserEmail, isSuperUser, setSuperUser, useSuperUsers, SUPERUSER_BLOCK } from "@/lib/superuser";
@@ -28,6 +28,8 @@ export default function Team() {
   const [uid, setUid] = useState("");
   const [addOpen, setAddOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const skipSave = useRef(false);
 
   const iAmSuper = useIsSuperUser();
   const myEmail = useCurrentUserEmail();
@@ -64,6 +66,18 @@ export default function Team() {
     setMembers(next);
     if (backend === "local") persistLocal(next);
     else await (supabase as any).from("team_members").delete().eq("id", id);
+  };
+
+  const saveRole = async (id: string, value: string) => {
+    setEditingId(null);
+    const cur = members.find((m) => m.id === id);
+    const role = value.trim();
+    if (!cur || !role || role === cur.role) return;
+    const next = members.map((m) => (m.id === id ? { ...m, role } : m));
+    setMembers(next);
+    if (backend === "local") persistLocal(next);
+    else { const { error } = await (supabase as any).from("team_members").update({ role }).eq("id", id); if (error) { toast.error(error.message); return; } }
+    toast.success(`Rol bijgewerkt naar "${role}".`);
   };
 
   const toggleSuper = (email: string | null) => {
@@ -128,7 +142,23 @@ export default function Team() {
                       <motion.div key={m.id} variants={fadeUp} className="group grid items-center hover:bg-muted/40 transition-colors" style={{ gridTemplateColumns: GRID }}>
                         <div className="px-4 py-3 text-[13px] font-medium text-foreground break-words">{m.name || "—"}</div>
                         <div className="px-4 py-3 text-[13px] text-muted-foreground break-words">{m.email || "—"}</div>
-                        <div className="px-4 py-3"><Pill value={m.role} tone={roleTone(m.role)} /></div>
+                        <div className="px-4 py-3">
+                          {editingId === m.id ? (
+                            <input
+                              autoFocus
+                              defaultValue={m.role}
+                              onFocus={(e) => e.currentTarget.select()}
+                              onBlur={(e) => { if (skipSave.current) { skipSave.current = false; setEditingId(null); } else saveRole(m.id, e.currentTarget.value); }}
+                              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); e.currentTarget.blur(); } else if (e.key === "Escape") { e.preventDefault(); skipSave.current = true; e.currentTarget.blur(); } }}
+                              className="h-7 w-full max-w-[150px] px-2 rounded-lg border border-primary/40 bg-card text-[12px] text-foreground outline-none focus:ring-2 focus:ring-primary/25"
+                            />
+                          ) : (
+                            <button type="button" onClick={() => setEditingId(m.id)} title="Klik om de rol te wijzigen" className="group/role inline-flex items-center gap-1 rounded-full hover:ring-2 hover:ring-primary/20 transition cursor-text">
+                              <Pill value={m.role} tone={roleTone(m.role)} />
+                              <Pencil className="h-3 w-3 text-muted-foreground/0 group-hover/role:text-muted-foreground/60 transition-colors shrink-0" />
+                            </button>
+                          )}
+                        </div>
                         <div className="px-4 py-3"><Pill value={m.status} tone={statusTone(m.status)} /></div>
                         <div className="px-4 py-3">
                           <button onClick={() => toggleSuper(m.email)}
