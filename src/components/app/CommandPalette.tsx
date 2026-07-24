@@ -34,7 +34,6 @@ const DESTS: Dest[] = [
   { label: "Returns dashboard", to: "/returns/dashboard", icon: BarChart3, group: "Operations" },
   { label: "Tickets", to: "/tickets", icon: LifeBuoy, group: "Operations" },
   { label: "Product Health", to: "/product-health", icon: HeartPulse, group: "Operations" },
-  { label: "Agents", to: "/agents", icon: Bot, group: "Operations" },
   { label: "Team", to: "/team", icon: UsersRound, group: "Operations" },
   { label: "Mijn profiel", to: "/profile", icon: User, group: "Account" },
 ];

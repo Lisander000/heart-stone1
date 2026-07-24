@@ -2,7 +2,7 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   Home, Database, FolderOpen, Sparkles, Users, Swords, Tag, LogOut, Loader2,
   ShoppingCart, PackageOpen, Truck, RotateCcw, LifeBuoy, HeartPulse, Bot, Wallet,
-  UsersRound, LayoutGrid, BarChart3, User, ChevronDown, Activity,
+  UsersRound, LayoutGrid, BarChart3, User, ChevronDown, Activity, Terminal,
   Lightbulb, PenLine, FlaskConical, Clapperboard, TrendingUp,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -21,14 +21,15 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { GbMark } from "@/components/app/GbMark";
 import { useOpenReturnsCount } from "@/lib/returnsData";
+import { useIsSuperUser } from "@/lib/superuser";
 
 /* ── nav data ─────────────────────────────────────────────────────────── */
 
 type NavItem = { title: string; url: string; icon: React.ElementType };
 
 type NavGroup =
-  | { label: string; collapsible: false; items: NavItem[] }
-  | { label: string; collapsible: true; pinnedItems: NavItem[]; items: NavItem[] };
+  | { label: string; collapsible: false; devOnly?: boolean; items: NavItem[] }
+  | { label: string; collapsible: true; devOnly?: boolean; pinnedItems: NavItem[]; items: NavItem[] };
 
 const navGroups: NavGroup[] = [
   {
@@ -91,8 +92,17 @@ const navGroups: NavGroup[] = [
       { title: "Returns dashboard", url: "/returns/dashboard", icon: BarChart3 },
       { title: "Tickets", url: "/tickets", icon: LifeBuoy },
       { title: "Product Health", url: "/product-health", icon: HeartPulse },
-      { title: "Agents", url: "/agents", icon: Bot },
       { title: "Team", url: "/team", icon: UsersRound },
+    ],
+  },
+  {
+    label: "Developer",
+    collapsible: true,
+    devOnly: true,
+    pinnedItems: [],
+    items: [
+      { title: "Dev dashboard", url: "/developer", icon: Terminal },
+      { title: "Agents", url: "/agents", icon: Bot },
     ],
   },
 ];
@@ -133,7 +143,7 @@ function useUserProfile() {
 /* ── main component ──────────────────────────────────────────────────── */
 
 const SIDEBAR_GROUPS_KEY = "gb_sidebar_groups";
-const defaultGroupOpen = (label: string) => label === "Finance";
+const defaultGroupOpen = (label: string) => label === "Finance" || label === "Developer";
 
 /** Collapsed-rail logo: uses /gb-mark.png if you drop it in public/, else the built-in SVG mark. */
 function CollapsedLogo() {
@@ -153,6 +163,7 @@ export function AppSidebar() {
   const [signingOut, setSigningOut] = useState(false);
   const { email, fullName, avatarUrl, initials } = useUserProfile();
   const openReturns = useOpenReturnsCount();
+  const iAmSuper = useIsSuperUser();
 
   // Per-category open state — persisted so a user's expand/collapse survives a refresh.
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
@@ -265,7 +276,7 @@ export function AppSidebar() {
 
       {/* ── Nav groups ── */}
       <SidebarContent className="px-2 gap-0.5 py-1 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:items-center">
-        {navGroups.map((group) => {
+        {navGroups.filter((g) => !g.devOnly || iAmSuper).map((group) => {
           if (!group.collapsible) {
             return (
               <SidebarGroup key={group.label} className="py-1">

@@ -15,7 +15,6 @@ const tiles = [
   { title: "Returns dashboard", url: "/returns/dashboard", icon: BarChart3, table: "returns" },
   { title: "Tickets", url: "/tickets", icon: LifeBuoy, table: "tickets" },
   { title: "Product Health", url: "/product-health", icon: HeartPulse, table: "product_health" },
-  { title: "Agents", url: "/agents", icon: Bot, table: "agents" },
   { title: "Team", url: "/team", icon: UsersRound, table: "team_members" },
 ];
 
