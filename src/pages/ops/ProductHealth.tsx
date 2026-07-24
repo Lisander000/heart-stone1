@@ -6,8 +6,9 @@ export default function ProductHealth() {
   return (
     <ResourcePage
       title="Product Health"
-      description="Voorraad, retour-ratio en reviewscore per product."
+      description="Voorraad, retour-ratio en reviewscore per product. Open er een om het product-health-plan te volgen."
       table="product_health"
+      rowLinkTo={(r) => `/product-health/${r.id}`}
       fields={[
         { key: "product_name", label: "Productnaam", required: true },
         { key: "sku", label: "SKU" },

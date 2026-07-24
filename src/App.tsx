@@ -25,6 +25,7 @@ import OpsOverview from "./pages/ops/OpsOverview.tsx";
 import RecordDetail from "./pages/ops/RecordDetail.tsx";
 import RecordForm from "./pages/ops/RecordForm.tsx";
 import ProductHealth from "./pages/ops/ProductHealth.tsx";
+import ProductHealthDetail from "./pages/ops/ProductHealthDetail.tsx";
 import Agents from "./pages/ops/Agents.tsx";
 import DeveloperDashboard from "./pages/ops/DeveloperDashboard.tsx";
 import Finance from "./pages/ops/Finance.tsx";
@@ -73,6 +74,7 @@ const App = () => (
               <Route path="/tickets/:id" element={<TicketDetail />} />
               <Route path="/ops" element={<OpsOverview />} />
               <Route path="/product-health" element={<ProductHealth />} />
+              <Route path="/product-health/:id" element={<ProductHealthDetail />} />
               <Route path="/agents" element={<SuperOnly><Agents /></SuperOnly>} />
               <Route path="/developer" element={<SuperOnly><DeveloperDashboard /></SuperOnly>} />
               <Route path="/finance" element={<Finance />} />
