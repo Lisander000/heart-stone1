@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { fadeUp, stagger } from "@/lib/motion";
-import { Plus, RefreshCw, Trash2, RotateCcw, Check, Settings2, X, ChevronRight, ListChecks } from "lucide-react";
+import { Plus, RefreshCw, Trash2, RotateCcw, Check, Settings2, X, ChevronRight } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ConfirmDelete } from "@/components/ConfirmDelete";
 import { useIsSuperUser, SUPERUSER_BLOCK } from "@/lib/superuser";
@@ -95,7 +95,6 @@ export default function Returns() {
               <span className="h-10 w-10 rounded-2xl grid place-items-center" style={{ background: "hsl(var(--bad)/0.12)" }}><RotateCcw className="h-5 w-5" style={{ color: "hsl(var(--bad))" }} /></span>
               <div>
                 <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Returns</h1>
-                <p className="text-sm text-muted-foreground">Per order · reden &amp; status. Open een retour om het stappenplan te volgen.</p>
               </div>
             </div>
           </motion.div>
@@ -124,13 +123,6 @@ export default function Returns() {
           <ReturnsDashboard embedded />
         ) : (
         <>
-        {/* smooth reminder banner */}
-        <div className="rounded-2xl border border-primary/15 bg-primary/[0.04] px-4 py-3 flex items-center gap-3">
-          <span className="h-8 w-8 rounded-xl bg-primary/10 grid place-items-center shrink-0"><ListChecks className="h-4 w-4 text-primary" /></span>
-          <p className="text-sm text-foreground">Volg <span className="font-semibold">te allen tijde</span> het CS-stappenplan.</p>
-          <span className="ml-auto text-xs text-muted-foreground shrink-0">per betaalmethode</span>
-        </div>
-
         {/* unassigned cases need someone to pick them up */}
         {unassignedOpen > 0 && (
           <div className="rounded-2xl px-4 py-3 flex items-center gap-3" style={{ background: "hsl(var(--ember)/0.08)", boxShadow: "inset 0 0 0 1px hsl(var(--ember)/0.25)" }}>
