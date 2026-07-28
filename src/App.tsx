@@ -18,7 +18,6 @@ import Shipments from "./pages/ops/Shipments.tsx";
 import ShipmentDetail from "./pages/ops/ShipmentDetail.tsx";
 import Returns from "./pages/ops/Returns.tsx";
 import ReturnDetail from "./pages/ops/ReturnDetail.tsx";
-import ReturnsDashboard from "./pages/ops/ReturnsDashboard.tsx";
 import Tickets from "./pages/ops/Tickets.tsx";
 import TicketDetail from "./pages/ops/TicketDetail.tsx";
 import OpsOverview from "./pages/ops/OpsOverview.tsx";
@@ -68,7 +67,7 @@ const App = () => (
               <Route path="/shipments" element={<Shipments />} />
               <Route path="/shipments/:id" element={<ShipmentDetail />} />
               <Route path="/returns" element={<Returns />} />
-              <Route path="/returns/dashboard" element={<ReturnsDashboard />} />
+              <Route path="/returns/dashboard" element={<Returns />} />
               <Route path="/returns/:id" element={<ReturnDetail />} />
               <Route path="/tickets" element={<Tickets />} />
               <Route path="/tickets/:id" element={<TicketDetail />} />

@@ -26,7 +26,7 @@ async function loadReturns(): Promise<any[]> {
   return [];
 }
 
-export default function ReturnsDashboard() {
+export default function ReturnsDashboard({ embedded = false }: { embedded?: boolean } = {}) {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<Period>("30d");
@@ -87,9 +87,10 @@ export default function ReturnsDashboard() {
   const anyOutcomes = stepStats.some((s) => s.accepted + s.rejected > 0);
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-6xl mx-auto px-6 py-7 space-y-5">
-        {/* header */}
+    <div className={embedded ? undefined : "min-h-screen"}>
+      <div className={embedded ? "space-y-5" : "max-w-6xl mx-auto px-6 py-7 space-y-5"}>
+        {/* header (hidden when embedded as a tab in the Returns page) */}
+        {!embedded && (
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }}>
             <div className="flex items-center gap-2.5">
@@ -107,6 +108,7 @@ export default function ReturnsDashboard() {
             <Link to="/returns" className="h-9 px-4 rounded-full bg-primary text-primary-foreground text-sm font-medium flex items-center gap-1.5 shadow-sm hover:shadow-md transition-all">Naar lijst <ArrowUpRight className="h-4 w-4" /></Link>
           </div>
         </div>
+        )}
 
         {/* period filter */}
         <div className="flex items-center gap-1.5 flex-wrap">

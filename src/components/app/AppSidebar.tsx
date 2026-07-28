@@ -89,7 +89,6 @@ const navGroups: NavGroup[] = [
       { title: "Unfulfilled", url: "/unfulfilled", icon: PackageOpen },
       { title: "Shipments", url: "/shipments", icon: Truck },
       { title: "Returns", url: "/returns", icon: RotateCcw },
-      { title: "Returns dashboard", url: "/returns/dashboard", icon: BarChart3 },
       { title: "Tickets", url: "/tickets", icon: LifeBuoy },
       { title: "Product Health", url: "/product-health", icon: HeartPulse },
       { title: "Team", url: "/team", icon: UsersRound },

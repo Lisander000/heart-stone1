@@ -12,7 +12,6 @@ const tiles = [
   { title: "Unfulfilled", url: "/unfulfilled", icon: PackageOpen, table: "orders", filter: { status: "unfulfilled" } },
   { title: "Shipments", url: "/shipments", icon: Truck, table: "shipments" },
   { title: "Returns", url: "/returns", icon: RotateCcw, table: "returns" },
-  { title: "Returns dashboard", url: "/returns/dashboard", icon: BarChart3, table: "returns" },
   { title: "Tickets", url: "/tickets", icon: LifeBuoy, table: "tickets" },
   { title: "Product Health", url: "/product-health", icon: HeartPulse, table: "product_health" },
   { title: "Team", url: "/team", icon: UsersRound, table: "team_members" },

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -10,6 +10,7 @@ import { ConfirmDelete } from "@/components/ConfirmDelete";
 import { useIsSuperUser, SUPERUSER_BLOCK } from "@/lib/superuser";
 import { useAllStepPlans, saveSteps, useAllOutcomes, useAllOwners, useAllReturnMethods, ladderState, methodLabel, METHOD_GROUPS, type ReturnStep, type MethodGroup } from "@/lib/returnsSteps";
 import { isOpenReturn, pingReturns } from "@/lib/returnsData";
+import ReturnsDashboard from "./ReturnsDashboard";
 
 type Ret = { id: string; order_id: string | null; reason: string | null; status: string; refund_amount: number | null; currency: string | null; created_at?: string };
 type Order = { id: string; order_number: string | null; customer_name: string | null };
@@ -34,6 +35,8 @@ async function loadArr(table: string): Promise<any[]> {
 
 export default function Returns() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const tab: "returns" | "dashboard" = location.pathname.endsWith("/dashboard") ? "dashboard" : "returns";
   const [rows, setRows] = useState<Ret[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -96,16 +99,31 @@ export default function Returns() {
               </div>
             </div>
           </motion.div>
-          <div className="flex items-center gap-2">
-            <button onClick={load} className="h-9 w-9 grid place-items-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground shadow-xs transition-colors"><RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} /></button>
-            <button onClick={openPlan} title={iAmSuper ? "Stappenplan bewerken" : SUPERUSER_BLOCK}
-              className="h-9 px-3.5 rounded-full border border-border bg-card text-sm font-medium text-muted-foreground hover:text-foreground shadow-xs flex items-center gap-1.5 transition-colors">
-              <Settings2 className="h-3.5 w-3.5" /> Stappenplan {!iAmSuper && <span className="text-[10px] opacity-60">🔒</span>}
-            </button>
-            <button onClick={() => setAddOpen(true)} className="h-9 px-4 rounded-full bg-primary text-primary-foreground text-sm font-medium flex items-center gap-1.5 shadow-sm hover:shadow-md transition-all"><Plus className="h-4 w-4" /> Nieuw retour</button>
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* tab switcher — Returns list / Dashboard */}
+            <div className="flex gap-1 p-1 rounded-full bg-muted">
+              {(["returns", "dashboard"] as const).map((t) => (
+                <button key={t} onClick={() => navigate(t === "returns" ? "/returns" : "/returns/dashboard")}
+                  className={`h-8 px-3.5 rounded-full text-xs font-semibold transition-all ${tab === t ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                  {t === "returns" ? "Returns" : "Dashboard"}
+                </button>
+              ))}
+            </div>
+            {tab === "returns" && (<>
+              <button onClick={load} className="h-9 w-9 grid place-items-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground shadow-xs transition-colors"><RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} /></button>
+              <button onClick={openPlan} title={iAmSuper ? "Stappenplan bewerken" : SUPERUSER_BLOCK}
+                className="h-9 px-3.5 rounded-full border border-border bg-card text-sm font-medium text-muted-foreground hover:text-foreground shadow-xs flex items-center gap-1.5 transition-colors">
+                <Settings2 className="h-3.5 w-3.5" /> Stappenplan {!iAmSuper && <span className="text-[10px] opacity-60">🔒</span>}
+              </button>
+              <button onClick={() => setAddOpen(true)} className="h-9 px-4 rounded-full bg-primary text-primary-foreground text-sm font-medium flex items-center gap-1.5 shadow-sm hover:shadow-md transition-all"><Plus className="h-4 w-4" /> Nieuw retour</button>
+            </>)}
           </div>
         </div>
 
+        {tab === "dashboard" ? (
+          <ReturnsDashboard embedded />
+        ) : (
+        <>
         {/* smooth reminder banner */}
         <div className="rounded-2xl border border-primary/15 bg-primary/[0.04] px-4 py-3 flex items-center gap-3">
           <span className="h-8 w-8 rounded-xl bg-primary/10 grid place-items-center shrink-0"><ListChecks className="h-4 w-4 text-primary" /></span>
@@ -191,6 +209,8 @@ export default function Returns() {
             </div>
           </div>
         </div>
+        </>
+        )}
       </div>
 
       <AddReturnDialog open={addOpen} onOpenChange={setAddOpen} orders={orders} onAdd={addRet} />
