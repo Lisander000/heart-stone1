@@ -170,7 +170,7 @@ export default function UgcStudio() {
           {TABS.map((t) => {
             const on = active === t.id;
             return (
-              <button key={t.id} onClick={() => setActive(t.id)}
+              <button key={t.id} onClick={() => setActive(active === t.id ? null : t.id)}
                 className={`card-soft p-6 text-left transition-all duration-200 ${on ? "ring-2 shadow-md" : "card-lift hover:shadow-md"}`}
                 style={on ? { boxShadow: "var(--shadow-md)", ["--tw-ring-color" as any]: t.accent } : undefined}>
                 <div className="flex items-center justify-between mb-4">
@@ -187,7 +187,7 @@ export default function UgcStudio() {
             );
           })}
           {/* dashboard card */}
-          <button onClick={() => setActive("dashboard")}
+          <button onClick={() => setActive(active === "dashboard" ? null : "dashboard")}
             className={`card-soft p-6 text-left transition-all duration-200 ${active === "dashboard" ? "ring-2 shadow-md" : "card-lift hover:shadow-md"}`}
             style={active === "dashboard" ? { boxShadow: "var(--shadow-md)", ["--tw-ring-color" as any]: "hsl(var(--grape))" } : undefined}>
             <div className="flex items-center justify-between mb-4">
@@ -220,8 +220,8 @@ export default function UgcStudio() {
             <div className="h-11 w-11 rounded-2xl bg-muted grid place-items-center mb-3">
               <Layers className="h-5 w-5 text-muted-foreground" />
             </div>
-            <p className="text-sm font-medium text-foreground">Kies een board hierboven</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Selecteer Tracker of Approval om de tabel te openen.</p>
+            <p className="text-sm font-medium text-foreground">Kies een view hierboven</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Selecteer Tracker, Approval of Dashboard. Klik nogmaals op een actieve kaart om ze te sluiten.</p>
           </div>
         )}
       </div>
