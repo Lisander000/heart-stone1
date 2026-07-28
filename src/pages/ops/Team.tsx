@@ -6,7 +6,7 @@ import { fadeUp, stagger } from "@/lib/motion";
 import { Plus, Shield, ShieldCheck, Star, RefreshCw, Trash2, UsersRound, Pencil } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ConfirmDelete } from "@/components/ConfirmDelete";
-import { useIsSuperUser, useCurrentUserEmail, isSuperUser, setSuperUser, useSuperUsers, SUPERUSER_BLOCK } from "@/lib/superuser";
+import { useIsSuperUser, useCurrentUserEmail, useCurrentUser, isSuperUser, setSuperUser, useSuperUsers, SUPERUSER_BLOCK } from "@/lib/superuser";
 
 type Member = { id: string; name: string; email: string | null; role: string; status: string; invited_at?: string };
 const ROLES = ["owner", "admin", "member", "viewer"];
@@ -33,6 +33,7 @@ export default function Team() {
 
   const iAmSuper = useIsSuperUser();
   const myEmail = useCurrentUserEmail();
+  const me = useCurrentUser();
   const superList = useSuperUsers();
 
   const load = async () => {
@@ -138,9 +139,10 @@ export default function Team() {
                 <motion.div variants={stagger(0.02)} initial="hidden" animate="visible" className="divide-y divide-border/50">
                   {members.map((m) => {
                     const su = isSuperUser(m.email);
+                    const isMe = !!m.email && !!me.email && m.email.toLowerCase() === me.email.toLowerCase();
                     return (
                       <motion.div key={m.id} variants={fadeUp} className="group grid items-center hover:bg-muted/40 transition-colors" style={{ gridTemplateColumns: GRID }}>
-                        <div className="px-4 py-3 text-[13px] font-medium text-foreground break-words">{m.name || "—"}</div>
+                        <div className="px-4 py-3 text-[13px] font-medium text-foreground break-words">{isMe && me.name ? me.name : (m.name || "—")}{isMe && <span className="ml-1.5 text-[10px] font-semibold text-primary/70">(jij)</span>}</div>
                         <div className="px-4 py-3 text-[13px] text-muted-foreground break-words">{m.email || "—"}</div>
                         <div className="px-4 py-3">
                           {editingId === m.id ? (
