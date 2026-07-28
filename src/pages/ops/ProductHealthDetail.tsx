@@ -5,13 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { fadeUp } from "@/lib/motion";
 import {
-  ArrowLeft, HeartPulse, ShieldCheck, AlertTriangle, Check, RotateCcw, Loader2, MessageSquare,
+  ArrowLeft, HeartPulse, AlertTriangle, Check, RotateCcw, Loader2, MessageSquare,
   ClipboardList, Send, Trash2, Circle, Copy, Flag, Boxes, Undo2, Star, Wrench, ArrowUpRight,
   PackagePlus, FlaskConical, Pause, Clock,
 } from "lucide-react";
 import {
   HEALTH_STATUSES, statusMeta, toneColor, computeSeverity, stockSignal, returnSignal, reviewSignal,
-  ACTIONS, actionMeta, PH_OUTCOMES, usePHOwner, setPHOwner, clearPHOwner, usePHLog, addPHLog,
+  ACTIONS, actionMeta, PH_OUTCOMES, usePHLog, addPHLog,
   usePHNotes, addPHNote, removePHNote, usePHMeta, setPHMeta,
   type HealthStatus, type ActionId, type PHLogKind, type Signal,
 } from "@/lib/productHealthCase";
@@ -37,13 +37,10 @@ export default function ProductHealthDetail() {
   const [note, setNote] = useState("");
 
   const me = useCurrentUser();
-  const owner = usePHOwner(id);
   const log = usePHLog(id);
   const notes = usePHNotes(id);
   const meta = usePHMeta(id);
 
-  const iAmOwner = !!owner && !!me.email && owner.email.toLowerCase() === me.email.toLowerCase();
-  const otherOwns = !!owner && !iAmOwner;
   const actor = () => ({ by: me.email, byName: me.name || me.email || "Onbekend" });
 
   useEffect(() => {
@@ -67,16 +64,12 @@ export default function ProductHealthDetail() {
   };
   const setMeta = (patchObj: Parameters<typeof setPHMeta>[1]) => setPHMeta(id, patchObj);
 
-  const ensureOwner = () => { if (!owner && me.email) { setPHOwner(id, { email: me.email, name: me.name || me.email }); addPHLog(id, `${me.name || me.email} nam deze case op`, "owner", actor()); } };
-  const claim = () => { if (!me.email) { toast.error("Geen gebruiker gevonden."); return; } setPHOwner(id, { email: me.email, name: me.name || me.email }); addPHLog(id, `${me.name || me.email} ${owner ? "nam de case over" : "nam deze case op"}`, "owner", actor()); };
-  const release = () => { clearPHOwner(id); addPHLog(id, `${me.name || me.email || "Iemand"} gaf de case vrij`, "owner", actor()); };
-
-  const setStatus = (s: HealthStatus) => { if (!p) return; ensureOwner(); patch({ status: s }); addPHLog(id, `Status → ${statusMeta(s).label}`, "status", actor()); };
-  const chooseAction = (a: ActionId) => { ensureOwner(); setMeta({ action: a }); addPHLog(id, `Actie gekozen: ${actionMeta(a)?.label}`, "action", actor()); };
+  const setStatus = (s: HealthStatus) => { if (!p) return; patch({ status: s }); addPHLog(id, `Status → ${statusMeta(s).label}`, "status", actor()); };
+  const chooseAction = (a: ActionId) => { setMeta({ action: a }); addPHLog(id, `Actie gekozen: ${actionMeta(a)?.label}`, "action", actor()); };
   const startAction = () => { if (!meta.action) return; setMeta({ actionStartedAt: new Date().toISOString() }); addPHLog(id, `Actie in gang gezet: ${actionMeta(meta.action)?.label}`, "action", actor()); toast.success("Actie in gang gezet."); };
-  const resolve = (outcome: string) => { ensureOwner(); patch({ status: "resolved" }); setMeta({ resolvedAt: new Date().toISOString(), outcome }); addPHLog(id, `Case afgesloten — ${outcome}`, "resolution", actor()); };
+  const resolve = (outcome: string) => { patch({ status: "resolved" }); setMeta({ resolvedAt: new Date().toISOString(), outcome }); addPHLog(id, `Case afgesloten — ${outcome}`, "resolution", actor()); };
   const reopen = () => { patch({ status: "watch" }); setMeta({ resolvedAt: null }); addPHLog(id, "Case heropend", "resolution", actor()); };
-  const submitNote = () => { if (!note.trim()) return; ensureOwner(); addPHNote(id, note.trim(), actor()); setNote(""); };
+  const submitNote = () => { if (!note.trim()) return; addPHNote(id, note.trim(), actor()); setNote(""); };
 
   if (loading) return <div className="min-h-screen grid place-items-center"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>;
   if (!p) return (
@@ -105,24 +98,6 @@ export default function ProductHealthDetail() {
               <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">{p.product_name || "Product"}</h1>
               <p className="text-sm text-muted-foreground">{p.sku ? `${p.sku} · ` : ""}{st.label}</p>
             </div>
-          </div>
-        </motion.div>
-
-        {/* OWNER strip */}
-        <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft px-4 py-3 flex items-center gap-3" style={otherOwns ? { boxShadow: "inset 0 0 0 1px hsl(var(--ember)/0.35)" } : undefined}>
-          <span className="h-9 w-9 rounded-xl grid place-items-center shrink-0" style={{ background: iAmOwner ? "hsl(var(--ok)/0.12)" : otherOwns ? "hsl(var(--ember)/0.12)" : "hsl(var(--muted))" }}>
-            <ShieldCheck className="h-4 w-4" style={{ color: iAmOwner ? "hsl(var(--ok))" : otherOwns ? "hsl(var(--ember))" : "hsl(var(--muted-foreground))" }} />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Eigenaar van deze case</p>
-            {owner ? (
-              <p className="text-sm text-foreground truncate"><span className="font-semibold">{owner.name}</span>{iAmOwner && <span className="ml-1.5 text-[10px] font-semibold text-ok bg-ok/12 rounded-full px-1.5 py-0.5 align-middle">jij</span>}<span className="text-muted-foreground font-normal"> · {owner.email}</span></p>
-            ) : <p className="text-sm text-muted-foreground">Nog niemand behandelt dit product — neem het op zodat collega's weten dat jij bezig bent.</p>}
-          </div>
-          <div className="shrink-0">
-            {!owner ? <button onClick={claim} className="h-8 px-3.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium">Ik neem dit op</button>
-             : iAmOwner ? <button onClick={release} className="h-8 px-3 rounded-lg border border-border text-xs font-medium text-muted-foreground hover:text-foreground">Vrijgeven</button>
-             : <button onClick={claim} className="h-8 px-3 rounded-lg text-xs font-medium" style={{ border: "1px solid hsl(var(--ember)/0.4)", color: "hsl(var(--ember))" }}>Overnemen</button>}
           </div>
         </motion.div>
 
@@ -334,7 +309,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 const LogIcon = ({ kind }: { kind: PHLogKind }) => {
-  const c = kind === "status" ? "hsl(var(--info))" : kind === "action" ? "hsl(var(--primary))" : kind === "owner" ? "hsl(var(--ember))" : kind === "resolution" ? "hsl(var(--ok))" : "hsl(var(--primary))";
-  const I = kind === "status" ? Flag : kind === "action" ? Wrench : kind === "owner" ? ShieldCheck : kind === "resolution" ? Check : Circle;
+  const c = kind === "status" ? "hsl(var(--info))" : kind === "action" ? "hsl(var(--primary))" : kind === "resolution" ? "hsl(var(--ok))" : "hsl(var(--primary))";
+  const I = kind === "status" ? Flag : kind === "action" ? Wrench : kind === "resolution" ? Check : Circle;
   return <I className="h-3 w-3" style={{ color: c }} />;
 };

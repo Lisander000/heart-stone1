@@ -1,7 +1,7 @@
 // Product-health case — everything ops needs to investigate and fix a product whose
 // signals (stock, return rate, review score) are slipping: auto-computed severity,
 // per-metric signals, remediation actions with a ready-to-copy message, internal
-// notes, ownership and resolution. Stored client-side, keyed by product-health id,
+// notes and resolution. Stored client-side, keyed by product-health id,
 // mirroring the returns/shipment/ticket case layers.
 import { useEffect, useState } from "react";
 
@@ -99,15 +99,8 @@ export const ACTIONS: PHAction[] = [
 export const actionMeta = (id?: string | null) => ACTIONS.find((a) => a.id === id);
 export const PH_OUTCOMES = ["Voorraad aangevuld", "Kwaliteit onderzocht", "Reviews aangepakt", "Formule herzien", "Verkoop gepauzeerd", "Vals alarm"];
 
-/* ─── ownership ──────────────────────────────────────────────────────────── */
-export type PHOwner = { email: string; name: string; at: string };
-const OWN = "gb_ph_owner";
-export function setPHOwner(id: string, o: { email: string; name: string }) { const m = readMap<PHOwner>(OWN); m[id] = { email: o.email, name: o.name, at: new Date().toISOString() }; writeMap(OWN, m); }
-export function clearPHOwner(id: string) { const m = readMap<PHOwner>(OWN); delete m[id]; writeMap(OWN, m); }
-export const usePHOwner = (id: string) => useKeyed<PHOwner | null>(OWN, id, null);
-
 /* ─── audit log ──────────────────────────────────────────────────────────── */
-export type PHLogKind = "status" | "signal" | "action" | "owner" | "resolution" | "note";
+export type PHLogKind = "status" | "signal" | "action" | "resolution" | "note";
 export type PHLog = { text: string; at: string; kind: PHLogKind; by?: string | null; byName?: string };
 const LOG = "gb_ph_log";
 export function addPHLog(id: string, text: string, kind: PHLogKind, actor?: Actor) { const m = readMap<PHLog[]>(LOG); m[id] = [{ text, at: new Date().toISOString(), kind, by: actor?.by ?? null, byName: actor?.byName }, ...(m[id] ?? [])]; writeMap(LOG, m); }
