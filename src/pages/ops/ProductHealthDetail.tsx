@@ -150,20 +150,20 @@ export default function ProductHealthDetail() {
           </div>
         </motion.div>
 
-        {/* HERSTELACTIE — horizontal picker */}
+        {/* ACTIES — even row of action tiles */}
         <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
-          <div className="flex items-center gap-2 mb-3"><Wrench className="h-4 w-4 text-muted-foreground" /><h2 className="text-sm font-semibold text-foreground">Herstelactie</h2><span className="text-[11px] text-muted-foreground">· kies wat je nu doet om het te fixen</span></div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex items-center gap-2 mb-3"><Wrench className="h-4 w-4 text-muted-foreground" /><h2 className="text-sm font-semibold text-foreground">Acties</h2><span className="text-[11px] text-muted-foreground">· kies wat je nu doet</span></div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
             {ACTIONS.map((a) => {
               const active = meta.action === a.id;
               const Icon = a.id === "restock" ? PackagePlus : a.id === "supplier_qa" ? Wrench : a.id === "review_outreach" ? MessageSquare : a.id === "reformulate" ? FlaskConical : Pause;
               return (
                 <button key={a.id} onClick={() => (active ? clearAction() : chooseAction(a.id))} title={a.desc}
-                  className={`px-3 py-2 rounded-xl border flex items-center gap-2 transition-colors ${active ? "border-primary bg-primary/[0.06] text-foreground" : "border-border bg-card text-muted-foreground hover:text-foreground hover:border-primary/30"}`}
+                  className={`relative rounded-xl border px-2 py-3 flex flex-col items-center text-center gap-2 transition-colors ${active ? "border-primary bg-primary/[0.06]" : "border-border bg-card hover:border-primary/30"}`}
                   style={a.urgent && !active ? { boxShadow: "inset 0 0 0 1px hsl(var(--ember)/0.3)" } : undefined}>
-                  <span className="h-6 w-6 rounded-lg grid place-items-center shrink-0" style={{ background: active ? "hsl(var(--primary))" : a.urgent ? "hsl(var(--ember)/0.15)" : "hsl(var(--muted))", color: active ? "#fff" : a.urgent ? "hsl(var(--ember))" : "hsl(var(--muted-foreground))" }}><Icon className="h-3.5 w-3.5" /></span>
-                  <span className="text-[12px] font-medium whitespace-nowrap">{a.label}</span>
-                  {active && <Check className="h-3.5 w-3.5 text-primary shrink-0" />}
+                  <span className="h-9 w-9 rounded-lg grid place-items-center shrink-0" style={{ background: active ? "hsl(var(--primary))" : a.urgent ? "hsl(var(--ember)/0.15)" : "hsl(var(--muted))", color: active ? "#fff" : a.urgent ? "hsl(var(--ember))" : "hsl(var(--muted-foreground))" }}><Icon className="h-4 w-4" /></span>
+                  <span className={`text-[11px] font-medium leading-tight ${active ? "text-foreground" : "text-muted-foreground"}`}>{a.label}</span>
+                  {active && <Check className="h-3.5 w-3.5 text-primary absolute top-1.5 right-1.5" />}
                 </button>
               );
             })}
