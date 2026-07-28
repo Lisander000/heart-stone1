@@ -5,14 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { fadeUp } from "@/lib/motion";
 import {
-  ArrowLeft, HeartPulse, AlertTriangle, Check, RotateCcw, Loader2, MessageSquare,
-  ClipboardList, Send, Trash2, Circle, Copy, Flag, Boxes, Undo2, Star, Wrench, ArrowUpRight,
-  PackagePlus, FlaskConical, Pause, Clock,
+  ArrowLeft, HeartPulse, AlertTriangle, Check, Loader2, MessageSquare, ClipboardList, Send,
+  Trash2, Circle, Copy, Flag, Boxes, Undo2, Star, Wrench, ArrowUpRight, PackagePlus,
+  FlaskConical, Pause, Clock, SlidersHorizontal,
 } from "lucide-react";
 import {
   HEALTH_STATUSES, statusMeta, toneColor, computeSeverity, stockSignal, returnSignal, reviewSignal,
-  ACTIONS, actionMeta, PH_OUTCOMES, usePHLog, addPHLog,
-  usePHNotes, addPHNote, removePHNote, usePHMeta, setPHMeta,
+  ACTIONS, actionMeta, usePHLog, addPHLog, usePHNotes, addPHNote, removePHNote, usePHMeta, setPHMeta,
   type HealthStatus, type ActionId, type PHLogKind, type Signal,
 } from "@/lib/productHealthCase";
 import { useCurrentUser } from "@/lib/superuser";
@@ -67,8 +66,6 @@ export default function ProductHealthDetail() {
   const setStatus = (s: HealthStatus) => { if (!p) return; patch({ status: s }); addPHLog(id, `Status → ${statusMeta(s).label}`, "status", actor()); };
   const chooseAction = (a: ActionId) => { setMeta({ action: a }); addPHLog(id, `Actie gekozen: ${actionMeta(a)?.label}`, "action", actor()); };
   const startAction = () => { if (!meta.action) return; setMeta({ actionStartedAt: new Date().toISOString() }); addPHLog(id, `Actie in gang gezet: ${actionMeta(meta.action)?.label}`, "action", actor()); toast.success("Actie in gang gezet."); };
-  const resolve = (outcome: string) => { patch({ status: "resolved" }); setMeta({ resolvedAt: new Date().toISOString(), outcome }); addPHLog(id, `Case afgesloten — ${outcome}`, "resolution", actor()); };
-  const reopen = () => { patch({ status: "watch" }); setMeta({ resolvedAt: null }); addPHLog(id, "Case heropend", "resolution", actor()); };
   const submitNote = () => { if (!note.trim()) return; addPHNote(id, note.trim(), actor()); setNote(""); };
 
   if (loading) return <div className="min-h-screen grid place-items-center"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>;
@@ -80,7 +77,6 @@ export default function ProductHealthDetail() {
 
   const st = statusMeta(p.status);
   const sev = computeSeverity({ status: p.status, returnRate: p.return_rate, reviewScore: p.review_score, stock: p.stock });
-  const resolved = p.status === "resolved";
   const chosen = actionMeta(meta.action);
   const started = !!meta.actionStartedAt;
   const msgCtx = { product: p.product_name ?? undefined, sku: p.sku ?? undefined };
@@ -89,65 +85,69 @@ export default function ProductHealthDetail() {
   return (
     <div className="min-h-screen" style={sev.level >= 3 ? { background: `hsl(var(--${sev.tone}) / 0.04)` } : undefined}>
       <div className="max-w-5xl mx-auto px-6 py-7 space-y-5">
-        {/* header */}
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-          <button onClick={() => navigate("/product-health")} className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 mb-2"><ArrowLeft className="h-3.5 w-3.5" /> Product Health</button>
-          <div className="flex items-center gap-2.5">
-            <span className="h-10 w-10 rounded-2xl grid place-items-center" style={{ background: `hsl(var(--${st.tone}) / 0.12)` }}><HeartPulse className="h-5 w-5" style={{ color: toneColor(st.tone) }} /></span>
-            <div>
-              <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">{p.product_name || "Product"}</h1>
-              <p className="text-sm text-muted-foreground">{p.sku ? `${p.sku} · ` : ""}{st.label}</p>
+        <button onClick={() => navigate("/product-health")} className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"><ArrowLeft className="h-3.5 w-3.5" /> Product Health</button>
+
+        {/* STATUS HERO — product + health status at a glance */}
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="card-soft p-5" style={{ background: `hsl(var(--${sev.tone}) / 0.06)`, boxShadow: `inset 0 0 0 1px hsl(var(--${sev.tone}) / 0.35)` }}>
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-3 min-w-0">
+              <span className="h-12 w-12 rounded-2xl grid place-items-center shrink-0" style={{ background: `hsl(var(--${sev.tone}) / 0.14)` }}>
+                {sev.level >= 3 ? <AlertTriangle className="h-6 w-6" style={{ color: toneColor(sev.tone) }} /> : <HeartPulse className="h-6 w-6" style={{ color: toneColor(sev.tone) }} />}
+              </span>
+              <div className="min-w-0">
+                <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">{p.product_name || "Product"}</h1>
+                <p className="text-sm text-muted-foreground">{p.sku ? `${p.sku} · ` : ""}toegevoegd {fmtDate(p.created_at)}</p>
+              </div>
+            </div>
+            <div className="text-right shrink-0">
+              <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-bold border" style={{ background: `hsl(var(--${st.tone}) / 0.12)`, color: toneColor(st.tone), borderColor: `hsl(var(--${st.tone}) / 0.4)` }}>
+                {sev.level >= 3 && <AlertTriangle className="h-3.5 w-3.5" />}{st.label}
+              </span>
+              <p className="text-[11px] text-muted-foreground mt-1.5">Inschatting: <span className="font-medium" style={{ color: toneColor(sev.tone) }}>{sev.label}</span> · {sev.reason}</p>
+              <p className="text-[11px] text-muted-foreground flex items-center gap-1 justify-end mt-0.5"><Clock className="h-3 w-3" /> {sev.sla}</p>
+            </div>
+          </div>
+          {/* set status */}
+          <div className="mt-4 pt-4 border-t border-border/60">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Status instellen</p>
+            <div className="flex flex-wrap gap-1.5">
+              {HEALTH_STATUSES.filter((s) => s.id !== "resolved").map((s) => {
+                const active = p.status === s.id; const col = toneColor(s.tone);
+                return (
+                  <button key={s.id} onClick={() => setStatus(s.id)} title={s.desc}
+                    className="h-8 px-3 rounded-lg text-[11px] font-medium border transition-colors"
+                    style={active ? { background: col, color: "#fff", borderColor: col } : { borderColor: "hsl(var(--border))", color: "hsl(var(--muted-foreground))" }}>
+                    {s.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </motion.div>
 
-        {/* SEVERITY banner (auto-computed) */}
-        <motion.div variants={fadeUp} initial="hidden" animate="visible" className="rounded-2xl px-4 py-3.5 flex items-center gap-3" style={{ background: `hsl(var(--${sev.tone}) / 0.1)`, boxShadow: `inset 0 0 0 1px hsl(var(--${sev.tone}) / 0.35)` }}>
-          <span className="h-10 w-10 rounded-xl grid place-items-center shrink-0 text-white font-num font-bold" style={{ background: toneColor(sev.tone) }}>{sev.level >= 3 ? <AlertTriangle className="h-5 w-5" /> : sev.level > 0 ? `N${sev.level}` : <Check className="h-5 w-5" />}</span>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold" style={{ color: toneColor(sev.tone) }}>{sev.level > 0 ? `Niveau ${sev.level} · ${sev.label}` : sev.label}</p>
-            <p className="text-xs text-muted-foreground">Automatisch bepaald ({sev.reason}) · <span className="font-medium text-foreground">{sev.sla}</span></p>
+        {/* KEY METRICS — the basis for the health status */}
+        <motion.div variants={fadeUp} initial="hidden" animate="visible">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2 px-0.5">Key metrics · waarop de gezondheid gebaseerd is</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <Metric label="Voorraad" icon={<Boxes className="h-4 w-4" />} value={p.stock ?? 0} suffix="" sig={sig.stock} onChange={(v) => patch({ stock: v })} />
+            <Metric label="Retour-ratio" icon={<Undo2 className="h-4 w-4" />} value={p.return_rate ?? 0} suffix="%" sig={sig.ret} step="0.1" onChange={(v) => patch({ return_rate: v })} />
+            <Metric label="Review score" icon={<Star className="h-4 w-4" />} value={p.review_score ?? 0} suffix="/5" sig={sig.rev} step="0.1" onChange={(v) => patch({ review_score: v })} />
           </div>
-          {sev.level >= 3 && <AlertTriangle className="h-5 w-5 shrink-0 animate-pulse" style={{ color: toneColor(sev.tone) }} />}
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {/* MAIN */}
           <div className="lg:col-span-2 space-y-5">
-            {/* SECTIE 1 — Signalen & status */}
+            {/* Herstelacties */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
-              <SectionHead n={1} title="Signalen & status" />
-              <div className="grid grid-cols-3 gap-3">
-                <Metric label="Voorraad" icon={<Boxes className="h-3.5 w-3.5" />} value={p.stock ?? 0} suffix="" sig={sig.stock} onChange={(v) => patch({ stock: v })} />
-                <Metric label="Retour-ratio" icon={<Undo2 className="h-3.5 w-3.5" />} value={p.return_rate ?? 0} suffix="%" sig={sig.ret} step="0.1" onChange={(v) => patch({ return_rate: v })} />
-                <Metric label="Review score" icon={<Star className="h-3.5 w-3.5" />} value={p.review_score ?? 0} suffix="/5" sig={sig.rev} step="0.1" onChange={(v) => patch({ review_score: v })} />
-              </div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mt-4 mb-2">Status</p>
-              <div className="flex flex-wrap gap-1.5">
-                {HEALTH_STATUSES.filter((s) => s.id !== "resolved").map((s) => {
-                  const active = p.status === s.id; const col = toneColor(s.tone);
-                  return (
-                    <button key={s.id} onClick={() => setStatus(s.id)} title={s.desc}
-                      className="h-8 px-2.5 rounded-lg text-[11px] font-medium border transition-colors"
-                      style={active ? { background: col, color: "#fff", borderColor: col } : { borderColor: "hsl(var(--border))", color: "hsl(var(--muted-foreground))" }}>
-                      {s.label}
-                    </button>
-                  );
-                })}
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">{st.desc}</p>
-            </motion.div>
-
-            {/* SECTIE 2 — Herstelacties */}
-            <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
-              <SectionHead n={2} title="Herstelacties" />
+              <div className="flex items-center gap-2 mb-3"><Wrench className="h-4 w-4 text-muted-foreground" /><h2 className="text-sm font-semibold text-foreground">Herstelacties</h2></div>
               <div className="space-y-2">
                 {ACTIONS.map((a) => {
                   const active = meta.action === a.id;
                   const Icon = a.id === "restock" ? PackagePlus : a.id === "supplier_qa" ? Wrench : a.id === "review_outreach" ? MessageSquare : a.id === "reformulate" ? FlaskConical : Pause;
                   return (
-                    <button key={a.id} onClick={() => chooseAction(a.id)} disabled={resolved}
-                      className={`w-full text-left rounded-xl border p-3 flex items-start gap-3 transition-colors disabled:opacity-60 ${active ? "border-primary/50 bg-primary/[0.05]" : "border-border bg-card hover:border-primary/30"}`}
+                    <button key={a.id} onClick={() => chooseAction(a.id)}
+                      className={`w-full text-left rounded-xl border p-3 flex items-start gap-3 transition-colors ${active ? "border-primary/50 bg-primary/[0.05]" : "border-border bg-card hover:border-primary/30"}`}
                       style={a.urgent && !active ? { boxShadow: "inset 0 0 0 1px hsl(var(--ember)/0.3)" } : undefined}>
                       <span className="h-8 w-8 rounded-lg grid place-items-center shrink-0" style={{ background: active ? "hsl(var(--primary))" : a.urgent ? "hsl(var(--ember)/0.15)" : "hsl(var(--muted))", color: active ? "#fff" : a.urgent ? "hsl(var(--ember))" : "hsl(var(--muted-foreground))" }}><Icon className="h-4 w-4" /></span>
                       <div className="min-w-0 flex-1">
@@ -162,7 +162,7 @@ export default function ProductHealthDetail() {
                   );
                 })}
               </div>
-              {chosen && !resolved && (
+              {chosen && (
                 <>
                   <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/30 px-4 py-3">
                     <p className="text-xs text-muted-foreground">{started ? <>In gang gezet · {relTime(meta.actionStartedAt!)}</> : `Gekozen: ${chosen.label}`}</p>
@@ -216,59 +216,21 @@ export default function ProductHealthDetail() {
 
           {/* SIDEBAR */}
           <div className="space-y-5">
-            {/* Product & oorzaak */}
+            {/* Productinfo & oorzaak */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5 space-y-3">
-              <SectionHead n={3} title="Product & oorzaak" />
+              <div className="flex items-center gap-2 mb-1"><Boxes className="h-4 w-4 text-muted-foreground" /><h2 className="text-sm font-semibold text-foreground">Productinfo &amp; oorzaak</h2></div>
               <Field label="SKU"><input value={p.sku ?? ""} onChange={(e) => patch({ sku: e.target.value })} placeholder="SKU" className="w-full bg-transparent text-[13px] outline-none font-mono" /></Field>
               <Field label="Bekende issues"><textarea value={p.issues ?? ""} onChange={(e) => patch({ issues: e.target.value })} rows={3} placeholder="Wat is er aan de hand met dit product?" className="w-full bg-transparent text-[13px] outline-none resize-none" /></Field>
               <Field label="Vermoedelijke oorzaak"><textarea value={meta.rootCause ?? ""} onChange={(e) => setMeta({ rootCause: e.target.value })} rows={2} placeholder="bv. slechte batch, transport, seizoensvraag" className="w-full bg-transparent text-[13px] outline-none resize-none" /></Field>
-              <div className="flex items-center justify-between text-xs pt-0.5"><span className="text-muted-foreground">Toegevoegd</span><span className="font-medium text-foreground">{fmtDate(p.created_at)}</span></div>
             </motion.div>
 
-            {/* Ernst detail */}
-            <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5 space-y-3">
-              <SectionHead n={4} title="Ernst & prioriteit" />
-              <div className="rounded-xl px-3 py-2.5" style={{ background: `hsl(var(--${sev.tone}) / 0.07)` }}>
-                <div className="flex items-center justify-between"><span className="text-[13px] font-semibold" style={{ color: toneColor(sev.tone) }}>{sev.level > 0 ? `Niveau ${sev.level}` : "Gezond"}</span><span className="text-xs text-muted-foreground">{sev.label}</span></div>
-                <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1"><Clock className="h-3 w-3" /> {sev.sla}</p>
-              </div>
-              <div className="space-y-1.5">
-                {([["Voorraad", sig.stock], ["Retour-ratio", sig.ret], ["Reviews", sig.rev]] as [string, Signal][]).map(([lbl, s]) => (
-                  <div key={lbl} className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">{lbl}</span>
-                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full border" style={{ background: `hsl(var(--${s.tone}) / 0.1)`, color: toneColor(s.tone), borderColor: `hsl(var(--${s.tone}) / 0.35)` }}>{s.label}</span>
-                  </div>
-                ))}
-              </div>
-              <p className="text-[11px] text-muted-foreground">De ernst wordt automatisch bepaald door het slechtste signaal (voorraad, retour-ratio, reviews of status).</p>
-            </motion.div>
-
-            {/* Resolutie */}
-            <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5 space-y-3">
-              <SectionHead n={5} title="Resolutie & afsluiting" />
-              {resolved ? (
-                <div className="rounded-xl bg-ok/10 border border-ok/20 px-3 py-3">
-                  <div className="flex items-center gap-2"><span className="h-7 w-7 rounded-full bg-ok grid place-items-center"><Check className="h-4 w-4 text-white" /></span><div><p className="text-[13px] font-semibold text-foreground">Opgelost</p><p className="text-xs text-muted-foreground">{meta.outcome || "—"} · {fmtDate(meta.resolvedAt)}</p></div></div>
-                  <button onClick={reopen} className="mt-2 text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1"><RotateCcw className="h-3 w-3" /> Heropenen</button>
-                </div>
-              ) : (
-                <>
-                  <p className="text-xs text-muted-foreground">Sluit de case af met de uitkomst.{started && chosen && <> De uitkomst van je actie staat <span className="font-medium" style={{ color: "hsl(var(--ok))" }}>groen</span> gemarkeerd.</>}</p>
-                  <div className="grid grid-cols-1 gap-1.5">
-                    {PH_OUTCOMES.map((o) => {
-                      const suggested = started && chosen?.outcome === o;
-                      return (
-                        <button key={o} onClick={() => resolve(o)}
-                          className={`h-9 px-3 rounded-lg border text-[13px] font-medium text-left flex items-center gap-2 transition-colors ${suggested ? "" : "border-border text-foreground hover:border-ok/50 hover:bg-ok/[0.04]"}`}
-                          style={suggested ? { borderColor: "hsl(var(--ok))", background: "hsl(var(--ok)/0.1)", color: "hsl(var(--ok))" } : undefined}>
-                          {suggested ? <Check className="h-3.5 w-3.5" /> : <Circle className="h-3.5 w-3.5 text-muted-foreground/50" />} {o}
-                          {suggested && <span className="ml-auto text-[10px] font-semibold uppercase tracking-wide">uit actie</span>}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </>
-              )}
+            {/* Hoe bepalen we de gezondheid */}
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5 space-y-2.5">
+              <div className="flex items-center gap-2 mb-0.5"><SlidersHorizontal className="h-4 w-4 text-muted-foreground" /><h2 className="text-sm font-semibold text-foreground">Waarop we de gezondheid baseren</h2></div>
+              <p className="text-[11px] text-muted-foreground -mt-1">De status volgt automatisch het slechtste signaal.</p>
+              <Threshold label="Voorraad" now={sig.stock} good="≥ 50" warn="< 20" bad="0" />
+              <Threshold label="Retour-ratio" now={sig.ret} good="< 5%" warn="≥ 10%" bad="≥ 15%" />
+              <Threshold label="Review score" now={sig.rev} good="≥ 4,2" warn="< 3,8" bad="< 3" />
             </motion.div>
           </div>
         </div>
@@ -282,21 +244,15 @@ function Zap() { return <svg viewBox="0 0 24 24" fill="currentColor" className="
 
 function Metric({ label, icon, value, suffix, sig, step, onChange }: { label: string; icon: React.ReactNode; value: number; suffix: string; sig: Signal; step?: string; onChange: (v: number) => void }) {
   return (
-    <div className="rounded-xl border border-border bg-muted/30 px-3 py-2.5">
-      <div className="flex items-center gap-1.5 text-muted-foreground mb-1">{icon}<span className="text-[10px] font-semibold uppercase tracking-wider">{label}</span></div>
-      <div className="flex items-baseline gap-1">
-        <input type="number" step={step} value={value} onChange={(e) => onChange(parseFloat(e.target.value) || 0)} className="w-full bg-transparent font-num text-xl font-bold tabular-nums outline-none text-foreground" />
-        {suffix && <span className="text-xs text-muted-foreground shrink-0">{suffix}</span>}
+    <div className="rounded-2xl border px-4 py-3.5" style={{ borderColor: `hsl(var(--${sig.tone}) / 0.4)`, background: `hsl(var(--${sig.tone}) / 0.05)` }}>
+      <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center gap-1.5" style={{ color: toneColor(sig.tone) }}>{icon}<span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</span></div>
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full border" style={{ background: `hsl(var(--${sig.tone}) / 0.12)`, color: toneColor(sig.tone), borderColor: `hsl(var(--${sig.tone}) / 0.4)` }}>{sig.label}</span>
       </div>
-      <span className="mt-1 inline-flex text-[10px] font-semibold px-1.5 py-0.5 rounded-full border" style={{ background: `hsl(var(--${sig.tone}) / 0.1)`, color: toneColor(sig.tone), borderColor: `hsl(var(--${sig.tone}) / 0.35)` }}>{sig.label}</span>
-    </div>
-  );
-}
-function SectionHead({ n, title }: { n: number; title: string }) {
-  return (
-    <div className="flex items-center gap-2 mb-4">
-      <span className="h-6 w-6 rounded-lg grid place-items-center text-[11px] font-bold shrink-0" style={{ background: "hsl(var(--primary)/0.1)", color: "hsl(var(--primary))" }}>{n}</span>
-      <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+      <div className="flex items-baseline gap-1">
+        <input type="number" step={step} value={value} onChange={(e) => onChange(parseFloat(e.target.value) || 0)} className="w-full bg-transparent font-num text-3xl font-bold tabular-nums outline-none text-foreground" />
+        {suffix && <span className="text-sm text-muted-foreground shrink-0">{suffix}</span>}
+      </div>
     </div>
   );
 }
@@ -305,6 +261,19 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     <div className="rounded-xl border border-border bg-muted/30 px-3 py-2">
       <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">{label}</p>
       {children}
+    </div>
+  );
+}
+function Threshold({ label, now, good, warn, bad }: { label: string; now: Signal; good: string; warn: string; bad: string }) {
+  return (
+    <div className="flex items-center justify-between gap-2 text-[11px]">
+      <span className="text-muted-foreground w-24 shrink-0">{label}</span>
+      <span className="flex items-center gap-1 tabular-nums">
+        <span style={{ color: toneColor("ok") }}>{good}</span><span className="text-muted-foreground/40">·</span>
+        <span style={{ color: toneColor("ember") }}>{warn}</span><span className="text-muted-foreground/40">·</span>
+        <span style={{ color: toneColor("bad") }}>{bad}</span>
+      </span>
+      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full border shrink-0 w-20 text-center" style={{ background: `hsl(var(--${now.tone}) / 0.1)`, color: toneColor(now.tone), borderColor: `hsl(var(--${now.tone}) / 0.35)` }}>{now.label}</span>
     </div>
   );
 }
