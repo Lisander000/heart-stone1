@@ -216,14 +216,6 @@ export default function ProductHealthDetail() {
 
           {/* SIDEBAR */}
           <div className="space-y-5">
-            {/* Productinfo & oorzaak */}
-            <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5 space-y-3">
-              <div className="flex items-center gap-2 mb-1"><Boxes className="h-4 w-4 text-muted-foreground" /><h2 className="text-sm font-semibold text-foreground">Productinfo &amp; oorzaak</h2></div>
-              <Field label="SKU"><input value={p.sku ?? ""} onChange={(e) => patch({ sku: e.target.value })} placeholder="SKU" className="w-full bg-transparent text-[13px] outline-none font-mono" /></Field>
-              <Field label="Bekende issues"><textarea value={p.issues ?? ""} onChange={(e) => patch({ issues: e.target.value })} rows={3} placeholder="Wat is er aan de hand met dit product?" className="w-full bg-transparent text-[13px] outline-none resize-none" /></Field>
-              <Field label="Vermoedelijke oorzaak"><textarea value={meta.rootCause ?? ""} onChange={(e) => setMeta({ rootCause: e.target.value })} rows={2} placeholder="bv. slechte batch, transport, seizoensvraag" className="w-full bg-transparent text-[13px] outline-none resize-none" /></Field>
-            </motion.div>
-
             {/* Hoe bepalen we de gezondheid */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5 space-y-2.5">
               <div className="flex items-center gap-2 mb-0.5"><SlidersHorizontal className="h-4 w-4 text-muted-foreground" /><h2 className="text-sm font-semibold text-foreground">Waarop we de gezondheid baseren</h2></div>
@@ -253,14 +245,6 @@ function Metric({ label, icon, value, suffix, sig, step, onChange }: { label: st
         <input type="number" step={step} value={value} onChange={(e) => onChange(parseFloat(e.target.value) || 0)} className="w-full bg-transparent font-num text-3xl font-bold tabular-nums outline-none text-foreground" />
         {suffix && <span className="text-sm text-muted-foreground shrink-0">{suffix}</span>}
       </div>
-    </div>
-  );
-}
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="rounded-xl border border-border bg-muted/30 px-3 py-2">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">{label}</p>
-      {children}
     </div>
   );
 }
