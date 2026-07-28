@@ -16,7 +16,7 @@ const ROUTE_TITLES: Record<string, { eyebrow: string; title: string }> = {
   "/creative/concepts":  { eyebrow: "Creative", title: "Concepts" },
   "/creative/ad-copies": { eyebrow: "Creative", title: "Ad Copies" },
   "/creative/testing":   { eyebrow: "Creative", title: "Testing Tracker" },
-  "/creative/ugc":       { eyebrow: "Creative", title: "UGC" },
+  "/creative/ugc":       { eyebrow: "Creative", title: "UGC / creators" },
   "/bank":           { eyebrow: "Research",   title: "Data Bank" },
   "/collections":    { eyebrow: "Research",   title: "Collections" },
   "/synthesis":      { eyebrow: "Research",   title: "Synthesis" },

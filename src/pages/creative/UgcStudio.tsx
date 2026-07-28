@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Users2, ClipboardCheck, Layers, Plus, X, SlidersHorizontal } from "lucide-react";
+import { Users2, ClipboardCheck, Layers, Plus, X, SlidersHorizontal, BarChart3 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import TrackerBoard, { BoardConfig } from "./TrackerBoard";
+import UgcDashboard from "./UgcDashboard";
 
 /* ─── board configs ──────────────────────────────────────────────────────── */
 const tracker: BoardConfig = {
@@ -118,7 +119,7 @@ function ListManager({ open, onOpenChange, title, hint, items, onSave }: {
 
 /* ─── page ───────────────────────────────────────────────────────────────── */
 export default function UgcStudio() {
-  const [active, setActive] = useState<(typeof TABS)[number]["id"] | null>(null);
+  const [active, setActive] = useState<"tracker" | "approval" | "dashboard" | null>(null);
   const [icps, setIcps] = useState<string[]>([]);
   const [products, setProducts] = useState<string[]>([]);
   const [tiers, setTiers] = useState<string[]>([]);
@@ -160,12 +161,12 @@ export default function UgcStudio() {
       <div className="max-w-full px-6 py-7 space-y-5">
         {/* header */}
         <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }}>
-          <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">UGC</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Creator tracker & approval. Kies een board om te bewerken.</p>
+          <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">UGC / creators</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Creator-database, collab-approval &amp; dashboard. Kies een view.</p>
         </motion.div>
 
-        {/* 2 selector cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* selector cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {TABS.map((t) => {
             const on = active === t.id;
             return (
@@ -185,10 +186,26 @@ export default function UgcStudio() {
               </button>
             );
           })}
+          {/* dashboard card */}
+          <button onClick={() => setActive("dashboard")}
+            className={`card-soft p-6 text-left transition-all duration-200 ${active === "dashboard" ? "ring-2 shadow-md" : "card-lift hover:shadow-md"}`}
+            style={active === "dashboard" ? { boxShadow: "var(--shadow-md)", ["--tw-ring-color" as any]: "hsl(var(--grape))" } : undefined}>
+            <div className="flex items-center justify-between mb-4">
+              <div className="h-12 w-12 rounded-2xl grid place-items-center" style={{ background: "hsl(var(--grape)/0.1)" }}>
+                <BarChart3 className="h-6 w-6" style={{ color: "hsl(var(--grape))" }} />
+              </div>
+            </div>
+            <p className="font-semibold text-foreground text-base leading-tight">Dashboard</p>
+            <p className="text-xs text-muted-foreground mt-1">Wie werkt, wat verkoopt, top creators</p>
+          </button>
         </div>
 
         {/* active board */}
-        {activeTab ? (
+        {active === "dashboard" ? (
+          <motion.div key="dashboard" initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.25 }} className="pt-1">
+            <UgcDashboard />
+          </motion.div>
+        ) : activeTab ? (
           <motion.div key={active} initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.25 }} className="pt-1">
             <TrackerBoard
               config={activeTab.cfg}

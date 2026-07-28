@@ -6,7 +6,7 @@ import {
 import {
   Home, Activity, Wallet, TrendingUp, Lightbulb, PenLine, FlaskConical, Clapperboard,
   Database, FolderOpen, Sparkles, Users, Swords, Tag, ShoppingCart, PackageOpen, Truck,
-  RotateCcw, BarChart3, LifeBuoy, HeartPulse, Bot, UsersRound, LayoutGrid, User,
+  RotateCcw, BarChart3, LifeBuoy, HeartPulse, UsersRound, LayoutGrid, User,
 } from "lucide-react";
 
 type Dest = { label: string; to: string; icon: React.ElementType; group: string };
@@ -19,7 +19,7 @@ const DESTS: Dest[] = [
   { label: "Concepts", to: "/creative/concepts", icon: Lightbulb, group: "Creative" },
   { label: "Ad Copies", to: "/creative/ad-copies", icon: PenLine, group: "Creative" },
   { label: "Testing Tracker", to: "/creative/testing", icon: FlaskConical, group: "Creative" },
-  { label: "UGC", to: "/creative/ugc", icon: Clapperboard, group: "Creative" },
+  { label: "UGC / creators", to: "/creative/ugc", icon: Clapperboard, group: "Creative" },
   { label: "Data Bank", to: "/bank", icon: Database, group: "Research" },
   { label: "Collections", to: "/collections", icon: FolderOpen, group: "Research" },
   { label: "Synthesis", to: "/synthesis", icon: Sparkles, group: "Research" },

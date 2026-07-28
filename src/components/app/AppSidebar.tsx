@@ -55,7 +55,7 @@ const navGroups: NavGroup[] = [
       { title: "Concepts", url: "/creative/concepts", icon: Lightbulb },
       { title: "Ad Copies", url: "/creative/ad-copies", icon: PenLine },
       { title: "Testing Tracker", url: "/creative/testing", icon: FlaskConical },
-      { title: "UGC", url: "/creative/ugc", icon: Clapperboard },
+      { title: "UGC / creators", url: "/creative/ugc", icon: Clapperboard },
     ],
   },
   {
