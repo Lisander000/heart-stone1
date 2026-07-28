@@ -33,28 +33,46 @@ export const HEALTH_STATUSES: { id: HealthStatus; label: string; tone: string; d
 ];
 export const statusMeta = (s: string) => HEALTH_STATUSES.find((x) => x.id === s) ?? { id: s as HealthStatus, label: s || "—", tone: "muted", desc: "" };
 
-/* ─── per-metric signals — evaluated against thresholds ──────────────────── */
+/* ─── configurable thresholds — "healthy" is subjective (200 in stock is a lot to
+   one person, little to another), so the boundaries are a brand-wide setting stored
+   in localStorage and editable from the detail page. ─────────────────────────── */
+export type PHThresholds = {
+  stockLow: number; stockWarn: number;                  // < low → lage voorraad, < warn → krap
+  retWarn: number; retHigh: number; retSevere: number;  // ≥ → verhoogd / hoog / zeer hoog
+  revStrong: number; revFair: number; revBad: number;   // ≥ strong → sterk, ≥ fair → redelijk, < bad → slecht
+};
+export const DEFAULT_THRESHOLDS: PHThresholds = { stockLow: 20, stockWarn: 50, retWarn: 5, retHigh: 10, retSevere: 15, revStrong: 4.2, revFair: 3.8, revBad: 3 };
+const THR = "gb_ph_thresholds";
+export function getPHThresholds(): PHThresholds { try { return { ...DEFAULT_THRESHOLDS, ...JSON.parse(localStorage.getItem(THR) || "{}") }; } catch { return DEFAULT_THRESHOLDS; } }
+export function setPHThresholds(patch: Partial<PHThresholds>) { try { localStorage.setItem(THR, JSON.stringify({ ...getPHThresholds(), ...patch })); } catch { /* ignore */ } fire(); }
+export function usePHThresholds(): PHThresholds {
+  const [v, setV] = useState<PHThresholds>(getPHThresholds);
+  useEffect(() => { const on = () => setV(getPHThresholds()); window.addEventListener(EV, on); return () => window.removeEventListener(EV, on); }, []);
+  return v;
+}
+
+/* ─── per-metric signals — evaluated against the (configurable) thresholds ──── */
 export type Signal = { tone: string; label: string; level: 0 | 1 | 2 | 3 };
-export function stockSignal(stock?: number | null): Signal {
+export function stockSignal(stock?: number | null, t: PHThresholds = DEFAULT_THRESHOLDS): Signal {
   const v = Number(stock ?? 0);
   if (v <= 0) return { tone: "bad", label: "Uitverkocht", level: 3 };
-  if (v < 20) return { tone: "ember", label: "Lage voorraad", level: 2 };
-  if (v < 50) return { tone: "sun", label: "Krap", level: 1 };
+  if (v < t.stockLow) return { tone: "ember", label: "Lage voorraad", level: 2 };
+  if (v < t.stockWarn) return { tone: "sun", label: "Krap", level: 1 };
   return { tone: "ok", label: "Op voorraad", level: 0 };
 }
-export function returnSignal(rate?: number | null): Signal {
+export function returnSignal(rate?: number | null, t: PHThresholds = DEFAULT_THRESHOLDS): Signal {
   const v = Number(rate ?? 0);
-  if (v >= 15) return { tone: "bad", label: "Zeer hoog", level: 3 };
-  if (v >= 10) return { tone: "ember", label: "Hoog", level: 2 };
-  if (v >= 5) return { tone: "sun", label: "Verhoogd", level: 1 };
+  if (v >= t.retSevere) return { tone: "bad", label: "Zeer hoog", level: 3 };
+  if (v >= t.retHigh) return { tone: "ember", label: "Hoog", level: 2 };
+  if (v >= t.retWarn) return { tone: "sun", label: "Verhoogd", level: 1 };
   return { tone: "ok", label: "Normaal", level: 0 };
 }
-export function reviewSignal(score?: number | null): Signal {
+export function reviewSignal(score?: number | null, t: PHThresholds = DEFAULT_THRESHOLDS): Signal {
   const v = Number(score ?? 0);
   if (v <= 0) return { tone: "muted", label: "Geen data", level: 0 };
-  if (v < 3) return { tone: "bad", label: "Slecht", level: 3 };
-  if (v < 3.8) return { tone: "ember", label: "Matig", level: 2 };
-  if (v < 4.2) return { tone: "sun", label: "Redelijk", level: 1 };
+  if (v < t.revBad) return { tone: "bad", label: "Slecht", level: 3 };
+  if (v < t.revFair) return { tone: "ember", label: "Matig", level: 2 };
+  if (v < t.revStrong) return { tone: "sun", label: "Redelijk", level: 1 };
   return { tone: "ok", label: "Sterk", level: 0 };
 }
 
@@ -67,13 +85,13 @@ const SEV_META: Record<number, { label: string; tone: string; sla: string }> = {
   3: { label: "Kritiek", tone: "bad", sla: "ingrijpen nu" },
 };
 const statusLevel = (s: string) => (s === "critical" || s === "issue" ? 3 : s === "at_risk" ? 2 : s === "watch" ? 1 : 0);
-export function computeSeverity(opts: { status: string; returnRate?: number | null; reviewScore?: number | null; stock?: number | null }): Severity {
+export function computeSeverity(opts: { status: string; returnRate?: number | null; reviewScore?: number | null; stock?: number | null }, t: PHThresholds = DEFAULT_THRESHOLDS): Severity {
   if (opts.status === "resolved") return { level: 0, ...SEV_META[0], reason: "opgelost" };
   const sigs = [
     { s: statusLevel(opts.status), why: `status ${statusMeta(opts.status).label.toLowerCase()}` },
-    { s: returnSignal(opts.returnRate).level, why: `retour-ratio ${returnSignal(opts.returnRate).label.toLowerCase()}` },
-    { s: reviewSignal(opts.reviewScore).level, why: `reviews ${reviewSignal(opts.reviewScore).label.toLowerCase()}` },
-    { s: stockSignal(opts.stock).level, why: stockSignal(opts.stock).label.toLowerCase() },
+    { s: returnSignal(opts.returnRate, t).level, why: `retour-ratio ${returnSignal(opts.returnRate, t).label.toLowerCase()}` },
+    { s: reviewSignal(opts.reviewScore, t).level, why: `reviews ${reviewSignal(opts.reviewScore, t).label.toLowerCase()}` },
+    { s: stockSignal(opts.stock, t).level, why: stockSignal(opts.stock, t).label.toLowerCase() },
   ];
   const top = sigs.reduce((a, b) => (b.s > a.s ? b : a), sigs[0]);
   const level = top.s as 0 | 1 | 2 | 3;
