@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, ReactNode } from "react";
+import { useEffect, useMemo, useState, ReactNode, ElementType } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,9 +28,10 @@ type Props = {
   fields: FieldDef[]; columns: ColumnDef[]; emptyText?: string;
   extraFilter?: Record<string, any>; orderBy?: { column: string; ascending?: boolean };
   rowLinkTo?: (row: any) => string;
+  icon?: ElementType; iconTone?: string;
 };
 
-export function ResourcePage({ title, description, table, fields, columns, emptyText, extraFilter, orderBy, rowLinkTo }: Props) {
+export function ResourcePage({ title, description, table, fields, columns, emptyText, extraFilter, orderBy, rowLinkTo, icon: Icon, iconTone = "info" }: Props) {
   const navigate = useNavigate();
   const [rows, setRows]         = useState<any[]>([]);
   const [loading, setLoading]   = useState(true);
@@ -255,9 +256,12 @@ export function ResourcePage({ title, description, table, fields, columns, empty
       <div className="max-w-7xl mx-auto px-6 py-7 space-y-5">
         {/* ── Page header ── */}
         <div className="flex items-end justify-between gap-4 flex-wrap">
-          <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }}>
-            <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">{title}</h1>
-            {description && <p className="text-sm text-muted-foreground mt-0.5">{description}</p>}
+          <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }} className="flex items-center gap-2.5">
+            {Icon && <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: `hsl(var(--${iconTone}) / 0.12)` }}><Icon className="h-5 w-5" style={{ color: `hsl(var(--${iconTone}))` }} /></span>}
+            <div>
+              <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">{title}</h1>
+              {description && <p className="text-sm text-muted-foreground mt-0.5">{description}</p>}
+            </div>
           </motion.div>
           <div className="flex items-center gap-2">
             <button onClick={load} disabled={loading}

@@ -1,4 +1,5 @@
 import { ResourcePage, StatusBadge } from "@/components/ops/ResourcePage";
+import { HeartPulse } from "lucide-react";
 
 const tone = (v: string) => v === "healthy" ? "success" : v === "watch" ? "warn" : "danger";
 
@@ -6,6 +7,8 @@ export default function ProductHealth() {
   return (
     <ResourcePage
       title="Product Health"
+      icon={HeartPulse}
+      iconTone="ok"
       description="Voorraad, retour-ratio en reviewscore per product. Open er een om het product-health-plan te volgen."
       table="product_health"
       rowLinkTo={(r) => `/product-health/${r.id}`}

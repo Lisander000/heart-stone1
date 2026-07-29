@@ -1,4 +1,5 @@
 import { ResourcePage, StatusBadge, fmtDate } from "@/components/ops/ResourcePage";
+import { LifeBuoy } from "lucide-react";
 
 const prioTone = (v: string) => v === "urgent" || v === "high" ? "danger" : v === "medium" ? "warn" : "default";
 const statusTone = (v: string) => v === "solved" || v === "resolved" || v === "closed" ? "success" : v === "pending" ? "warn" : "default";
@@ -7,6 +8,8 @@ export default function Tickets() {
   return (
     <ResourcePage
       title="Tickets"
+      icon={LifeBuoy}
+      iconTone="grape"
       description="Klantenservice-tickets per kanaal. Open er een om het ticket af te handelen."
       table="tickets"
       rowLinkTo={(r) => `/tickets/${r.id}`}

@@ -1,4 +1,5 @@
 import { ResourcePage, StatusBadge, fmtDate, fmtMoney } from "@/components/ops/ResourcePage";
+import { ShoppingCart } from "lucide-react";
 
 const payTone = (v: string) => v === "paid" ? "success" : v === "refunded" || v === "cancelled" ? "danger" : "warn";
 const fulfilTone = (v: string) => v === "fulfilled" ? "success" : v === "partial" ? "warn" : "danger";
@@ -7,6 +8,8 @@ export default function Orders() {
   return (
     <ResourcePage
       title="Orders"
+      icon={ShoppingCart}
+      iconTone="info"
       description="Alle bestellingen met betaal- en fulfilmentstatus."
       table="orders"
       rowLinkTo={(r) => `/orders/${r.id}`}

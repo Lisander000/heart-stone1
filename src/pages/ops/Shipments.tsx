@@ -1,4 +1,5 @@
 import { ResourcePage, StatusBadge, fmtDate } from "@/components/ops/ResourcePage";
+import { Truck } from "lucide-react";
 
 const tone = (v: string) => ["delivered", "resolved"].includes(v) ? "success"
   : ["failed", "returned", "returned_to_sender", "lost", "delivered_disputed"].includes(v) ? "danger"
@@ -8,6 +9,8 @@ export default function Shipments() {
   return (
     <ResourcePage
       title="Shipments"
+      icon={Truck}
+      iconTone="ember"
       description="Verzendingen en hun trackingstatus. Open er een om het verzendprobleem af te handelen."
       table="shipments"
       rowLinkTo={(s) => `/shipments/${s.id}`}
