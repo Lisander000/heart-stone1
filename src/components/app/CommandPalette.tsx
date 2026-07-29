@@ -6,7 +6,7 @@ import {
 import {
   Home, Activity, Wallet, TrendingUp, Lightbulb, PenLine, FlaskConical, Clapperboard,
   Database, FolderOpen, Sparkles, Users, Swords, Tag, ShoppingCart, PackageOpen, Truck,
-  RotateCcw, BarChart3, LifeBuoy, HeartPulse, UsersRound, LayoutGrid, User,
+  RotateCcw, LifeBuoy, HeartPulse, UsersRound, User,
 } from "lucide-react";
 
 type Dest = { label: string; to: string; icon: React.ElementType; group: string };
@@ -26,7 +26,6 @@ const DESTS: Dest[] = [
   { label: "ICP", to: "/icp", icon: Users, group: "Strategy" },
   { label: "Competitors", to: "/competitors", icon: Swords, group: "Strategy" },
   { label: "Offers", to: "/offers", icon: Tag, group: "Strategy" },
-  { label: "Ops overview", to: "/ops", icon: LayoutGrid, group: "Operations" },
   { label: "Orders", to: "/orders", icon: ShoppingCart, group: "Operations" },
   { label: "Unfulfilled", to: "/unfulfilled", icon: PackageOpen, group: "Operations" },
   { label: "Shipments", to: "/shipments", icon: Truck, group: "Operations" },

@@ -206,7 +206,7 @@ export default function Home() {
 
         {/* ══════════════ OPERATIONS ══════════════ */}
         <section className="space-y-4">
-          <SectionHead icon={Activity} accent="hsl(var(--ember))" title="Operations" subtitle={`Orders, fulfilment, returns & support · vs ${prevLabel}`} to="/ops" />
+          <SectionHead icon={Activity} accent="hsl(var(--ember))" title="Operations" subtitle={`Orders, fulfilment, returns & support · vs ${prevLabel}`} to="/orders" />
 
           <motion.div variants={stagger(0.05)} initial="hidden" animate="visible" className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <Kpi split label="Orders" value={String(ordersCur.length)} delta={dOrders} good icon={ShoppingCart} accent="hsl(var(--info))" to="/orders" />

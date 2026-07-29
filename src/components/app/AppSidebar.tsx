@@ -2,7 +2,7 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   Home, Database, FolderOpen, Sparkles, Users, Swords, Tag, LogOut, Loader2,
   ShoppingCart, PackageOpen, Truck, RotateCcw, LifeBuoy, HeartPulse, Bot, Wallet,
-  UsersRound, LayoutGrid, BarChart3, User, ChevronDown, Activity, Terminal,
+  UsersRound, User, ChevronDown, Activity, Terminal,
   Lightbulb, PenLine, FlaskConical, Clapperboard, TrendingUp,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -81,9 +81,7 @@ const navGroups: NavGroup[] = [
   {
     label: "Operations",
     collapsible: true,
-    pinnedItems: [
-      { title: "Ops overview", url: "/ops", icon: LayoutGrid },
-    ],
+    pinnedItems: [],
     items: [
       { title: "Orders", url: "/orders", icon: ShoppingCart },
       { title: "Unfulfilled", url: "/unfulfilled", icon: PackageOpen },

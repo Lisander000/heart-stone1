@@ -20,7 +20,6 @@ import Returns from "./pages/ops/Returns.tsx";
 import ReturnDetail from "./pages/ops/ReturnDetail.tsx";
 import Tickets from "./pages/ops/Tickets.tsx";
 import TicketDetail from "./pages/ops/TicketDetail.tsx";
-import OpsOverview from "./pages/ops/OpsOverview.tsx";
 import RecordDetail from "./pages/ops/RecordDetail.tsx";
 import RecordForm from "./pages/ops/RecordForm.tsx";
 import ProductHealth from "./pages/ops/ProductHealth.tsx";
@@ -71,7 +70,6 @@ const App = () => (
               <Route path="/returns/:id" element={<ReturnDetail />} />
               <Route path="/tickets" element={<Tickets />} />
               <Route path="/tickets/:id" element={<TicketDetail />} />
-              <Route path="/ops" element={<OpsOverview />} />
               <Route path="/product-health" element={<ProductHealth />} />
               <Route path="/product-health/:id" element={<ProductHealthDetail />} />
               <Route path="/agents" element={<SuperOnly><Agents /></SuperOnly>} />

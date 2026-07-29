@@ -25,7 +25,6 @@ const ROUTE_TITLES: Record<string, { eyebrow: string; title: string }> = {
   "/competitors":    { eyebrow: "Strategy",   title: "Competitors" },
   "/offers":         { eyebrow: "Strategy",   title: "Offers" },
   "/profile":        { eyebrow: "Account",    title: "Mijn profiel" },
-  "/ops":            { eyebrow: "Operations", title: "Overview" },
   "/orders":         { eyebrow: "Operations", title: "Orders" },
   "/unfulfilled":    { eyebrow: "Operations", title: "Unfulfilled" },
   "/shipments":      { eyebrow: "Operations", title: "Shipments" },
