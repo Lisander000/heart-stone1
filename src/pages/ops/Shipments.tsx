@@ -1,4 +1,5 @@
 import { ResourcePage, StatusBadge, fmtDate } from "@/components/ops/ResourcePage";
+import { ResourceDashboard } from "@/components/ops/ResourceDashboard";
 import { Truck } from "lucide-react";
 
 const tone = (v: string) => ["delivered", "resolved"].includes(v) ? "success"
@@ -15,6 +16,15 @@ export default function Shipments() {
       description="Verzendingen en hun trackingstatus. Open er een om het verzendprobleem af te handelen."
       table="shipments"
       rowLinkTo={(s) => `/shipments/${s.id}`}
+      dashboard={
+        <ResourceDashboard
+          table="shipments" label="shipments" accent="hsl(var(--ember))"
+          statusField="status"
+          openStatuses={["info_received", "in_transit", "no_movement", "returned_to_sender", "lost", "delivered_disputed"]} openLabel="Onderweg"
+          statusColors={{ delivered: "hsl(var(--ok))", resolved: "hsl(var(--ok))", in_transit: "hsl(var(--warn))", no_movement: "hsl(var(--warn))", info_received: "hsl(var(--info))", returned_to_sender: "hsl(var(--bad))", lost: "hsl(var(--bad))", delivered_disputed: "hsl(var(--bad))" }}
+          dimensions={[{ key: "carrier", label: "Carrier" }]}
+        />
+      }
       fields={[
         { key: "carrier", label: "Carrier", placeholder: "bpost, DPD, PostNL…" },
         { key: "tracking_number", label: "Tracking nummer" },

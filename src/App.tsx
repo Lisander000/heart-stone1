@@ -61,14 +61,18 @@ const App = () => (
               <Route path="/competitors" element={<Competitors />} />
               <Route path="/offers" element={<Offers />} />
               <Route path="/orders" element={<Orders />} />
+              <Route path="/orders/dashboard" element={<Orders />} />
               <Route path="/orders/:orderId" element={<OrderDetail />} />
               <Route path="/unfulfilled" element={<Unfulfilled />} />
+              <Route path="/unfulfilled/dashboard" element={<Unfulfilled />} />
               <Route path="/shipments" element={<Shipments />} />
+              <Route path="/shipments/dashboard" element={<Shipments />} />
               <Route path="/shipments/:id" element={<ShipmentDetail />} />
               <Route path="/returns" element={<Returns />} />
               <Route path="/returns/dashboard" element={<Returns />} />
               <Route path="/returns/:id" element={<ReturnDetail />} />
               <Route path="/tickets" element={<Tickets />} />
+              <Route path="/tickets/dashboard" element={<Tickets />} />
               <Route path="/tickets/:id" element={<TicketDetail />} />
               <Route path="/product-health" element={<ProductHealth />} />
               <Route path="/product-health/:id" element={<ProductHealthDetail />} />

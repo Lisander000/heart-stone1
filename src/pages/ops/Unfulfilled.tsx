@@ -1,4 +1,5 @@
 import { ResourcePage, StatusBadge, fmtDate, fmtMoney } from "@/components/ops/ResourcePage";
+import { ResourceDashboard } from "@/components/ops/ResourceDashboard";
 import { PackageOpen } from "lucide-react";
 
 const payTone = (v: string) => v === "paid" ? "success" : v === "refunded" || v === "cancelled" ? "danger" : "warn";
@@ -14,6 +15,15 @@ export default function Unfulfilled() {
       table="orders"
       extraFilter={{ fulfillment_status: "unfulfilled" }}
       rowLinkTo={(r) => `/orders/${r.id}`}
+      dashboard={
+        <ResourceDashboard
+          table="orders" label="orders" accent="hsl(var(--warn))"
+          extraFilter={{ fulfillment_status: "unfulfilled" }}
+          statusField="status" moneyField="total"
+          openStatuses={["paid"]} openLabel="Betaald"
+          statusColors={{ paid: "hsl(var(--ok))", open: "hsl(var(--warn))", refunded: "hsl(var(--bad))", cancelled: "hsl(var(--bad))" }}
+        />
+      }
       emptyText="Geen openstaande fulfilments. Alles is verzonden 🎉"
       fields={[
         { key: "order_number", label: "Ordernummer", required: true, placeholder: "#1042" },

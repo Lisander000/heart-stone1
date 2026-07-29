@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, ReactNode, ElementType } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -29,10 +29,15 @@ type Props = {
   extraFilter?: Record<string, any>; orderBy?: { column: string; ascending?: boolean };
   rowLinkTo?: (row: any) => string;
   icon?: ElementType; iconTone?: string; category?: string;
+  dashboard?: ReactNode;
 };
 
-export function ResourcePage({ title, table, fields, columns, emptyText, extraFilter, orderBy, rowLinkTo, icon: Icon, iconTone = "info", category }: Props) {
+export function ResourcePage({ title, table, fields, columns, emptyText, extraFilter, orderBy, rowLinkTo, icon: Icon, iconTone = "info", category, dashboard }: Props) {
   const navigate = useNavigate();
+  const location = useLocation();
+  // URL-synced tab: /<resource> = list, /<resource>/dashboard = embedded dashboard
+  const basePath = location.pathname.replace(/\/dashboard$/, "");
+  const tab: "list" | "dashboard" = dashboard && location.pathname.endsWith("/dashboard") ? "dashboard" : "list";
   const [rows, setRows]         = useState<any[]>([]);
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState<string | null>(null);
@@ -263,15 +268,29 @@ export function ResourcePage({ title, table, fields, columns, emptyText, extraFi
               <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">{title}</h1>
             </div>
           </motion.div>
-          <div className="flex items-center gap-2">
-            <button onClick={load} disabled={loading}
-              className="h-9 w-9 rounded-full border border-border bg-card grid place-items-center text-muted-foreground shadow-xs hover:text-foreground transition-colors disabled:opacity-40">
-              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-            </button>
-            {newButton}
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* tab switcher — list / Dashboard (only when a dashboard is provided) */}
+            {dashboard && (
+              <div className="flex gap-1 p-1 rounded-full bg-muted">
+                {(["list", "dashboard"] as const).map((t) => (
+                  <button key={t} onClick={() => navigate(t === "list" ? basePath : `${basePath}/dashboard`)}
+                    className={`h-8 px-3.5 rounded-full text-xs font-semibold transition-all ${tab === t ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+                    {t === "list" ? "Lijst" : "Dashboard"}
+                  </button>
+                ))}
+              </div>
+            )}
+            {tab === "list" && (<>
+              <button onClick={load} disabled={loading}
+                className="h-9 w-9 rounded-full border border-border bg-card grid place-items-center text-muted-foreground shadow-xs hover:text-foreground transition-colors disabled:opacity-40">
+                <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+              </button>
+              {newButton}
+            </>)}
           </div>
         </div>
 
+        {tab === "dashboard" ? dashboard : (<>
         {error && <div className="text-sm text-bad border border-bad/20 bg-bad/5 rounded-xl px-4 py-3">{error}</div>}
 
         {/* ── KPI cards ── */}
@@ -406,6 +425,7 @@ export function ResourcePage({ title, table, fields, columns, emptyText, extraFi
             </motion.div>
           )}
         </div>
+        </>)}
       </div>
 
       {/* Edit dialog */}

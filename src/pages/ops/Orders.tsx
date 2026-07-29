@@ -1,4 +1,5 @@
 import { ResourcePage, StatusBadge, fmtDate, fmtMoney } from "@/components/ops/ResourcePage";
+import { ResourceDashboard } from "@/components/ops/ResourceDashboard";
 import { ShoppingCart } from "lucide-react";
 
 const payTone = (v: string) => v === "paid" ? "success" : v === "refunded" || v === "cancelled" ? "danger" : "warn";
@@ -14,6 +15,15 @@ export default function Orders() {
       description="Alle bestellingen met betaal- en fulfilmentstatus."
       table="orders"
       rowLinkTo={(r) => `/orders/${r.id}`}
+      dashboard={
+        <ResourceDashboard
+          table="orders" label="orders" accent="hsl(var(--info))"
+          statusField="status" moneyField="total"
+          openStatuses={["open"]} openLabel="Onbetaald"
+          statusColors={{ paid: "hsl(var(--ok))", open: "hsl(var(--warn))", refunded: "hsl(var(--bad))", cancelled: "hsl(var(--bad))" }}
+          dimensions={[{ key: "fulfillment_status", label: "Fulfilment" }]}
+        />
+      }
       fields={[
         { key: "order_number", label: "Ordernummer", required: true, placeholder: "#1042" },
         { key: "customer_name", label: "Klantnaam", placeholder: "Voornaam Achternaam" },

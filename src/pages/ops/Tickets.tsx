@@ -1,4 +1,5 @@
 import { ResourcePage, StatusBadge, fmtDate } from "@/components/ops/ResourcePage";
+import { ResourceDashboard } from "@/components/ops/ResourceDashboard";
 import { LifeBuoy } from "lucide-react";
 
 const prioTone = (v: string) => v === "urgent" || v === "high" ? "danger" : v === "medium" ? "warn" : "default";
@@ -14,6 +15,15 @@ export default function Tickets() {
       description="Klantenservice-tickets per kanaal. Open er een om het ticket af te handelen."
       table="tickets"
       rowLinkTo={(r) => `/tickets/${r.id}`}
+      dashboard={
+        <ResourceDashboard
+          table="tickets" label="tickets" accent="hsl(var(--grape))"
+          statusField="status"
+          openStatuses={["open", "pending"]} openLabel="Open"
+          statusColors={{ open: "hsl(var(--info))", pending: "hsl(var(--warn))", solved: "hsl(var(--ok))", resolved: "hsl(var(--ok))", closed: "hsl(var(--ok))" }}
+          dimensions={[{ key: "channel", label: "Kanaal" }, { key: "priority", label: "Prioriteit" }]}
+        />
+      }
       fields={[
         { key: "subject", label: "Onderwerp", required: true, placeholder: "Waar gaat het over?" },
         { key: "customer_email", label: "Klant e-mail", type: "email" },
