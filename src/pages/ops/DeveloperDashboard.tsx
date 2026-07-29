@@ -62,7 +62,6 @@ export default function DeveloperDashboard() {
           <span className="h-10 w-10 rounded-2xl grid place-items-center bg-primary/10"><Terminal className="h-5 w-5 text-primary" /></span>
           <div>
             <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Developer</h1>
-            <p className="text-sm text-muted-foreground">Beheer wat een gewone werknemer niet kan of hoeft — agents, super users &amp; gebruikers.</p>
           </div>
         </motion.div>
 

@@ -68,9 +68,6 @@ export default function Finance() {
             <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--ok)/0.12)" }}><Wallet className="h-5 w-5" style={{ color: "hsl(var(--ok))" }} /></span>
             <div>
               <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Financial Overview</h1>
-              <p className="text-sm text-muted-foreground mt-0.5">
-                Roll-up van de <Link to="/daily-tracker" className="text-primary hover:underline">Daily Tracker</Link> — dezelfde cijfers als op het dashboard.
-              </p>
             </div>
           </motion.div>
           <button onClick={load}

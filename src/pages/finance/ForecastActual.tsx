@@ -139,7 +139,6 @@ export default function ForecastActual() {
             <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--info)/0.12)" }}><TrendingUp className="h-5 w-5" style={{ color: "hsl(var(--info))" }} /></span>
             <div>
               <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Forecast vs Actual</h1>
-              <p className="text-sm text-muted-foreground mt-0.5">Begroot versus werkelijk · volledige P&amp;L. Vul Forecast en Actual in — de totalen rekenen mee.</p>
             </div>
           </div>
           <span className="h-9 px-3 rounded-full border border-border bg-card shadow-xs text-xs font-medium text-muted-foreground flex items-center gap-1.5">

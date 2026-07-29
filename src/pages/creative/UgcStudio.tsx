@@ -164,7 +164,6 @@ export default function UgcStudio() {
           <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--grape)/0.12)" }}><Clapperboard className="h-5 w-5" style={{ color: "hsl(var(--grape))" }} /></span>
           <div>
             <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">UGC / creators</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">Creator-database, collab-approval &amp; dashboard. Kies een view.</p>
           </div>
         </motion.div>
 

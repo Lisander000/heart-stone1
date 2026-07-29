@@ -360,7 +360,6 @@ export default function Offers() {
               <h1 className="font-display text-[1.75rem] leading-tight font-semibold tracking-tight text-foreground leading-none">
                 Offer-vergelijking
               </h1>
-              <p className="text-sm text-muted-foreground mt-2">Prijs, mechaniek en positionering van elke concurrent, in één blik.</p>
             </div>
           </motion.div>
           <motion.div

@@ -150,7 +150,6 @@ export default function ICPDocument() {
             <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--info)/0.12)" }}><Users className="h-5 w-5" style={{ color: "hsl(var(--info))" }} /></span>
             <div>
               <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Focus ICP's</h1>
-              <p className="text-sm text-muted-foreground mt-0.5">Persona's die leven in ads, landing pages en email-segmenten. Bewerk of voeg er toe.</p>
             </div>
           </motion.div>
           <button onClick={() => setEditing((e) => !e)}

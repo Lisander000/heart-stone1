@@ -74,7 +74,6 @@ export default function AdCopiesStudio() {
           <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--info)/0.12)" }}><PenLine className="h-5 w-5" style={{ color: "hsl(var(--info))" }} /></span>
           <div>
             <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Ad Copies</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">Per awareness-stage. Kies een board om de copies te bewerken.</p>
           </div>
         </motion.div>
 

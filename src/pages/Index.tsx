@@ -1110,12 +1110,6 @@ export default function DataBank({ initialView = "brands" }: { initialView?: Vie
               <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">
                 {view === "brands" ? "Data Bank" : view === "collections" ? "Collections" : view === "entries" ? "All Entries" : "Synthesis"}
               </h1>
-              <p className="text-sm text-muted-foreground mt-0.5">
-                {view === "brands" ? "Alles wat we weten over onszelf en onze concurrenten — reviews, ads en insights."
-                  : view === "collections" ? "Onderzoek gebundeld per thema — winning ads, insights, founder inspiration en meer."
-                  : view === "entries" ? "Elke ruwe insight op één plek — doorzoekbaar en filterbaar."
-                  : "AI-samenvatting die je in één oogopslag vertelt wat je moet weten."}
-              </p>
             </div>
           </motion.div>
           <button onClick={exportData}

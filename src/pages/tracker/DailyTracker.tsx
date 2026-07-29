@@ -229,7 +229,6 @@ export default function DailyTracker() {
             <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--ember)/0.12)" }}><Activity className="h-5 w-5" style={{ color: "hsl(var(--ember))" }} /></span>
             <div>
               <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Daily Tracker</h1>
-              <p className="text-sm text-muted-foreground mt-0.5">Dagelijkse P&amp;L + acquisitie-metrics · formules uit GB Command Center</p>
             </div>
           </motion.div>
           <div className="flex items-center gap-2">

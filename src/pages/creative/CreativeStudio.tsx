@@ -116,7 +116,6 @@ export default function CreativeStudio() {
           <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--sun)/0.12)" }}><Lightbulb className="h-5 w-5" style={{ color: "hsl(var(--sun))" }} /></span>
           <div>
             <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Creative Concepts</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">Angles → concepts → hooks. Kies een board om te bewerken.</p>
           </div>
         </motion.div>
 

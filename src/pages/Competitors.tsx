@@ -297,7 +297,6 @@ export default function Competitors() {
               <h1 className="font-display text-[1.75rem] leading-tight font-semibold tracking-tight text-foreground leading-none">
                 Concurrentie-analyse
               </h1>
-              <p className="text-sm text-muted-foreground mt-2">Zes vaste assen. Eén beeld per merk. Eén tabel om de gaten te zien.</p>
             </div>
           </motion.div>
           <motion.div initial={{ opacity:0, x:10 }} animate={{ opacity:1, x:0 }} transition={{ duration:0.4, delay:0.1 }}>

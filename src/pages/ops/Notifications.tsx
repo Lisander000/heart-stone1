@@ -186,9 +186,6 @@ export default function Notifications() {
               <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--info)/0.12)" }}><Bell className="h-5 w-5" style={{ color: "hsl(var(--info))" }} /></span>
               <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Notifications</h1>
             </div>
-            <p className="text-sm text-muted-foreground mt-1">
-              Interne meldingen & alerts. Zet je eigen status of notitie — <span className="font-medium text-foreground">alleen jij ziet dat</span>.
-            </p>
           </motion.div>
           <div className="flex items-center gap-2">
             {perm !== "granted" && perm !== "unsupported" && (

@@ -260,7 +260,6 @@ export function ResourcePage({ title, description, table, fields, columns, empty
             {Icon && <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: `hsl(var(--${iconTone}) / 0.12)` }}><Icon className="h-5 w-5" style={{ color: `hsl(var(--${iconTone}))` }} /></span>}
             <div>
               <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">{title}</h1>
-              {description && <p className="text-sm text-muted-foreground mt-0.5">{description}</p>}
             </div>
           </motion.div>
           <div className="flex items-center gap-2">

@@ -102,7 +102,6 @@ export default function Team() {
               <span className="h-10 w-10 rounded-2xl grid place-items-center bg-primary/10"><UsersRound className="h-5 w-5 text-primary" /></span>
               <div>
                 <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Team</h1>
-                <p className="text-sm text-muted-foreground">Teamleden, rollen &amp; super users</p>
               </div>
             </div>
           </motion.div>

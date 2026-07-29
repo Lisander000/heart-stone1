@@ -130,7 +130,6 @@ export default function Home() {
               <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">
                 {GREET()}{name ? `, ${name}` : ""} <span className="align-middle">👋</span>
               </h1>
-              <p className="text-sm text-muted-foreground mt-0.5">Je finance- en operations-cockpit in één oogopslag.</p>
             </div>
           </motion.div>
           <button onClick={load}
