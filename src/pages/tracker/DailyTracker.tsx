@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Plus, Loader2, HardDriveDownload, Cloud } from "lucide-react";
+import { Plus, Loader2, HardDriveDownload, Cloud, Activity } from "lucide-react";
 import { fadeUp, stagger } from "@/lib/motion";
 import { ConfirmDelete } from "@/components/ConfirmDelete";
 
@@ -225,9 +225,12 @@ export default function DailyTracker() {
       <div className="max-w-full px-6 py-7 space-y-5">
         {/* Header */}
         <div className="flex items-end justify-between gap-4 flex-wrap">
-          <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }}>
-            <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Daily Tracker</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">Dagelijkse P&amp;L + acquisitie-metrics · formules uit GB Command Center</p>
+          <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }} className="flex items-center gap-2.5">
+            <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--ember)/0.12)" }}><Activity className="h-5 w-5" style={{ color: "hsl(var(--ember))" }} /></span>
+            <div>
+              <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Daily Tracker</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">Dagelijkse P&amp;L + acquisitie-metrics · formules uit GB Command Center</p>
+            </div>
           </motion.div>
           <div className="flex items-center gap-2">
             <span className="h-9 px-3 rounded-full border border-border bg-card shadow-xs text-xs font-medium text-muted-foreground flex items-center gap-1.5">

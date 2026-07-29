@@ -6,7 +6,7 @@ import {
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { fadeUp, stagger } from "@/lib/motion";
-import { RefreshCw, ArrowUpRight, Activity } from "lucide-react";
+import { RefreshCw, ArrowUpRight, Activity, Wallet } from "lucide-react";
 import { rollupDaily, salesByChannel, costBreakdown } from "@/lib/finance";
 import { CostTreemap } from "@/components/finance/CostTreemap";
 import { SEED_AC, FORECAST_LS, type Scenario } from "@/pages/finance/ForecastActual";
@@ -64,11 +64,14 @@ export default function Finance() {
       <div className="max-w-6xl mx-auto px-6 py-7 space-y-5">
         {/* header */}
         <div className="flex items-start justify-between gap-4 flex-wrap">
-          <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }}>
-            <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Financial Overview</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              Roll-up van de <Link to="/daily-tracker" className="text-primary hover:underline">Daily Tracker</Link> — dezelfde cijfers als op het dashboard.
-            </p>
+          <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }} className="flex items-center gap-2.5">
+            <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--ok)/0.12)" }}><Wallet className="h-5 w-5" style={{ color: "hsl(var(--ok))" }} /></span>
+            <div>
+              <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Financial Overview</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                Roll-up van de <Link to="/daily-tracker" className="text-primary hover:underline">Daily Tracker</Link> — dezelfde cijfers als op het dashboard.
+              </p>
+            </div>
           </motion.div>
           <button onClick={load}
             className="h-9 px-3.5 rounded-full border border-border bg-card text-sm font-medium text-muted-foreground hover:text-foreground shadow-xs flex items-center gap-1.5 transition-colors">

@@ -182,8 +182,8 @@ export default function Notifications() {
         {/* header */}
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }}>
-            <div className="flex items-center gap-2">
-              <span className="h-9 w-9 rounded-xl bg-primary/10 grid place-items-center"><Bell className="h-4.5 w-4.5 text-primary" /></span>
+            <div className="flex items-center gap-2.5">
+              <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--info)/0.12)" }}><Bell className="h-5 w-5" style={{ color: "hsl(var(--info))" }} /></span>
               <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Notifications</h1>
             </div>
             <p className="text-sm text-muted-foreground mt-1">

@@ -42,6 +42,7 @@ import {
   Sparkles,
   Star,
   Trash2,
+  Tag,
   Trophy,
 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -352,12 +353,15 @@ export default function Offers() {
       {/* Premium page header */}
       <div className="border-b border-border bg-background">
         <div className="max-w-7xl mx-auto px-6 py-6 flex items-end justify-between gap-4 flex-wrap">
-          <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.45, ease:[0.16,1,0.3,1] }}>
-            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground mb-2">Strategy</p>
-            <h1 className="font-display text-[1.75rem] leading-tight font-semibold tracking-tight text-foreground leading-none">
-              Offer-vergelijking
-            </h1>
-            <p className="text-sm text-muted-foreground mt-2">Prijs, mechaniek en positionering van elke concurrent, in één blik.</p>
+          <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.45, ease:[0.16,1,0.3,1] }} className="flex items-center gap-3">
+            <span className="h-11 w-11 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--grape)/0.12)" }}><Tag className="h-5 w-5" style={{ color: "hsl(var(--grape))" }} /></span>
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground mb-2">Strategy</p>
+              <h1 className="font-display text-[1.75rem] leading-tight font-semibold tracking-tight text-foreground leading-none">
+                Offer-vergelijking
+              </h1>
+              <p className="text-sm text-muted-foreground mt-2">Prijs, mechaniek en positionering van elke concurrent, in één blik.</p>
+            </div>
           </motion.div>
           <motion.div
             initial={{ opacity:0, x:10 }} animate={{ opacity:1, x:0 }}

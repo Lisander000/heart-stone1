@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fadeUp, stagger } from "@/lib/motion";
-import { Pencil, Plus, Trash2, Check, X } from "lucide-react";
+import { Pencil, Plus, Trash2, Check, X, Users } from "lucide-react";
 import { ConfirmDelete } from "@/components/ConfirmDelete";
 
 /* ─── types ──────────────────────────────────────────────────────────────── */
@@ -146,9 +146,12 @@ export default function ICPDocument() {
       {/* ── Header ── */}
       <div className="max-w-4xl mx-auto px-6 pt-7">
         <div className="flex items-start justify-between gap-4 flex-wrap">
-          <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }}>
-            <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Focus ICP's</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">Persona's die leven in ads, landing pages en email-segmenten. Bewerk of voeg er toe.</p>
+          <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }} className="flex items-center gap-2.5">
+            <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--info)/0.12)" }}><Users className="h-5 w-5" style={{ color: "hsl(var(--info))" }} /></span>
+            <div>
+              <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Focus ICP's</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">Persona's die leven in ads, landing pages en email-segmenten. Bewerk of voeg er toe.</p>
+            </div>
           </motion.div>
           <button onClick={() => setEditing((e) => !e)}
             className={`h-9 px-4 rounded-full text-sm font-medium flex items-center gap-1.5 transition-all shadow-xs ${editing ? "bg-primary text-primary-foreground shadow-sm" : "border border-border bg-card text-muted-foreground hover:text-foreground"}`}>

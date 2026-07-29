@@ -1,4 +1,5 @@
 import { ResourcePage, StatusBadge } from "@/components/ops/ResourcePage";
+import { Bot } from "lucide-react";
 
 const tone = (v: string) => v === "active" ? "success" : v === "paused" ? "warn" : v === "error" ? "danger" : "default";
 
@@ -6,6 +7,8 @@ export default function Agents() {
   return (
     <ResourcePage
       title="Agents"
+      icon={Bot}
+      iconTone="grape"
       description="Interne en geautomatiseerde agents en hun status."
       table="agents"
       fields={[

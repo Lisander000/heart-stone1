@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Flame, Package, Lightbulb, AlertCircle, HelpCircle, Layers } from "lucide-react";
+import { Flame, Package, Lightbulb, AlertCircle, HelpCircle, Layers, PenLine } from "lucide-react";
 import TrackerBoard, { BoardConfig, Field } from "./TrackerBoard";
 
 /* ─── shared status + performance ────────────────────────────────────────── */
@@ -70,9 +70,12 @@ export default function AdCopiesStudio() {
   return (
     <div className="min-h-screen">
       <div className="max-w-full px-6 py-7 space-y-5">
-        <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }}>
-          <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Ad Copies</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Per awareness-stage. Kies een board om de copies te bewerken.</p>
+        <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }} className="flex items-center gap-2.5">
+          <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--info)/0.12)" }}><PenLine className="h-5 w-5" style={{ color: "hsl(var(--info))" }} /></span>
+          <div>
+            <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Ad Copies</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Per awareness-stage. Kies een board om de copies te bewerken.</p>
+          </div>
         </motion.div>
 
         {/* 5 selector blocks — 3 per row (2 rows) */}

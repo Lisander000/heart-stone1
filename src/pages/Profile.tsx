@@ -36,9 +36,12 @@ export default function Profile() {
   return (
     <div className="min-h-screen">
       <div className="max-w-2xl mx-auto px-6 py-8 space-y-5">
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-          <div className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground mb-1">Account</div>
-          <h1 className="font-display text-3xl font-bold tracking-tight text-primary">Mijn profiel</h1>
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="flex items-center gap-3">
+          <span className="h-11 w-11 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--primary)/0.1)" }}><User className="h-5 w-5 text-primary" /></span>
+          <div>
+            <div className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground mb-1">Account</div>
+            <h1 className="font-display text-3xl font-bold tracking-tight text-primary">Mijn profiel</h1>
+          </div>
         </motion.div>
 
         <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-6">

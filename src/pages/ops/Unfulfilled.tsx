@@ -1,4 +1,5 @@
 import { ResourcePage, StatusBadge, fmtDate, fmtMoney } from "@/components/ops/ResourcePage";
+import { PackageOpen } from "lucide-react";
 
 const payTone = (v: string) => v === "paid" ? "success" : v === "refunded" || v === "cancelled" ? "danger" : "warn";
 
@@ -6,6 +7,8 @@ export default function Unfulfilled() {
   return (
     <ResourcePage
       title="Unfulfilled"
+      icon={PackageOpen}
+      iconTone="warn"
       description="Betaalde orders die nog verzonden moeten worden."
       table="orders"
       extraFilter={{ fulfillment_status: "unfulfilled" }}

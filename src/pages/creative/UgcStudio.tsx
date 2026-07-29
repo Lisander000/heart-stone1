@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Users2, ClipboardCheck, Layers, Plus, X, SlidersHorizontal, BarChart3 } from "lucide-react";
+import { Users2, ClipboardCheck, Layers, Plus, X, SlidersHorizontal, BarChart3, Clapperboard } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import TrackerBoard, { BoardConfig } from "./TrackerBoard";
 import UgcDashboard from "./UgcDashboard";
@@ -160,9 +160,12 @@ export default function UgcStudio() {
     <div className="min-h-screen">
       <div className="max-w-full px-6 py-7 space-y-5">
         {/* header */}
-        <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }}>
-          <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">UGC / creators</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Creator-database, collab-approval &amp; dashboard. Kies een view.</p>
+        <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }} className="flex items-center gap-2.5">
+          <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--grape)/0.12)" }}><Clapperboard className="h-5 w-5" style={{ color: "hsl(var(--grape))" }} /></span>
+          <div>
+            <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">UGC / creators</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Creator-database, collab-approval &amp; dashboard. Kies een view.</p>
+          </div>
         </motion.div>
 
         {/* selector cards */}

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Cloud, HardDriveDownload } from "lucide-react";
+import { Cloud, HardDriveDownload, TrendingUp } from "lucide-react";
 
 /* ─── model ──────────────────────────────────────────────────────────────── */
 export type Scenario = Record<string, number>;
@@ -135,9 +135,12 @@ export default function ForecastActual() {
       <div className="max-w-4xl mx-auto px-6 py-7 space-y-5">
         <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }}
           className="flex items-end justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Forecast vs Actual</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">Begroot versus werkelijk · volledige P&amp;L. Vul Forecast en Actual in — de totalen rekenen mee.</p>
+          <div className="flex items-center gap-2.5">
+            <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--info)/0.12)" }}><TrendingUp className="h-5 w-5" style={{ color: "hsl(var(--info))" }} /></span>
+            <div>
+              <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Forecast vs Actual</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">Begroot versus werkelijk · volledige P&amp;L. Vul Forecast en Actual in — de totalen rekenen mee.</p>
+            </div>
           </div>
           <span className="h-9 px-3 rounded-full border border-border bg-card shadow-xs text-xs font-medium text-muted-foreground flex items-center gap-1.5">
             {backend === "supabase" ? <><Cloud className="h-3.5 w-3.5 text-ok" /> Synced</> : <><HardDriveDownload className="h-3.5 w-3.5 text-warn" /> Lokaal</>}

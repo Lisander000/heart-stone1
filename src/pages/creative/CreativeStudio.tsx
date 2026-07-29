@@ -112,9 +112,12 @@ export default function CreativeStudio() {
     <div className="min-h-screen">
       <div className="max-w-full px-6 py-7 space-y-5">
         {/* header */}
-        <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }}>
-          <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Creative Concepts</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Angles → concepts → hooks. Kies een board om te bewerken.</p>
+        <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }} className="flex items-center gap-2.5">
+          <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--sun)/0.12)" }}><Lightbulb className="h-5 w-5" style={{ color: "hsl(var(--sun))" }} /></span>
+          <div>
+            <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Creative Concepts</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Angles → concepts → hooks. Kies een board om te bewerken.</p>
+          </div>
         </motion.div>
 
         {/* selector cards */}

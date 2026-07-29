@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, ElementType } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -26,6 +26,7 @@ export type BoardConfig = {
   fields: Field[];
   statusKey?: string;      // drives filter chips + row LED
   autoId?: { key: string; prefix: string }; // auto-sequence e.g. AN001
+  icon?: ElementType; iconTone?: string;    // page-header icon (standalone view)
 };
 
 type Row = Record<string, any> & { id: string };
@@ -44,7 +45,7 @@ export default function TrackerBoard({ config, optionSets, headerExtra, onRows, 
   onRows?: (rows: Row[]) => void;
   embedded?: boolean;
 }) {
-  const { table, title, description, fields, statusKey } = config;
+  const { table, title, description, fields, statusKey, icon: Icon, iconTone = "info" } = config;
   // Keep rows in ascending auto-ID order (001, 002, …) — also re-sorts data saved
   // under the old newest-first behaviour so existing rows show in the right order.
   const sortRows = (arr: Row[]): Row[] => {
@@ -162,9 +163,12 @@ export default function TrackerBoard({ config, optionSets, headerExtra, onRows, 
           {embedded ? (
             <p className="text-sm text-muted-foreground">{description}</p>
           ) : (
-            <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }}>
-              <h1 className="font-display text-2xl font-bold tracking-tight text-foreground capitalize">{cleanTitle}</h1>
-              <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
+            <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }} className="flex items-center gap-2.5">
+              {Icon && <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: `hsl(var(--${iconTone}) / 0.12)` }}><Icon className="h-5 w-5" style={{ color: `hsl(var(--${iconTone}))` }} /></span>}
+              <div>
+                <h1 className="font-display text-2xl font-bold tracking-tight text-foreground capitalize">{cleanTitle}</h1>
+                <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
+              </div>
             </motion.div>
           )}
           <div className="flex items-center gap-2 ml-auto">

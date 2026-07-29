@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Plus, Search, Trash2, ChevronDown, ChevronRight, Building2, Quote,
   Lightbulb, Target, Heart, AlertCircle, Sparkles, Download, Wand2,
-  Loader2, Layers, X, LogOut, FolderOpen, Image as ImageIcon, Upload, Languages, Pencil,
+  Loader2, Layers, X, LogOut, FolderOpen, Image as ImageIcon, Upload, Languages, Pencil, Database, ClipboardList,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -1099,16 +1099,24 @@ export default function DataBank({ initialView = "brands" }: { initialView?: Vie
       {/* ── Soft page header (per route — no cross-tabs) ── */}
       <div className="max-w-7xl mx-auto px-6 pt-7">
         <div className="flex items-start justify-between gap-4 flex-wrap">
-          <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }}>
-            <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">
-              {view === "brands" ? "Data Bank" : view === "collections" ? "Collections" : view === "entries" ? "All Entries" : "Synthesis"}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {view === "brands" ? "Alles wat we weten over onszelf en onze concurrenten — reviews, ads en insights."
-                : view === "collections" ? "Onderzoek gebundeld per thema — winning ads, insights, founder inspiration en meer."
-                : view === "entries" ? "Elke ruwe insight op één plek — doorzoekbaar en filterbaar."
-                : "AI-samenvatting die je in één oogopslag vertelt wat je moet weten."}
-            </p>
+          <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }} className="flex items-center gap-2.5">
+            <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--info)/0.12)" }}>
+              {view === "brands" ? <Database className="h-5 w-5" style={{ color: "hsl(var(--info))" }} />
+                : view === "collections" ? <FolderOpen className="h-5 w-5" style={{ color: "hsl(var(--info))" }} />
+                : view === "entries" ? <ClipboardList className="h-5 w-5" style={{ color: "hsl(var(--info))" }} />
+                : <Sparkles className="h-5 w-5" style={{ color: "hsl(var(--info))" }} />}
+            </span>
+            <div>
+              <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">
+                {view === "brands" ? "Data Bank" : view === "collections" ? "Collections" : view === "entries" ? "All Entries" : "Synthesis"}
+              </h1>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                {view === "brands" ? "Alles wat we weten over onszelf en onze concurrenten — reviews, ads en insights."
+                  : view === "collections" ? "Onderzoek gebundeld per thema — winning ads, insights, founder inspiration en meer."
+                  : view === "entries" ? "Elke ruwe insight op één plek — doorzoekbaar en filterbaar."
+                  : "AI-samenvatting die je in één oogopslag vertelt wat je moet weten."}
+              </p>
+            </div>
           </motion.div>
           <button onClick={exportData}
             className="h-9 px-3.5 rounded-full border border-border bg-card text-sm font-medium text-muted-foreground hover:text-foreground shadow-xs flex items-center gap-1.5 transition-colors">

@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import {
   ShoppingCart, PackageOpen, Truck, RotateCcw, LifeBuoy, HeartPulse,
-  Bot, UsersRound, BarChart3, Loader2,
+  Bot, UsersRound, BarChart3, Loader2, LayoutGrid,
 } from "lucide-react";
 
 const tiles = [
@@ -39,12 +39,15 @@ export default function OpsOverview() {
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      <div>
-        <div className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground mb-1">Operations</div>
-        <h1 className="font-display text-3xl text-primary">Ops overview</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Alle Order Hero modules op één plek. Klik door voor CRUD, timelines en dashboards.
-        </p>
+      <div className="flex items-center gap-3">
+        <span className="h-11 w-11 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--primary)/0.1)" }}><LayoutGrid className="h-5 w-5 text-primary" /></span>
+        <div>
+          <div className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground mb-1">Operations</div>
+          <h1 className="font-display text-3xl text-primary">Ops overview</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Alle Order Hero modules op één plek. Klik door voor CRUD, timelines en dashboards.
+          </p>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

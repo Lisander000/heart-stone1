@@ -9,7 +9,7 @@ import { CostTreemap } from "@/components/finance/CostTreemap";
 import { supabase } from "@/integrations/supabase/client";
 import { fadeUp, stagger } from "@/lib/motion";
 import {
-  Wallet, Activity, RefreshCw, ArrowUpRight, TrendingUp, TrendingDown,
+  Home as HomeIcon, Wallet, Activity, RefreshCw, ArrowUpRight, TrendingUp, TrendingDown,
   ShoppingCart, PackageOpen, RotateCcw, LifeBuoy, ClipboardList, CalendarDays,
 } from "lucide-react";
 import { rollupDaily, salesByChannel, costBreakdown } from "@/lib/finance";
@@ -124,11 +124,14 @@ export default function Home() {
       <div className="max-w-6xl mx-auto px-6 py-7 space-y-8">
         {/* ── Header ── */}
         <div className="flex items-center justify-between gap-4 flex-wrap">
-          <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }}>
-            <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">
-              {GREET()}{name ? `, ${name}` : ""} <span className="align-middle">👋</span>
-            </h1>
-            <p className="text-sm text-muted-foreground mt-0.5">Je finance- en operations-cockpit in één oogopslag.</p>
+          <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }} className="flex items-center gap-2.5">
+            <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--primary)/0.1)" }}><HomeIcon className="h-5 w-5 text-primary" /></span>
+            <div>
+              <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">
+                {GREET()}{name ? `, ${name}` : ""} <span className="align-middle">👋</span>
+              </h1>
+              <p className="text-sm text-muted-foreground mt-0.5">Je finance- en operations-cockpit in één oogopslag.</p>
+            </div>
           </motion.div>
           <button onClick={load}
             className="h-9 px-3.5 rounded-full border border-border bg-card text-sm font-medium text-muted-foreground hover:text-foreground shadow-xs flex items-center gap-1.5 transition-colors">

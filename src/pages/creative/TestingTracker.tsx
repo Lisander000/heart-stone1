@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import TrackerBoard, { BoardConfig } from "./TrackerBoard";
+import { FlaskConical } from "lucide-react";
 
 /* ─── formula helpers (recreated from the GB Creative Testing Tracker sheet) ─ */
 const fmtDate = (iso?: string) => {
@@ -19,6 +20,8 @@ const config: BoardConfig = {
   table: "creative_tests",
   title: "Testing Tracker",
   description: "Creative testing tracker · elke ad-test met auto-ID, samengestelde ad-namen en de metrics uit het ad-platform.",
+  icon: FlaskConical,
+  iconTone: "info",
   statusKey: "status",
   autoId: { key: "test_id", prefix: "CTT" },
   fields: [
