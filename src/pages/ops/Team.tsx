@@ -101,6 +101,7 @@ export default function Team() {
             <div className="flex items-center gap-2.5">
               <span className="h-10 w-10 rounded-2xl grid place-items-center bg-primary/10"><UsersRound className="h-5 w-5 text-primary" /></span>
               <div>
+                <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground mb-1">Operations</p>
                 <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Team</h1>
               </div>
             </div>

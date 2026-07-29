@@ -10,6 +10,7 @@ export default function Tickets() {
       title="Tickets"
       icon={LifeBuoy}
       iconTone="grape"
+      category="Operations"
       description="Klantenservice-tickets per kanaal. Open er een om het ticket af te handelen."
       table="tickets"
       rowLinkTo={(r) => `/tickets/${r.id}`}

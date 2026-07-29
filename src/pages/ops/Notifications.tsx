@@ -184,7 +184,10 @@ export default function Notifications() {
           <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }}>
             <div className="flex items-center gap-2.5">
               <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--info)/0.12)" }}><Bell className="h-5 w-5" style={{ color: "hsl(var(--info))" }} /></span>
-              <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Notifications</h1>
+              <div>
+                <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground mb-1">Operations</p>
+                <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Notifications</h1>
+              </div>
             </div>
           </motion.div>
           <div className="flex items-center gap-2">

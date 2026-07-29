@@ -28,10 +28,10 @@ type Props = {
   fields: FieldDef[]; columns: ColumnDef[]; emptyText?: string;
   extraFilter?: Record<string, any>; orderBy?: { column: string; ascending?: boolean };
   rowLinkTo?: (row: any) => string;
-  icon?: ElementType; iconTone?: string;
+  icon?: ElementType; iconTone?: string; category?: string;
 };
 
-export function ResourcePage({ title, description, table, fields, columns, emptyText, extraFilter, orderBy, rowLinkTo, icon: Icon, iconTone = "info" }: Props) {
+export function ResourcePage({ title, table, fields, columns, emptyText, extraFilter, orderBy, rowLinkTo, icon: Icon, iconTone = "info", category }: Props) {
   const navigate = useNavigate();
   const [rows, setRows]         = useState<any[]>([]);
   const [loading, setLoading]   = useState(true);
@@ -259,6 +259,7 @@ export function ResourcePage({ title, description, table, fields, columns, empty
           <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }} className="flex items-center gap-2.5">
             {Icon && <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: `hsl(var(--${iconTone}) / 0.12)` }}><Icon className="h-5 w-5" style={{ color: `hsl(var(--${iconTone}))` }} /></span>}
             <div>
+              {category && <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground mb-1">{category}</p>}
               <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">{title}</h1>
             </div>
           </motion.div>

@@ -10,6 +10,7 @@ export default function Orders() {
       title="Orders"
       icon={ShoppingCart}
       iconTone="info"
+      category="Operations"
       description="Alle bestellingen met betaal- en fulfilmentstatus."
       table="orders"
       rowLinkTo={(r) => `/orders/${r.id}`}

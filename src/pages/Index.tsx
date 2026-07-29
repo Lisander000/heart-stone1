@@ -1107,6 +1107,7 @@ export default function DataBank({ initialView = "brands" }: { initialView?: Vie
                 : <Sparkles className="h-5 w-5" style={{ color: "hsl(var(--info))" }} />}
             </span>
             <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground mb-1">Research</p>
               <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">
                 {view === "brands" ? "Data Bank" : view === "collections" ? "Collections" : view === "entries" ? "All Entries" : "Synthesis"}
               </h1>

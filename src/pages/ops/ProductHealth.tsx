@@ -9,6 +9,7 @@ export default function ProductHealth() {
       title="Product Health"
       icon={HeartPulse}
       iconTone="ok"
+      category="Operations"
       description="Voorraad, retour-ratio en reviewscore per product. Open er een om het product-health-plan te volgen."
       table="product_health"
       rowLinkTo={(r) => `/product-health/${r.id}`}

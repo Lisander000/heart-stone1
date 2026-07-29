@@ -9,6 +9,7 @@ export default function Agents() {
       title="Agents"
       icon={Bot}
       iconTone="grape"
+      category="Developer"
       description="Interne en geautomatiseerde agents en hun status."
       table="agents"
       fields={[

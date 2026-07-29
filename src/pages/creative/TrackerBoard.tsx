@@ -26,7 +26,7 @@ export type BoardConfig = {
   fields: Field[];
   statusKey?: string;      // drives filter chips + row LED
   autoId?: { key: string; prefix: string }; // auto-sequence e.g. AN001
-  icon?: ElementType; iconTone?: string;    // page-header icon (standalone view)
+  icon?: ElementType; iconTone?: string; category?: string; // page-header icon + category (standalone view)
 };
 
 type Row = Record<string, any> & { id: string };
@@ -45,7 +45,7 @@ export default function TrackerBoard({ config, optionSets, headerExtra, onRows, 
   onRows?: (rows: Row[]) => void;
   embedded?: boolean;
 }) {
-  const { table, title, description, fields, statusKey, icon: Icon, iconTone = "info" } = config;
+  const { table, title, description, fields, statusKey, icon: Icon, iconTone = "info", category } = config;
   // Keep rows in ascending auto-ID order (001, 002, …) — also re-sorts data saved
   // under the old newest-first behaviour so existing rows show in the right order.
   const sortRows = (arr: Row[]): Row[] => {
@@ -166,6 +166,7 @@ export default function TrackerBoard({ config, optionSets, headerExtra, onRows, 
             <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }} className="flex items-center gap-2.5">
               {Icon && <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: `hsl(var(--${iconTone}) / 0.12)` }}><Icon className="h-5 w-5" style={{ color: `hsl(var(--${iconTone}))` }} /></span>}
               <div>
+                {category && <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground mb-1">{category}</p>}
                 <h1 className="font-display text-2xl font-bold tracking-tight text-foreground capitalize">{cleanTitle}</h1>
               </div>
             </motion.div>

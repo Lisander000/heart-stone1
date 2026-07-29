@@ -9,6 +9,7 @@ export default function Unfulfilled() {
       title="Unfulfilled"
       icon={PackageOpen}
       iconTone="warn"
+      category="Operations"
       description="Betaalde orders die nog verzonden moeten worden."
       table="orders"
       extraFilter={{ fulfillment_status: "unfulfilled" }}

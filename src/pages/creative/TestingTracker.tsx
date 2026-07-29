@@ -22,6 +22,7 @@ const config: BoardConfig = {
   description: "Creative testing tracker · elke ad-test met auto-ID, samengestelde ad-namen en de metrics uit het ad-platform.",
   icon: FlaskConical,
   iconTone: "info",
+  category: "Creative",
   statusKey: "status",
   autoId: { key: "test_id", prefix: "CTT" },
   fields: [

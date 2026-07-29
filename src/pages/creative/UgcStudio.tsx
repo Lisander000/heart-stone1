@@ -163,6 +163,7 @@ export default function UgcStudio() {
         <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }} className="flex items-center gap-2.5">
           <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--grape)/0.12)" }}><Clapperboard className="h-5 w-5" style={{ color: "hsl(var(--grape))" }} /></span>
           <div>
+            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground mb-1">Creative</p>
             <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">UGC / creators</h1>
           </div>
         </motion.div>

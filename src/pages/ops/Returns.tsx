@@ -94,6 +94,7 @@ export default function Returns() {
             <div className="flex items-center gap-2.5">
               <span className="h-10 w-10 rounded-2xl grid place-items-center" style={{ background: "hsl(var(--bad)/0.12)" }}><RotateCcw className="h-5 w-5" style={{ color: "hsl(var(--bad))" }} /></span>
               <div>
+                <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground mb-1">Operations</p>
                 <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Returns</h1>
               </div>
             </div>

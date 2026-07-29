@@ -11,6 +11,7 @@ export default function Shipments() {
       title="Shipments"
       icon={Truck}
       iconTone="ember"
+      category="Operations"
       description="Verzendingen en hun trackingstatus. Open er een om het verzendprobleem af te handelen."
       table="shipments"
       rowLinkTo={(s) => `/shipments/${s.id}`}
