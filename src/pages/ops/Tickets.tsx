@@ -1,5 +1,6 @@
 import { ResourcePage, StatusBadge, fmtDate } from "@/components/ops/ResourcePage";
 import { ResourceDashboard } from "@/components/ops/ResourceDashboard";
+import { getTicketMeta } from "@/lib/ticketCase";
 import { LifeBuoy } from "lucide-react";
 
 const prioTone = (v: string) => v === "urgent" || v === "high" ? "danger" : v === "medium" ? "warn" : "default";
@@ -22,6 +23,7 @@ export default function Tickets() {
           openStatuses={["open", "pending"]} openLabel="Open"
           statusColors={{ open: "hsl(var(--info))", pending: "hsl(var(--warn))", solved: "hsl(var(--ok))", resolved: "hsl(var(--ok))", closed: "hsl(var(--ok))" }}
           dimensions={[{ key: "channel", label: "Kanaal" }, { key: "priority", label: "Prioriteit" }]}
+          resolvedAtFor={(r) => getTicketMeta(r.id).resolvedAt}
         />
       }
       fields={[

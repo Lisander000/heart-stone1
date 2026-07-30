@@ -5,19 +5,36 @@
 import { useEffect, useMemo, useState, type ElementType } from "react";
 import { motion } from "framer-motion";
 import {
-  AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer,
+  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer,
   XAxis, YAxis, Tooltip, CartesianGrid,
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { fadeUp, stagger } from "@/lib/motion";
 import { RefreshCw, TrendingUp, TrendingDown, Clock, CheckCircle2, BadgeEuro, Hash, CalendarDays } from "lucide-react";
-import { PERIODS, rangeFor, within, pctDelta, prevLabelFor, type Period } from "@/lib/period";
+import { PERIODS, rangeFor, within, pctDelta, prevLabelFor, toMs, type Period } from "@/lib/period";
 
 const PALETTE = ["hsl(var(--info))", "hsl(var(--ember))", "hsl(var(--grape))", "hsl(var(--sun))", "hsl(var(--ok))", "hsl(var(--warn))", "hsl(var(--bad))", "hsl(var(--muted-foreground))"];
 const eurC = (v: number) => { const a = Math.abs(v), s = v < 0 ? "−" : ""; if (a >= 1000) return s + "€" + (a / 1000).toFixed(a >= 10000 ? 0 : 1).replace(".", ",") + "k"; return s + "€" + Math.round(a); };
 const cap = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1).replace(/_/g, " ") : s);
 const tooltipStyle = { background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 12, fontSize: 12, boxShadow: "var(--shadow-md)" } as const;
 const dayOf = (v: any) => { const t = String(v); return t.length <= 10 ? t : new Date(t).toISOString().slice(0, 10); };
+// human-readable duration (aanmaak → afhandeling)
+const fmtDur = (ms: number) => {
+  if (!isFinite(ms) || ms <= 0) return "—";
+  const m = Math.round(ms / 60000);
+  if (m < 60) return `${m}m`;
+  const h = Math.floor(m / 60), rm = m % 60;
+  if (h < 24) return rm ? `${h}u ${rm}m` : `${h}u`;
+  const d = Math.floor(h / 24), rh = h % 24;
+  return rh ? `${d}d ${rh}u` : `${d}d`;
+};
+const RES_BUCKETS = [
+  { name: "< 1 u", max: 3600e3, color: "hsl(var(--ok))" },
+  { name: "1–4 u", max: 4 * 3600e3, color: "hsl(var(--ok))" },
+  { name: "4–24 u", max: 24 * 3600e3, color: "hsl(var(--warn))" },
+  { name: "1–3 d", max: 3 * 24 * 3600e3, color: "hsl(var(--warn))" },
+  { name: "> 3 d", max: Infinity, color: "hsl(var(--bad))" },
+];
 
 export type DashConfig = {
   table: string;
@@ -31,6 +48,7 @@ export type DashConfig = {
   dimensions?: { key: string; label: string }[]; // breakdown donuts
   extraFilter?: Record<string, any>;              // e.g. { fulfillment_status: "unfulfilled" }
   accent?: string;                                // trend chart tone
+  resolvedAtFor?: (row: any) => string | null | undefined; // resolution timestamp → adds an "afhandeltijd" section
 };
 
 async function loadRows(table: string): Promise<any[]> {
@@ -98,6 +116,26 @@ export function ResourceDashboard(cfg: DashConfig) {
   const statusDonut = useMemo(() => distFor(cfg.statusField, cfg.statusColors), [cur]);
   const dims = useMemo(() => (cfg.dimensions ?? []).map((d) => ({ ...d, data: distFor(d.key) })), [cur]);
 
+  // afhandeltijd — created → resolved duration for the rows resolved in this period
+  const resolution = useMemo(() => {
+    if (!cfg.resolvedAtFor) return null;
+    const durs = cur
+      .map((r) => { const rz = cfg.resolvedAtFor!(r); if (!rz) return null; const d = toMs(rz) - toMs(r[dateField]); return d > 0 ? d : null; })
+      .filter((d): d is number => d != null)
+      .sort((a, b) => a - b);
+    const sum = durs.reduce((s, d) => s + d, 0);
+    let lo = 0;
+    const buckets = RES_BUCKETS.map((b) => { const v = durs.filter((d) => d > lo && d <= b.max).length; lo = b.max; return { name: b.name, value: v, color: b.color }; });
+    return {
+      count: durs.length,
+      avg: durs.length ? sum / durs.length : 0,
+      median: durs.length ? durs[Math.floor(durs.length / 2)] : 0,
+      min: durs[0] ?? 0,
+      max: durs[durs.length - 1] ?? 0,
+      buckets,
+    };
+  }, [cur, dateField]);
+
   if (loading) return <div className="py-16 grid place-items-center"><RefreshCw className="h-5 w-5 animate-spin text-primary" /></div>;
 
   return (
@@ -159,6 +197,36 @@ export function ResourceDashboard(cfg: DashConfig) {
           {dims.map((d) => <DonutCard key={d.key} title={d.label} subtitle="Verdeling" data={d.data} centerValue={String(cur.length)} centerLabel={cfg.label} label={cfg.label} />)}
         </div>
       )}
+
+      {/* afhandeltijd — only when a resolvedAt source is configured (e.g. tickets) */}
+      {resolution && (
+        <ChartCard title="Afhandeltijd" subtitle={resolution.count > 0 ? `Tijd van aanmaak tot afhandeling · ${resolution.count} afgehandeld in periode` : "Tijd van aanmaak tot afhandeling"}>
+          {resolution.count === 0 ? <Empty label="afgehandelde items met tijdregistratie" /> : (
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+                <StatTile label="Gemiddeld" value={fmtDur(resolution.avg)} tone="info" />
+                <StatTile label="Mediaan" value={fmtDur(resolution.median)} tone="grape" />
+                <StatTile label="Snelst" value={fmtDur(resolution.min)} tone="ok" />
+                <StatTile label="Traagst" value={fmtDur(resolution.max)} tone="bad" />
+              </div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Verdeling van de afhandeltijd</p>
+              <div className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={resolution.buckets} margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
+                    <CartesianGrid vertical={false} stroke="hsl(var(--border))" strokeDasharray="3 3" />
+                    <XAxis dataKey="name" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickLine={false} axisLine={false} />
+                    <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickLine={false} axisLine={false} allowDecimals={false} width={28} />
+                    <Tooltip cursor={{ fill: "hsl(var(--muted) / 0.5)" }} contentStyle={tooltipStyle} formatter={(v: any) => [v, "Afgehandeld"]} />
+                    <Bar dataKey="value" radius={[5, 5, 0, 0]} barSize={46} isAnimationActive={false}>
+                      {resolution.buckets.map((b, i) => <Cell key={i} fill={b.color} />)}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </>
+          )}
+        </ChartCard>
+      )}
     </div>
   );
 }
@@ -173,6 +241,14 @@ function ChartCard({ title, subtitle, children, className = "" }: { title: strin
 }
 function Empty({ label }: { label: string }) {
   return <div className="h-40 grid place-items-center text-center"><div><p className="text-sm font-medium text-foreground">Nog geen {label}</p><p className="text-xs text-muted-foreground mt-0.5">In deze periode is er niks te tonen.</p></div></div>;
+}
+function StatTile({ label, value, tone }: { label: string; value: string; tone: string }) {
+  return (
+    <div className="rounded-xl border border-border bg-muted/30 p-3">
+      <div className="flex items-center gap-1.5"><span className="rounded-full shrink-0" style={{ background: `hsl(var(--${tone}))`, width: 7, height: 7 }} /><p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{label}</p></div>
+      <p className="font-num text-xl font-bold tabular-nums text-foreground leading-none mt-1.5">{value}</p>
+    </div>
+  );
 }
 function DonutCard({ title, subtitle, data, centerValue, centerLabel, label }: { title: string; subtitle?: string; data: { name: string; value: number; color: string }[]; centerValue: string; centerLabel: string; label: string }) {
   const total = data.reduce((s, d) => s + d.value, 0);
