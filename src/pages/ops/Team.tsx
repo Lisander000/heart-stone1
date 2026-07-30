@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { fadeUp, stagger } from "@/lib/motion";
-import { Plus, Shield, ShieldCheck, Star, RefreshCw, Trash2, UsersRound, Pencil } from "lucide-react";
+import { Plus, Shield, Star, RefreshCw, Trash2, UsersRound, Pencil } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ConfirmDelete } from "@/components/ConfirmDelete";
-import { useIsSuperUser, useCurrentUserEmail, useCurrentUser, isSuperUser, setSuperUser, useSuperUsers, SUPERUSER_BLOCK } from "@/lib/superuser";
+import { useIsSuperUser, useCurrentUser, isSuperUser, setSuperUser, useSuperUsers, SUPERUSER_BLOCK } from "@/lib/superuser";
 
 type Member = { id: string; name: string; email: string | null; role: string; status: string; invited_at?: string };
 const ROLES = ["owner", "admin", "member", "viewer"];
@@ -32,9 +32,8 @@ export default function Team() {
   const skipSave = useRef(false);
 
   const iAmSuper = useIsSuperUser();
-  const myEmail = useCurrentUserEmail();
   const me = useCurrentUser();
-  const superList = useSuperUsers();
+  useSuperUsers(); // subscribe so the members table reflects super-user toggles live
 
   const load = async () => {
     setLoading(true);
@@ -89,7 +88,6 @@ export default function Team() {
     toast.success(on ? `${email} is nu super user.` : `Super user verwijderd voor ${email}.`);
   };
 
-  const superCount = useMemo(() => members.filter((m) => isSuperUser(m.email)).length, [members, superList]);
   const GRID = "minmax(140px,1.4fr) minmax(200px,2.2fr) minmax(120px,0.9fr) 120px 130px 44px";
 
   return (
@@ -110,18 +108,6 @@ export default function Team() {
             <button onClick={load} className="h-9 px-3.5 rounded-full border border-border bg-card text-sm font-medium text-muted-foreground hover:text-foreground shadow-xs flex items-center gap-1.5 transition-colors"><RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} /> Ververs</button>
             <button onClick={() => setAddOpen(true)} className="h-9 px-4 rounded-full bg-primary text-primary-foreground text-sm font-medium flex items-center gap-1.5 shadow-sm hover:shadow-md transition-all"><Plus className="h-4 w-4" /> Teamlid</button>
           </div>
-        </div>
-
-        {/* your status */}
-        <div className="card-soft p-4 flex items-center gap-3">
-          <span className="h-10 w-10 rounded-2xl grid place-items-center" style={{ background: iAmSuper ? "hsl(var(--ok)/0.14)" : "hsl(var(--muted))" }}>
-            {iAmSuper ? <ShieldCheck className="h-5 w-5 text-ok" /> : <Shield className="h-5 w-5 text-muted-foreground" />}
-          </span>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-foreground">{iAmSuper ? "Jij bent super user" : "Jij bent een standaard gebruiker"}</p>
-            <p className="text-xs text-muted-foreground">{myEmail || "—"} · {iAmSuper ? "je kunt beschermde instellingen aanpassen (zoals het returns-stappenplan)" : "beschermde instellingen zijn alleen-lezen voor jou"}</p>
-          </div>
-          <span className="ml-auto text-xs text-muted-foreground shrink-0">{superCount} super user{superCount === 1 ? "" : "s"}</span>
         </div>
 
         {/* members table */}
