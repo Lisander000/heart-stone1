@@ -100,7 +100,7 @@ export function addTicketComm(id: string, c: { text: string; dir: CommDir }, act
 export const useTicketComms = (id: string) => useKeyed<TicketComm[]>(COMMS, id, []);
 
 /* ─── case meta — resolution ─────────────────────────────────────────────── */
-export type TicketMeta = { takenAt?: string | null; resolvedAt?: string | null; outcome?: string; category?: string };
+export type TicketMeta = { takenAt?: string | null; resolvedAt?: string | null; outcome?: string; reply?: string; category?: string };
 const META = "gb_ticket_meta";
 export const getTicketMeta = (id: string): TicketMeta => readMap<TicketMeta>(META)[id] ?? {};
 export function setTicketMeta(id: string, patch: TicketMeta) { const m = readMap<TicketMeta>(META); m[id] = { ...(m[id] ?? {}), ...patch }; writeMap(META, m); }
