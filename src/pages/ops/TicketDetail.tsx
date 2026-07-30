@@ -76,9 +76,9 @@ export default function TicketDetail() {
   const claim = () => { if (!me.email) { toast.error("Geen gebruiker gevonden."); return; } setTicketOwner(id, { email: me.email, name: me.name || me.email }); addTicketLog(id, `${me.name || me.email} ${owner ? "nam het ticket over" : "nam dit ticket op"}`, "owner", actor()); };
   const release = () => { clearTicketOwner(id); addTicketLog(id, `${me.name || me.email || "Iemand"} gaf het ticket vrij`, "owner", actor()); };
 
-  const setStatus = (s: TicketStatus) => { if (!ticket) return; ensureOwner(); patch({ status: s }); if (s === "solved" || s === "closed") setTicketMeta(id, { resolvedAt: new Date().toISOString() }); else setTicketMeta(id, { resolvedAt: null }); addTicketLog(id, `Status → ${STATUS_LABEL[s] ?? s}`, "status", actor()); };
+  const setStatus = (s: TicketStatus) => { if (!ticket) return; ensureOwner(); const eff: TicketStatus = s === "solved" ? "closed" : s; patch({ status: eff }); setTicketMeta(id, { resolvedAt: eff === "closed" ? new Date().toISOString() : null }); addTicketLog(id, `Status → ${STATUS_LABEL[eff] ?? eff}`, "status", actor()); };
   const setPriority = (p: Priority) => { ensureOwner(); patch({ priority: p }); addTicketLog(id, `Prioriteit → ${prioMeta(p).label}`, "priority", actor()); };
-  const resolve = (outcome: string) => { ensureOwner(); patch({ status: "solved" }); const msg = reply.trim(); setTicketMeta(id, { resolvedAt: new Date().toISOString(), outcome, ...(msg ? { reply: msg } : {}) }); addTicketLog(id, msg ? `Ticket opgelost — ${outcome} · antwoord aan klant vastgelegd` : `Ticket opgelost — ${outcome}`, "resolution", actor()); setReply(""); };
+  const resolve = (outcome: string) => { ensureOwner(); patch({ status: "closed" }); const msg = reply.trim(); setTicketMeta(id, { resolvedAt: new Date().toISOString(), outcome, ...(msg ? { reply: msg } : {}) }); addTicketLog(id, msg ? `Ticket opgelost & gesloten — ${outcome} · antwoord aan klant vastgelegd` : `Ticket opgelost & gesloten — ${outcome}`, "resolution", actor()); setReply(""); };
   const reopen = () => { patch({ status: "open" }); setTicketMeta(id, { resolvedAt: null as any }); addTicketLog(id, "Ticket heropend", "resolution", actor()); };
 
   const submitNote = () => { if (!note.trim()) return; ensureOwner(); addTicketNote(id, note.trim(), actor()); setNote(""); };
