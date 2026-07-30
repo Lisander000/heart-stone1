@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { fadeUp } from "@/lib/motion";
 import {
   ArrowLeft, LifeBuoy, ExternalLink, User, Mail, ShieldCheck, AlertTriangle, Clock,
-  Send, Trash2, Check, RotateCcw, Loader2, MessageSquare, ClipboardList, Copy,
+  Send, Trash2, Check, RotateCcw, Loader2, MessageSquare, ClipboardList,
   Flag, Circle, Tag, Zap,
 } from "lucide-react";
 import {
@@ -82,7 +82,6 @@ export default function TicketDetail() {
   const reopen = () => { patch({ status: "open" }); setTicketMeta(id, { resolvedAt: null as any }); addTicketLog(id, "Ticket heropend", "resolution", actor()); };
 
   const submitNote = () => { if (!note.trim()) return; ensureOwner(); addTicketNote(id, note.trim(), actor()); setNote(""); };
-  const copyReply = async (text: string) => { try { await navigator.clipboard.writeText(text); toast.success("Gekopieerd."); } catch { toast.error("Kopiëren niet gelukt."); } };
 
   if (loading) return <div className="min-h-screen grid place-items-center"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>;
   if (!ticket) return (
@@ -204,9 +203,6 @@ export default function TicketDetail() {
                   <div>
                     <div className="flex items-center gap-2 mb-2"><MessageSquare className="h-4 w-4 text-muted-foreground" /><p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Antwoord aan de klant</p></div>
                     <textarea value={reply} onChange={(e) => setReply(e.target.value)} rows={3} placeholder="Wat heb je laten weten aan de klant? - optioneel" className="w-full rounded-xl border border-border bg-muted/40 px-3 py-2 text-[13px] outline-none focus:border-ring/50 focus:bg-card resize-none" />
-                    <div className="flex justify-end mt-1.5">
-                      <button onClick={() => copyReply(reply)} disabled={!reply.trim()} className="h-8 px-3 rounded-lg border border-border text-xs font-medium text-muted-foreground hover:text-foreground disabled:opacity-40 flex items-center gap-1.5"><Copy className="h-3.5 w-3.5" /> Kopieer</button>
-                    </div>
                   </div>
                   {/* kies de uitkomst om af te sluiten */}
                   <div className="pt-3 border-t" style={{ borderColor: "hsl(var(--border))" }}>
