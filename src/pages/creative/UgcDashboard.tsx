@@ -6,7 +6,7 @@
 import { useEffect, useMemo, useState, type ElementType } from "react";
 import { motion } from "framer-motion";
 import {
-  PieChart, Pie, Cell, BarChart, Bar, FunnelChart, Funnel, LabelList,
+  PieChart, Pie, Cell, BarChart, Bar, LabelList,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
@@ -128,26 +128,21 @@ export default function UgcDashboard() {
       {/* funnel + collab-status donut */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <ChartCard className="lg:col-span-2" title="Outreach-funnel" subtitle="Van database naar goedgekeurde collab">
-          <div className="h-56">
+          <div className="h-60">
             <ResponsiveContainer width="100%" height="100%">
-              <FunnelChart>
-                <Tooltip contentStyle={tooltipStyle} formatter={(v: any) => [v, "Creators"]} />
-                <Funnel dataKey="value" data={funnelData} isAnimationActive={false} stroke="none">
+              <BarChart data={funnelData} layout="vertical" margin={{ top: 4, right: 80, left: 8, bottom: 0 }} barCategoryGap={12}>
+                <CartesianGrid horizontal={false} stroke="hsl(var(--border))" strokeDasharray="3 3" />
+                <XAxis type="number" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickLine={false} axisLine={false} allowDecimals={false} />
+                <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: "hsl(var(--foreground))" }} tickLine={false} axisLine={false} width={132} />
+                <Tooltip cursor={{ fill: "hsl(var(--muted) / 0.5)" }} contentStyle={tooltipStyle} formatter={(v: any) => [v, "Creators"]} />
+                <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={26} isAnimationActive={false}>
                   {funnelData.map((d, i) => <Cell key={i} fill={d.fill} />)}
-                  <LabelList position="right" dataKey="name" fill="hsl(var(--foreground))" stroke="none" fontSize={12} />
-                  <LabelList position="left" dataKey="value" fill="hsl(var(--muted-foreground))" stroke="none" fontSize={12} />
-                </Funnel>
-              </FunnelChart>
+                  <LabelList dataKey="value" position="right" fill="hsl(var(--foreground))" fontSize={12} formatter={(v: any) => `${v}  ·  ${kpi.creators ? Math.round((v / kpi.creators) * 100) : 0}%`} />
+                </Bar>
+              </BarChart>
             </ResponsiveContainer>
           </div>
-          <div className="grid grid-cols-4 gap-2 mt-3 pt-3 border-t border-border/60">
-            {funnelData.map((f) => (
-              <div key={f.name} className="text-center">
-                <p className="text-[10px] text-muted-foreground truncate">{f.name}</p>
-                <p className="font-num text-sm font-bold tabular-nums" style={{ color: f.fill }}>{kpi.creators ? Math.round((f.value / kpi.creators) * 100) : 0}%</p>
-              </div>
-            ))}
-          </div>
+          <p className="text-[11px] text-muted-foreground mt-3 pt-3 border-t border-border/60">Elke balk toont het aantal creators in die stap · % van de volledige database.</p>
         </ChartCard>
         <DonutCard title="Collab-status" subtitle="Verdeling van de collabs" data={statusDonut} centerValue={String(approval.length)} centerLabel="collabs" empty="collabs" />
       </div>
