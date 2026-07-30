@@ -10,7 +10,7 @@ import {
   Flag, Circle, Tag, Zap,
 } from "lucide-react";
 import {
-  FLOW, STATUS_LABEL, statusIndex, PRIORITIES, prioMeta, computeUrgency, fmtWaited, toneColor, TEMPLATES, RESOLUTIONS,
+  FLOW, STATUS_LABEL, statusIndex, PRIORITIES, prioMeta, computeUrgency, fmtWaited, toneColor, RESOLUTIONS,
   useTicketOwner, setTicketOwner, clearTicketOwner, useTicketLog, addTicketLog, useTicketNotes, addTicketNote, removeTicketNote,
   useTicketMeta, setTicketMeta, type TicketStatus, type Priority, type TicketLogKind,
 } from "@/lib/ticketCase";
@@ -94,7 +94,6 @@ export default function TicketDetail() {
   const urg = computeUrgency(ticket.priority, ticket.created_at, ticket.status);
   const resolved = ticket.status === "solved" || ticket.status === "resolved" || ticket.status === "closed";
   const sIdx = statusIndex(ticket.status);
-  const tplCtx = { name: ticket.customer_email ?? undefined, subject: ticket.subject ?? undefined };
   // afhandeltijd — van opname (of aanmaak als er geen opname is) tot opgelost
   const takenAt = meta.takenAt || owner?.at || null;
   const handledMs = resolved && meta.resolvedAt ? new Date(meta.resolvedAt).getTime() - new Date(takenAt || ticket.created_at || meta.resolvedAt).getTime() : 0;
@@ -201,14 +200,10 @@ export default function TicketDetail() {
                 </div>
               ) : (
                 <>
-                  {/* optioneel: wat laat je de klant weten */}
+                  {/* wat laat je de klant weten */}
                   <div>
-                    <div className="flex items-center gap-2 mb-2"><MessageSquare className="h-4 w-4 text-muted-foreground" /><p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Antwoord aan de klant <span className="font-normal normal-case tracking-normal">· optioneel</span></p></div>
-                    <div className="flex flex-wrap gap-1.5 mb-2">
-                      <span className="text-[11px] text-muted-foreground self-center">Templates:</span>
-                      {TEMPLATES.map((t) => <button key={t.id} onClick={() => setReply(t.body(tplCtx))} className="h-7 px-2.5 rounded-full border border-border text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors">{t.label}</button>)}
-                    </div>
-                    <textarea value={reply} onChange={(e) => setReply(e.target.value)} rows={3} placeholder="Wat heb je aan de klant laten weten? (optioneel — wordt bij de resolutie bewaard)" className="w-full rounded-xl border border-border bg-muted/40 px-3 py-2 text-[13px] outline-none focus:border-ring/50 focus:bg-card resize-none" />
+                    <div className="flex items-center gap-2 mb-2"><MessageSquare className="h-4 w-4 text-muted-foreground" /><p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Antwoord aan de klant</p></div>
+                    <textarea value={reply} onChange={(e) => setReply(e.target.value)} rows={3} placeholder="Wat heb je laten weten aan de klant? - optioneel" className="w-full rounded-xl border border-border bg-muted/40 px-3 py-2 text-[13px] outline-none focus:border-ring/50 focus:bg-card resize-none" />
                     <div className="flex justify-end mt-1.5">
                       <button onClick={() => copyReply(reply)} disabled={!reply.trim()} className="h-8 px-3 rounded-lg border border-border text-xs font-medium text-muted-foreground hover:text-foreground disabled:opacity-40 flex items-center gap-1.5"><Copy className="h-3.5 w-3.5" /> Kopieer</button>
                     </div>
@@ -243,6 +238,19 @@ export default function TicketDetail() {
                 ))}
               </div>
             </motion.div>
+
+            {/* Tijdlijn van de situatie — onderaan, even breed als de interne notities */}
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
+              <div className="flex items-center gap-2 mb-4"><Clock className="h-4 w-4 text-muted-foreground" /><h2 className="text-sm font-semibold text-foreground">Tijdlijn van de situatie</h2></div>
+              {log.length === 0 ? <p className="text-xs text-muted-foreground py-2">Nog geen activiteit — statuswijzigingen, prioriteit, eigenaar en resolutie verschijnen hier.</p> : (
+                <div className="space-y-0">{log.map((l, i) => (
+                  <div key={l.at} className="flex gap-3">
+                    <div className="flex flex-col items-center"><span className="h-6 w-6 rounded-full grid place-items-center shrink-0" style={{ background: "hsl(var(--muted))" }}><LogIcon kind={l.kind} /></span>{i < log.length - 1 && <span className="w-px flex-1 bg-border my-1" />}</div>
+                    <div className="flex-1 min-w-0 pb-4"><p className="text-[13px] text-foreground">{l.text}</p><p className="text-[11px] text-muted-foreground mt-0.5"><span className="font-medium text-foreground/80">{l.byName || "Onbekend"}</span> · {relTime(l.at)}</p></div>
+                  </div>
+                ))}</div>
+              )}
+            </motion.div>
           </div>
 
           {/* SIDEBAR */}
@@ -264,19 +272,6 @@ export default function TicketDetail() {
             </motion.div>
           </div>
         </div>
-
-        {/* Tijdlijn van de situatie — onderaan de pagina */}
-        <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
-          <div className="flex items-center gap-2 mb-4"><Clock className="h-4 w-4 text-muted-foreground" /><h2 className="text-sm font-semibold text-foreground">Tijdlijn van de situatie</h2></div>
-          {log.length === 0 ? <p className="text-xs text-muted-foreground py-2">Nog geen activiteit — statuswijzigingen, prioriteit, eigenaar en resolutie verschijnen hier.</p> : (
-            <div className="space-y-0">{log.map((l, i) => (
-              <div key={l.at} className="flex gap-3">
-                <div className="flex flex-col items-center"><span className="h-6 w-6 rounded-full grid place-items-center shrink-0" style={{ background: "hsl(var(--muted))" }}><LogIcon kind={l.kind} /></span>{i < log.length - 1 && <span className="w-px flex-1 bg-border my-1" />}</div>
-                <div className="flex-1 min-w-0 pb-4"><p className="text-[13px] text-foreground">{l.text}</p><p className="text-[11px] text-muted-foreground mt-0.5"><span className="font-medium text-foreground/80">{l.byName || "Onbekend"}</span> · {relTime(l.at)}</p></div>
-              </div>
-            ))}</div>
-          )}
-        </motion.div>
       </div>
     </div>
   );

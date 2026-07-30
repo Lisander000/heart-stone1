@@ -106,4 +106,4 @@ export const getTicketMeta = (id: string): TicketMeta => readMap<TicketMeta>(MET
 export function setTicketMeta(id: string, patch: TicketMeta) { const m = readMap<TicketMeta>(META); m[id] = { ...(m[id] ?? {}), ...patch }; writeMap(META, m); }
 export const useTicketMeta = (id: string) => useKeyed<TicketMeta>(META, id, {});
 
-export const RESOLUTIONS = ["Opgelost", "Doorverwezen", "Geen actie nodig", "Klant tevreden", "Refund/vervanging geregeld"];
+export const RESOLUTIONS = ["Opgelost", "Doorverwezen", "Geen actie nodig", "Refund/vervanging geregeld"];
