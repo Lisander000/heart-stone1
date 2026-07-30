@@ -23,6 +23,7 @@ export default function Tickets() {
           openStatuses={["open", "pending"]} openLabel="Open"
           statusColors={{ open: "hsl(var(--info))", pending: "hsl(var(--warn))", solved: "hsl(var(--ok))", resolved: "hsl(var(--ok))", closed: "hsl(var(--ok))" }}
           dimensions={[{ key: "channel", label: "Kanaal" }, { key: "priority", label: "Prioriteit" }]}
+          startedAtFor={(r) => getTicketMeta(r.id).takenAt}
           resolvedAtFor={(r) => getTicketMeta(r.id).resolvedAt}
         />
       }

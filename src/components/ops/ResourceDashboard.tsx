@@ -49,6 +49,7 @@ export type DashConfig = {
   extraFilter?: Record<string, any>;              // e.g. { fulfillment_status: "unfulfilled" }
   accent?: string;                                // trend chart tone
   resolvedAtFor?: (row: any) => string | null | undefined; // resolution timestamp → adds an "afhandeltijd" section
+  startedAtFor?: (row: any) => string | null | undefined;  // clock-start timestamp (e.g. pickup); falls back to dateField
 };
 
 async function loadRows(table: string): Promise<any[]> {
@@ -120,7 +121,7 @@ export function ResourceDashboard(cfg: DashConfig) {
   const resolution = useMemo(() => {
     if (!cfg.resolvedAtFor) return null;
     const durs = cur
-      .map((r) => { const rz = cfg.resolvedAtFor!(r); if (!rz) return null; const d = toMs(rz) - toMs(r[dateField]); return d > 0 ? d : null; })
+      .map((r) => { const rz = cfg.resolvedAtFor!(r); if (!rz) return null; const startRaw = cfg.startedAtFor?.(r) ?? r[dateField]; const d = toMs(rz) - toMs(startRaw); return d > 0 ? d : null; })
       .filter((d): d is number => d != null)
       .sort((a, b) => a - b);
     const sum = durs.reduce((s, d) => s + d, 0);
@@ -200,7 +201,7 @@ export function ResourceDashboard(cfg: DashConfig) {
 
       {/* afhandeltijd — only when a resolvedAt source is configured (e.g. tickets) */}
       {resolution && (
-        <ChartCard title="Afhandeltijd" subtitle={resolution.count > 0 ? `Tijd van aanmaak tot afhandeling · ${resolution.count} afgehandeld in periode` : "Tijd van aanmaak tot afhandeling"}>
+        <ChartCard title="Afhandeltijd" subtitle={resolution.count > 0 ? `Tijd van opname tot afhandeling · ${resolution.count} afgehandeld in periode` : "Tijd van opname tot afhandeling"}>
           {resolution.count === 0 ? <Empty label="afgehandelde items met tijdregistratie" /> : (
             <>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">

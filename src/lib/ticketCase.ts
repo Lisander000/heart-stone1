@@ -69,7 +69,12 @@ export const TEMPLATES: { id: string; label: string; body: (c: TplCtx) => string
 export type TicketOwner = { email: string; name: string; at: string };
 const OWN = "gb_ticket_owner";
 export const getTicketOwner = (id: string): TicketOwner | null => readMap<TicketOwner>(OWN)[id] ?? null;
-export function setTicketOwner(id: string, o: { email: string; name: string }) { const m = readMap<TicketOwner>(OWN); m[id] = { email: o.email, name: o.name, at: new Date().toISOString() }; writeMap(OWN, m); }
+export function setTicketOwner(id: string, o: { email: string; name: string }) {
+  const now = new Date().toISOString();
+  const m = readMap<TicketOwner>(OWN); m[id] = { email: o.email, name: o.name, at: now }; writeMap(OWN, m);
+  // stamp the first pickup time once → afhandeltijd loopt van opname → opgelost
+  const meta = readMap<TicketMeta>(META); if (!meta[id]?.takenAt) { meta[id] = { ...(meta[id] ?? {}), takenAt: now }; writeMap(META, meta); }
+}
 export function clearTicketOwner(id: string) { const m = readMap<TicketOwner>(OWN); delete m[id]; writeMap(OWN, m); }
 export const useTicketOwner = (id: string) => useKeyed<TicketOwner | null>(OWN, id, null);
 
@@ -95,7 +100,7 @@ export function addTicketComm(id: string, c: { text: string; dir: CommDir }, act
 export const useTicketComms = (id: string) => useKeyed<TicketComm[]>(COMMS, id, []);
 
 /* ─── case meta — resolution ─────────────────────────────────────────────── */
-export type TicketMeta = { resolvedAt?: string | null; outcome?: string; category?: string };
+export type TicketMeta = { takenAt?: string | null; resolvedAt?: string | null; outcome?: string; category?: string };
 const META = "gb_ticket_meta";
 export const getTicketMeta = (id: string): TicketMeta => readMap<TicketMeta>(META)[id] ?? {};
 export function setTicketMeta(id: string, patch: TicketMeta) { const m = readMap<TicketMeta>(META); m[id] = { ...(m[id] ?? {}), ...patch }; writeMap(META, m); }

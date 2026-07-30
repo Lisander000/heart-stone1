@@ -95,6 +95,10 @@ export default function TicketDetail() {
   const resolved = ticket.status === "solved" || ticket.status === "resolved" || ticket.status === "closed";
   const sIdx = statusIndex(ticket.status);
   const tplCtx = { name: ticket.customer_email ?? undefined, subject: ticket.subject ?? undefined };
+  // afhandeltijd — van opname (of aanmaak als er geen opname is) tot opgelost
+  const takenAt = meta.takenAt || owner?.at || null;
+  const handledMs = resolved && meta.resolvedAt ? new Date(meta.resolvedAt).getTime() - new Date(takenAt || ticket.created_at || meta.resolvedAt).getTime() : 0;
+  const fmtDur = (ms: number) => { if (!isFinite(ms) || ms <= 0) return "—"; const m = Math.round(ms / 60000); if (m < 60) return `${m}m`; const h = Math.floor(m / 60), rm = m % 60; if (h < 24) return rm ? `${h}u ${rm}m` : `${h}u`; const d = Math.floor(h / 24), rh = h % 24; return rh ? `${d}d ${rh}u` : `${d}d`; };
   const hot = ticket.priority === "high" || ticket.priority === "urgent"; // Hoog/Urgent → rode pagina, daaronder wit
   const bannerTone = hot ? "bad" : prioMeta(ticket.priority).tone;
 
@@ -237,6 +241,7 @@ export default function TicketDetail() {
               <div className="rounded-xl border border-border bg-muted/30 px-3 py-2 flex items-center gap-2"><User className="h-3.5 w-3.5 text-muted-foreground shrink-0" /><span className="text-[13px] text-foreground truncate">{ticket.customer_email || "—"}</span></div>
               <div className="flex items-center justify-between text-xs"><span className="text-muted-foreground">Kanaal</span><span className="text-foreground capitalize">{ticket.channel || "—"}</span></div>
               <div className="flex items-center justify-between text-xs"><span className="text-muted-foreground">Aangemaakt</span><span className="text-foreground">{fmtDate(ticket.created_at)}</span></div>
+              {takenAt && <div className="flex items-center justify-between text-xs"><span className="text-muted-foreground">Opgenomen</span><span className="text-foreground">{fmtDate(takenAt)}</span></div>}
               {order ? (
                 <Link to={`/orders/${order.id}`} className="block rounded-xl border border-border bg-card p-3 hover:border-primary/30 transition-colors">
                   <div className="flex items-center justify-between"><span className="text-sm font-semibold text-foreground">{order.order_number || "Order"}</span><ExternalLink className="h-3.5 w-3.5 text-muted-foreground" /></div>
@@ -251,6 +256,7 @@ export default function TicketDetail() {
               {resolved ? (
                 <div className="rounded-xl bg-ok/10 border border-ok/20 px-3 py-3">
                   <div className="flex items-center gap-2"><span className="h-7 w-7 rounded-full bg-ok grid place-items-center"><Check className="h-4 w-4 text-white" /></span><div><p className="text-[13px] font-semibold text-foreground">{STATUS_LABEL[ticket.status] ?? "Opgelost"}</p><p className="text-xs text-muted-foreground">{meta.outcome || "—"} · {fmtDate(meta.resolvedAt)}</p></div></div>
+                  {handledMs > 0 && <p className="text-[11px] text-muted-foreground mt-2 pt-2 border-t border-ok/20">Afhandeltijd <span className="font-semibold text-foreground">{fmtDur(handledMs)}</span> · van opname tot opgelost</p>}
                   <button onClick={reopen} className="mt-2 text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1"><RotateCcw className="h-3 w-3" /> Heropenen</button>
                 </div>
               ) : (
