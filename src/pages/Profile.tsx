@@ -3,13 +3,26 @@ import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { fadeUp } from "@/lib/motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Mail, ShieldCheck, LogOut, Loader2 } from "lucide-react";
+import { User, Mail, ShieldCheck, LogOut, Loader2, Briefcase, Activity } from "lucide-react";
 import { useIsSuperUser } from "@/lib/superuser";
+
+// mirror the Team page tone mapping so role/status read the same everywhere
+const roleTone = (r: string) => (r === "owner" ? "grape" : r === "admin" ? "info" : r === "viewer" ? "muted-foreground" : "ok");
+const statusTone = (s: string) => (s === "active" ? "ok" : s === "suspended" ? "bad" : "warn");
+const cap = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
+
+// team members live in supabase when online, localStorage otherwise — same source as the Team page
+async function loadTeam(): Promise<any[]> {
+  try { const { data, error } = await (supabase as any).from("team_members").select("*"); if (!error && data) return data; } catch { /* offline / no table */ }
+  try { return JSON.parse(localStorage.getItem("gb_team_members") || "[]"); } catch { return []; }
+}
 
 export default function Profile() {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [role, setRole] = useState("");
+  const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(true);
   const [signingOut, setSigningOut] = useState(false);
   const iAmSuper = useIsSuperUser();
@@ -17,9 +30,14 @@ export default function Profile() {
   useEffect(() => {
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      setEmail(user?.email ?? "");
+      const mail = user?.email ?? "";
+      setEmail(mail);
       setFullName(user?.user_metadata?.full_name ?? "");
       setAvatarUrl(user?.user_metadata?.avatar_url ?? "");
+      // find my own team-member record by email → my role & status (as shown on the Team page)
+      const team = await loadTeam();
+      const mem = team.find((m) => (m.email ?? "").toString().toLowerCase() === mail.toLowerCase());
+      if (mem) { setRole(mem.role ?? ""); setStatus(mem.status ?? ""); }
       setLoading(false);
     })();
   }, []);
@@ -53,11 +71,15 @@ export default function Profile() {
             <div className="min-w-0">
               <p className="text-lg font-semibold text-foreground truncate">{fullName || email.split("@")[0]}</p>
               <p className="text-sm text-muted-foreground truncate">{email}</p>
-              {iAmSuper && (
-                <span className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-primary bg-primary/10 rounded-full px-2 py-0.5">
-                  <ShieldCheck className="h-3 w-3" /> Super user
-                </span>
-              )}
+              <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
+                {role && <Pill label={role} tone={roleTone(role)} />}
+                {status && <Pill label={status} tone={statusTone(status)} />}
+                {iAmSuper && (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary bg-primary/10 rounded-full px-2 py-0.5">
+                    <ShieldCheck className="h-3 w-3" /> Super user
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </motion.div>
@@ -66,6 +88,8 @@ export default function Profile() {
           <h2 className="text-sm font-semibold text-foreground">Gegevens</h2>
           <Row icon={User} label="Naam" value={fullName || "—"} />
           <Row icon={Mail} label="E-mail" value={email || "—"} />
+          <Row icon={Briefcase} label="Rol" value={role ? cap(role) : "—"} />
+          <Row icon={Activity} label="Status" value={status ? cap(status) : "—"} />
         </motion.div>
 
         <button
@@ -88,5 +112,15 @@ function Row({ icon: Icon, label, value }: { icon: React.ElementType; label: str
       <span className="text-xs text-muted-foreground w-16 shrink-0">{label}</span>
       <span className="text-sm text-foreground truncate">{value}</span>
     </div>
+  );
+}
+
+function Pill({ label, tone }: { label: string; tone: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold capitalize"
+      style={{ background: `hsl(var(--${tone}) / 0.1)`, color: `hsl(var(--${tone}))`, borderColor: `hsl(var(--${tone}) / 0.35)` }}>
+      <span className="rounded-full shrink-0" style={{ background: `hsl(var(--${tone}))`, width: 6, height: 6 }} />
+      {label.replace(/_/g, " ")}
+    </span>
   );
 }
