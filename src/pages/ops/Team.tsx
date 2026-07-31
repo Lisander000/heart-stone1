@@ -63,6 +63,17 @@ export default function Team() {
     if (backend === "local") persistLocal(next);
     else { const { error } = await (supabase as any).from("team_members").insert({ id: row.id, name: row.name, email: row.email, role: row.role, status: row.status, user_id: uid }); if (error) toast.error(error.message); }
     setAddOpen(false);
+    // Super users onboard a real login: send an invite so the person can set a password.
+    if (iAmSuper && row.email) {
+      try {
+        const { data, error } = await supabase.functions.invoke("invite-user", { body: { name: row.name, email: row.email } });
+        if (error) throw error;
+        if ((data as any)?.error) throw new Error((data as any).error);
+        toast.success(`Uitnodiging verstuurd naar ${row.email}.`);
+      } catch (e: any) {
+        toast.error(`Teamlid toegevoegd, maar de uitnodiging is niet verstuurd (${e.message || e}). Is de invite-functie gedeployed?`);
+      }
+    }
   };
   const removeMember = async (id: string) => {
     const next = members.filter((m) => m.id !== id);
@@ -254,6 +265,7 @@ function AddMemberDialog({ open, onOpenChange, onAdd }: { open: boolean; onOpenC
             <div className="flex-1"><label className="text-xs font-medium text-muted-foreground">Status</label><select value={status} onChange={(e) => setStatus(e.target.value)} className={`${IN} capitalize`}>{STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
           </div>
         </div>
+        <p className="text-[11px] text-muted-foreground mt-2 leading-relaxed">Met een e-mailadres krijgt de persoon een uitnodigingsmail om in te loggen en zelf een vast wachtwoord in te stellen.</p>
         <div className="flex justify-end gap-2 mt-2">
           <button onClick={() => onOpenChange(false)} className="h-9 px-4 rounded-full border border-border bg-card text-sm font-medium text-muted-foreground hover:text-foreground">Annuleer</button>
           <button disabled={!name.trim()} onClick={() => onAdd({ name, email, role, status })} className="h-9 px-4 rounded-full bg-primary text-primary-foreground text-sm font-medium disabled:opacity-40 flex items-center gap-1.5"><Plus className="h-4 w-4" /> Toevoegen</button>

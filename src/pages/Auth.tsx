@@ -22,7 +22,7 @@ function GooodboysWordmark() {
   );
 }
 
-type Step = "credentials" | "mfa-setup" | "mfa-verify";
+type Step = "credentials" | "set-password" | "mfa-setup" | "mfa-verify";
 
 function StepDots({ current }: { current: 1 | 2 }) {
   return (
@@ -43,6 +43,8 @@ export default function Auth() {
   const [animating, setAnimating] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [newPw, setNewPw] = useState("");
+  const [newPw2, setNewPw2] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [emailError, setEmailError] = useState(false);
@@ -59,6 +61,10 @@ export default function Auth() {
     (async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
+      // Invited users land here with a session and no password of their own yet —
+      // force them to choose one before anything else.
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.user_metadata?.must_change_password) { setEmail(user.email ?? ""); advanceTo("set-password"); return; }
       const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       if (aal?.currentLevel === "aal2") { navigate(returnTo, { replace: true }); return; }
       if (aal?.nextLevel === "aal2") {
@@ -118,6 +124,27 @@ export default function Auth() {
     } catch (err: any) {
       shakeError(err.message || "Inloggen mislukt");
       toast.error(err.message || "Inloggen mislukt");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleSetPassword(e: React.FormEvent) {
+    e.preventDefault();
+    setErrorMsg("");
+    if (newPw.length < 8) { shakeError("Kies minstens 8 tekens."); return; }
+    if (newPw !== newPw2) { shakeError("De wachtwoorden komen niet overeen."); return; }
+    setLoading(true);
+    try {
+      // set the permanent password + clear the must-change flag
+      const { error } = await supabase.auth.updateUser({ password: newPw, data: { must_change_password: false } });
+      if (error) throw error;
+      toast.success("Je wachtwoord is ingesteld.");
+      const { data: { user } } = await supabase.auth.getUser();
+      await startMFASetup(user?.email ?? email ?? "user"); // continue with the mandatory MFA setup
+    } catch (err: any) {
+      shakeError(err.message || "Kon wachtwoord niet instellen");
+      toast.error(err.message || "Kon wachtwoord niet instellen");
     } finally {
       setLoading(false);
     }
@@ -238,6 +265,32 @@ export default function Auth() {
                 <p className="text-[11px] text-muted-foreground/60 text-center mt-3">
                   Alleen @gooodboys.com · Stap 1 van 2
                 </p>
+              </>
+            )}
+
+            {/* ── First login: choose a password ── */}
+            {step === "set-password" && (
+              <>
+                <div className="flex items-center gap-2 mb-1">
+                  <ShieldCheck className="h-5 w-5 text-primary" strokeWidth={1.75} />
+                  <h1 className="font-display text-xl font-semibold text-foreground tracking-tight">Kies je wachtwoord</h1>
+                </div>
+                <p className="text-sm text-muted-foreground mb-5">Welkom! Stel een vast wachtwoord in voor je account{email ? ` (${email})` : ""}.</p>
+                <form onSubmit={handleSetPassword} className="space-y-3">
+                  <input type="password" required minLength={8} autoFocus placeholder="Nieuw wachtwoord (min. 8 tekens)" value={newPw}
+                    onChange={(e) => { setNewPw(e.target.value); setErrorMsg(""); }}
+                    className="w-full h-11 px-4 rounded-xl border border-border text-sm bg-background/60 placeholder:text-muted-foreground/60 outline-none transition-all duration-200 focus:bg-card focus:border-primary focus:shadow-[0_0_0_3px_hsl(var(--primary)/0.12)]" />
+                  <input type="password" required minLength={8} placeholder="Herhaal wachtwoord" value={newPw2}
+                    onChange={(e) => { setNewPw2(e.target.value); setErrorMsg(""); }}
+                    className="w-full h-11 px-4 rounded-xl border border-border text-sm bg-background/60 placeholder:text-muted-foreground/60 outline-none transition-all duration-200 focus:bg-card focus:border-primary focus:shadow-[0_0_0_3px_hsl(var(--primary)/0.12)]" />
+                  {errorMsg && <p className="text-xs text-red-500 pl-1 animate-fade-in">{errorMsg}</p>}
+                  <button type="submit" disabled={loading}
+                    className="w-full h-11 mt-1 rounded-xl bg-primary text-primary-foreground text-sm font-medium flex items-center justify-center gap-2 hover:bg-primary/90 active:scale-[0.98] disabled:opacity-50 transition-all duration-150 shadow-sm">
+                    {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Wachtwoord instellen <ArrowRight className="h-4 w-4" /></>}
+                  </button>
+                </form>
+                <StepDots current={1} />
+                <p className="text-[11px] text-muted-foreground/60 text-center mt-3">Eerste keer inloggen · Stap 1 van 2</p>
               </>
             )}
 
