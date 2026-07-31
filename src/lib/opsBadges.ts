@@ -29,20 +29,24 @@ export function useOpsBadges(): BadgeMap {
   useEffect(() => {
     let alive = true;
     const recount = async () => {
-      const [returns, shipments, tickets, orders, ph] = await Promise.all([
+      const [returns, shipments, tickets, orders, ph, daily] = await Promise.all([
         loadLite("returns", "id,status"),
         loadLite("shipments", "id,status"),
         loadLite("tickets", "id,status"),
         loadLite("orders", "id,fulfillment_status"),
         loadLite("product_health", "id,status"),
+        loadLite("daily_metrics", "date"),
       ]);
       if (!alive) return;
+      const today = new Date().toLocaleDateString("en-CA"); // yyyy-mm-dd, local — matches the tracker
+      const dailyFilled = daily.some((d) => d.date === today);
       setM({
         "/returns": returns.filter((r) => RET_OPEN.has(r.status)).length,
         "/shipments": shipments.filter((s) => s.status && !SHIP_DONE.has(s.status)).length,
         "/tickets": tickets.filter((t) => TICKET_OPEN.has(t.status)).length,
         "/unfulfilled": orders.filter((o) => o.fulfillment_status === "unfulfilled").length,
         "/product-health": ph.filter((p) => p.status && p.status !== "healthy").length,
+        "/daily-tracker": dailyFilled ? 0 : 1, // needs today's numbers
       });
     };
     recount();
@@ -68,4 +72,5 @@ export const BADGE_ACCENT: Record<string, string> = {
   "/tickets": "hsl(var(--grape))",
   "/unfulfilled": "hsl(var(--warn))",
   "/product-health": "hsl(var(--ok))",
+  "/daily-tracker": "hsl(var(--ember))",
 };
