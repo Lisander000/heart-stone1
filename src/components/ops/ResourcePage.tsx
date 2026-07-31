@@ -13,6 +13,7 @@ import { fadeUp, stagger } from "@/lib/motion";
 import { opsRegistry } from "@/pages/ops/opsConfig";
 import { ConfirmDelete } from "@/components/ConfirmDelete";
 import { notify } from "@/lib/notify";
+import { pingOps } from "@/lib/opsBadges";
 
 export type FieldDef = {
   key: string; label: string;
@@ -150,7 +151,7 @@ export function ResourcePage({ title, table, fields, columns, emptyText, extraFi
       if (extraFilter) Object.assign(payload, extraFilter);
       const { data: inserted, error } = await (supabase as any).from(table).insert(payload).select().single();
       if (error) throw error;
-      toast.success("Toegevoegd"); setAddOpen(false); load();
+      toast.success("Toegevoegd"); setAddOpen(false); load(); pingOps();
       // Fire a notification (in-app + browser push) for the new record.
       const row = inserted ?? payload;
       const label = cfg?.label ?? "record";
@@ -172,7 +173,7 @@ export function ResourcePage({ title, table, fields, columns, emptyText, extraFi
     try {
       const { error } = await (supabase as any).from(table).update(buildPayload()).eq("id", editRow.id);
       if (error) throw error;
-      toast.success("Opgeslagen"); setEditRow(null); load();
+      toast.success("Opgeslagen"); setEditRow(null); load(); pingOps();
     } catch (e: any) { toast.error(e.message ?? "Kon niet opslaan"); }
     finally { setSaving(false); }
   };
@@ -182,7 +183,7 @@ export function ResourcePage({ title, table, fields, columns, emptyText, extraFi
     try {
       const { error } = await (supabase as any).from(table).delete().eq("id", id);
       if (error) throw error;
-      setRows((r) => r.filter((x) => x.id !== id)); toast.success("Verwijderd");
+      setRows((r) => r.filter((x) => x.id !== id)); toast.success("Verwijderd"); pingOps();
     } catch (e: any) { toast.error(e.message ?? "Kon niet verwijderen"); }
     finally { setDeletingId(null); }
   };

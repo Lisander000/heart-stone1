@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Plus, Loader2, HardDriveDownload, Cloud, Activity } from "lucide-react";
+import { pingOps } from "@/lib/opsBadges";
 import { fadeUp, stagger } from "@/lib/motion";
 import { ConfirmDelete } from "@/components/ConfirmDelete";
 
@@ -146,7 +147,7 @@ export default function DailyTracker() {
     })();
   }, []);
 
-  const persistLocal = (next: Day[]) => localStorage.setItem(LS_KEY, JSON.stringify(next));
+  const persistLocal = (next: Day[]) => { localStorage.setItem(LS_KEY, JSON.stringify(next)); pingOps(); };
 
   const commit = (row: Day) => {
     if (backend === "local") { persistLocal(days.map((d) => d.id === row.id ? row : d)); return; }
@@ -154,7 +155,7 @@ export default function DailyTracker() {
     saveTimer.current[row.id] = setTimeout(async () => {
       const payload: any = { ...row, user_id: uid };
       const { error } = await (supabase as any).from("daily_metrics").upsert(payload, { onConflict: "user_id,date" });
-      if (error) toast.error(error.message);
+      if (error) toast.error(error.message); else pingOps();
     }, 500);
   };
 
