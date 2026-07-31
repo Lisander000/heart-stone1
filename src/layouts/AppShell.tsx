@@ -1,5 +1,6 @@
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useMyAllowedCategories, categoryForPath } from "@/lib/access";
 import { AnimatePresence, motion } from "framer-motion";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app/AppSidebar";
@@ -63,9 +64,18 @@ function crumbFor(pathname: string) {
 
 export default function AppShell() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const { open, setOpen } = useCommandPalette();
   const crumb = crumbFor(pathname);
   useNotificationRuntime();
+
+  // Category access: if a user opens (or is linked to) a category a super user has
+  // hidden for them, bounce them back to Home. Super users are never restricted.
+  const allowedCategories = useMyAllowedCategories();
+  useEffect(() => {
+    const cat = categoryForPath(pathname);
+    if (cat && !allowedCategories.includes(cat)) navigate("/", { replace: true });
+  }, [pathname, allowedCategories, navigate]);
 
   return (
     <SidebarProvider>

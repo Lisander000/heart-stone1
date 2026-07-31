@@ -21,7 +21,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { GbMark } from "@/components/app/GbMark";
 import { useOpsBadges, BADGE_ACCENT } from "@/lib/opsBadges";
-import { useIsSuperUser } from "@/lib/superuser";
+import { useMyAllowedCategories } from "@/lib/access";
 
 /* ── nav data ─────────────────────────────────────────────────────────── */
 
@@ -160,7 +160,7 @@ export function AppSidebar() {
   const [signingOut, setSigningOut] = useState(false);
   const { email, fullName, avatarUrl, initials } = useUserProfile();
   const badges = useOpsBadges();
-  const iAmSuper = useIsSuperUser();
+  const allowedCategories = useMyAllowedCategories();
 
   // Per-category open state — persisted so a user's expand/collapse survives a refresh.
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
@@ -274,7 +274,7 @@ export function AppSidebar() {
 
       {/* ── Nav groups ── */}
       <SidebarContent className="px-2 gap-0.5 py-1 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:items-center">
-        {navGroups.filter((g) => !g.devOnly || iAmSuper).map((group) => {
+        {navGroups.filter((g) => g.label === "Overview" || allowedCategories.includes(g.label)).map((group) => {
           if (!group.collapsible) {
             return (
               <SidebarGroup key={group.label} className="py-1">

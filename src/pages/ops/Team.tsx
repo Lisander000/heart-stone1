@@ -3,10 +3,11 @@ import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { fadeUp, stagger } from "@/lib/motion";
-import { Plus, Shield, Star, RefreshCw, Trash2, UsersRound, Pencil } from "lucide-react";
+import { Plus, Shield, Star, RefreshCw, Trash2, UsersRound, Pencil, Check, SlidersHorizontal } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ConfirmDelete } from "@/components/ConfirmDelete";
 import { useIsSuperUser, useCurrentUser, isSuperUser, setSuperUser, useSuperUsers, SUPERUSER_BLOCK } from "@/lib/superuser";
+import { CATEGORIES, DEFAULT_CATEGORIES, getUserAccess, setUserAccess, useAllAccess } from "@/lib/access";
 
 type Member = { id: string; name: string; email: string | null; role: string; status: string; invited_at?: string };
 const ROLES = ["owner", "admin", "member", "viewer"];
@@ -29,11 +30,13 @@ export default function Team() {
   const [addOpen, setAddOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [accessMember, setAccessMember] = useState<Member | null>(null);
   const skipSave = useRef(false);
 
   const iAmSuper = useIsSuperUser();
   const me = useCurrentUser();
   useSuperUsers(); // subscribe so the members table reflects super-user toggles live
+  const accessMap = useAllAccess(); // subscribe so the access column updates live
 
   const load = async () => {
     setLoading(true);
@@ -88,7 +91,7 @@ export default function Team() {
     toast.success(on ? `${email} is nu super user.` : `Super user verwijderd voor ${email}.`);
   };
 
-  const GRID = "minmax(140px,1.4fr) minmax(200px,2.2fr) minmax(120px,0.9fr) 120px 130px 44px";
+  const GRID = "minmax(130px,1.3fr) minmax(180px,2fr) minmax(110px,0.8fr) 108px 122px minmax(150px,1fr) 44px";
 
   return (
     <div className="min-h-screen">
@@ -115,7 +118,7 @@ export default function Team() {
           <div className="overflow-x-auto">
             <div className="min-w-full">
               <div className="grid bg-muted border-b border-border" style={{ gridTemplateColumns: GRID }}>
-                {["Naam", "E-mail", "Rol", "Status", "Super user", ""].map((h, i) => <div key={i} className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{h}</div>)}
+                {["Naam", "E-mail", "Rol", "Status", "Super user", "Toegang", ""].map((h, i) => <div key={i} className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{h}</div>)}
               </div>
               {loading ? (
                 Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-14 shimmer m-px" />)
@@ -156,6 +159,17 @@ export default function Team() {
                             <Star className={`h-3.5 w-3.5 ${su ? "fill-current" : ""}`} /> {su ? "Super user" : "Standaard"}
                           </button>
                         </div>
+                        <div className="px-4 py-3">
+                          {su ? (
+                            <span className="text-[11px] text-muted-foreground">Alle categorieën</span>
+                          ) : (
+                            <button onClick={() => setAccessMember(m)} disabled={!iAmSuper || !m.email}
+                              title={!m.email ? "Voeg eerst een e-mail toe" : iAmSuper ? "Toegang bewerken" : SUPERUSER_BLOCK}
+                              className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full text-[11px] font-medium bg-muted text-muted-foreground hover:text-foreground disabled:opacity-50 transition-colors">
+                              <SlidersHorizontal className="h-3.5 w-3.5 shrink-0" /> {(accessMap[(m.email || "").toLowerCase()] ?? DEFAULT_CATEGORIES).length}/{CATEGORIES.length} categorieën
+                            </button>
+                          )}
+                        </div>
                         <button onClick={() => setDeleteId(m.id)} className="px-2 grid place-items-center text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-bad transition-colors"><Trash2 className="h-4 w-4" /></button>
                       </motion.div>
                     );
@@ -169,6 +183,7 @@ export default function Team() {
       </div>
 
       <AddMemberDialog open={addOpen} onOpenChange={setAddOpen} onAdd={addMember} />
+      <AccessDialog member={accessMember} onClose={() => setAccessMember(null)} canEdit={iAmSuper} />
       <ConfirmDelete open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)} onConfirm={() => { if (deleteId) removeMember(deleteId); setDeleteId(null); }} title="Teamlid verwijderen?" description="Dit teamlid wordt permanent verwijderd." />
     </div>
   );
@@ -178,6 +193,49 @@ function Pill({ value, tone }: { value: string; tone: string }) {
   const v = toneVar(tone);
   const c = `hsl(var(--${v}))`;
   return <span className="inline-flex items-center gap-1.5 rounded-full border pl-2 pr-2.5 py-1 text-[11px] font-semibold capitalize" style={{ background: `hsl(var(--${v}) / 0.1)`, color: c, borderColor: `hsl(var(--${v}) / 0.35)`, boxShadow: `0 1px 1.5px hsl(var(--${v}) / 0.08)` }}><span className="dot" style={{ background: c, width: 6, height: 6 }} />{value}</span>;
+}
+
+function AccessDialog({ member, onClose, canEdit }: { member: Member | null; onClose: () => void; canEdit: boolean }) {
+  const [sel, setSel] = useState<string[]>([]);
+  useEffect(() => { if (member) setSel(getUserAccess(member.email)); }, [member]);
+  if (!member) return null;
+  const su = isSuperUser(member.email);
+  const toggle = (c: string) => setSel((p) => (p.includes(c) ? p.filter((x) => x !== c) : [...p, c]));
+  const save = () => { if (member.email) { setUserAccess(member.email, sel); toast.success(`Toegang bijgewerkt voor ${member.name || member.email}.`); } onClose(); };
+  return (
+    <Dialog open={!!member} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader><DialogTitle className="font-display text-lg">Toegang · {member.name || member.email || "teamlid"}</DialogTitle></DialogHeader>
+        {!member.email ? (
+          <p className="text-sm text-muted-foreground">Dit teamlid heeft nog geen e-mail — voeg er een toe om de toegang per categorie te bepalen.</p>
+        ) : su ? (
+          <div className="flex items-start gap-2.5 rounded-xl border border-ok/20 bg-ok/[0.06] px-3 py-2.5"><Star className="h-4 w-4 text-ok shrink-0 mt-0.5" /><p className="text-[13px] text-foreground">Dit is een <span className="font-semibold">super user</span> — die ziet altijd alle categorieën, inclusief Development.</p></div>
+        ) : (
+          <>
+            <p className="text-xs text-muted-foreground">Vink de categorieën aan die {member.name || "deze gebruiker"} in de app ziet. De rest verdwijnt uit hun navigatie.</p>
+            <div className="grid grid-cols-2 gap-2 mt-1">
+              {CATEGORIES.map((c) => {
+                const on = sel.includes(c);
+                return (
+                  <button key={c} type="button" onClick={() => canEdit && toggle(c)} disabled={!canEdit}
+                    className="flex items-center gap-2.5 h-11 px-3 rounded-xl border text-[13px] font-medium transition-colors disabled:opacity-70"
+                    style={on ? { borderColor: "hsl(var(--primary) / 0.5)", background: "hsl(var(--primary) / 0.06)", color: "hsl(var(--foreground))" } : { borderColor: "hsl(var(--border))", color: "hsl(var(--muted-foreground))" }}>
+                    <span className="h-4 w-4 rounded-md grid place-items-center border shrink-0" style={on ? { background: "hsl(var(--primary))", borderColor: "hsl(var(--primary))" } : { borderColor: "hsl(var(--border))" }}>{on && <Check className="h-3 w-3 text-white" />}</span>
+                    {c}
+                  </button>
+                );
+              })}
+            </div>
+            {!canEdit && <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 shrink-0" /> {SUPERUSER_BLOCK}</p>}
+            <div className="flex justify-end gap-2 mt-3">
+              <button onClick={onClose} className="h-9 px-4 rounded-full border border-border bg-card text-sm font-medium text-muted-foreground hover:text-foreground">{canEdit ? "Annuleer" : "Sluit"}</button>
+              {canEdit && <button onClick={save} className="h-9 px-4 rounded-full bg-primary text-primary-foreground text-sm font-medium">Opslaan</button>}
+            </div>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 function AddMemberDialog({ open, onOpenChange, onAdd }: { open: boolean; onOpenChange: (o: boolean) => void; onAdd: (d: { name: string; email: string; role: string; status: string }) => void }) {
