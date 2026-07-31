@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { GbMark } from "@/components/app/GbMark";
-import { useOpenReturnsCount } from "@/lib/returnsData";
+import { useOpsBadges, BADGE_ACCENT } from "@/lib/opsBadges";
 import { useIsSuperUser } from "@/lib/superuser";
 
 /* ── nav data ─────────────────────────────────────────────────────────── */
@@ -159,7 +159,7 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const [signingOut, setSigningOut] = useState(false);
   const { email, fullName, avatarUrl, initials } = useUserProfile();
-  const openReturns = useOpenReturnsCount();
+  const badges = useOpsBadges();
   const iAmSuper = useIsSuperUser();
 
   // Per-category open state — persisted so a user's expand/collapse survives a refresh.
@@ -207,7 +207,8 @@ export function AppSidebar() {
 
   function renderNavItem(item: NavItem) {
     const active = isActive(item.url);
-    const badge = item.url === "/returns" ? openReturns : 0;
+    const badge = badges[item.url] ?? 0;
+    const accent = BADGE_ACCENT[item.url] ?? "hsl(var(--bad))";
     return (
       <SidebarMenuItem key={item.url}>
         <SidebarMenuButton
@@ -225,14 +226,14 @@ export function AppSidebar() {
                 strokeWidth={2}
               />
               {badge > 0 && collapsed && (
-                <span className="absolute -top-2 -right-2 min-w-[14px] h-[14px] px-1 rounded-full grid place-items-center text-[9px] font-bold leading-none text-white bg-bad ring-2 ring-sidebar shadow-sm tabular-nums">
+                <span className="absolute -top-2 -right-2 min-w-[14px] h-[14px] px-1 rounded-full grid place-items-center text-[9px] font-bold leading-none text-white ring-2 ring-sidebar shadow-sm tabular-nums" style={{ background: accent }}>
                   {badge > 9 ? "9+" : badge}
                 </span>
               )}
             </span>
             <span className="text-[13px]">{item.title}</span>
             {badge > 0 && !collapsed && (
-              <span className="ml-auto min-w-[18px] h-[18px] px-1.5 rounded-full grid place-items-center text-[10px] font-bold text-white bg-bad tabular-nums group-data-[active=true]/nav:bg-white group-data-[active=true]/nav:text-primary">
+              <span className="ml-auto min-w-[18px] h-[18px] px-1.5 rounded-full grid place-items-center text-[10px] font-bold tabular-nums" style={active ? { background: "#fff", color: "hsl(var(--primary))" } : { background: accent, color: "#fff" }}>
                 {badge}
               </span>
             )}
