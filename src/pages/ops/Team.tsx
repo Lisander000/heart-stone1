@@ -63,15 +63,23 @@ export default function Team() {
     if (backend === "local") persistLocal(next);
     else { const { error } = await (supabase as any).from("team_members").insert({ id: row.id, name: row.name, email: row.email, role: row.role, status: row.status, user_id: uid }); if (error) toast.error(error.message); }
     setAddOpen(false);
-    // Super users onboard a real login: send an invite so the person can set a password.
+    // Super users onboard a real login. A passwordless magic link also provisions the
+    // account (shouldCreateUser) — no server/edge function needed. The person clicks the
+    // emailed link, lands on /auth and is forced to set their own permanent password.
     if (iAmSuper && row.email) {
       try {
-        const { data, error } = await supabase.functions.invoke("invite-user", { body: { name: row.name, email: row.email } });
+        const { error } = await supabase.auth.signInWithOtp({
+          email: row.email,
+          options: {
+            shouldCreateUser: true,
+            data: { full_name: row.name, must_change_password: true },
+            emailRedirectTo: `${window.location.origin}/auth`,
+          },
+        });
         if (error) throw error;
-        if ((data as any)?.error) throw new Error((data as any).error);
-        toast.success(`Uitnodiging verstuurd naar ${row.email}.`);
+        toast.success(`Inloglink verstuurd naar ${row.email}.`);
       } catch (e: any) {
-        toast.error(`Teamlid toegevoegd, maar de uitnodiging is niet verstuurd (${e.message || e}). Is de invite-functie gedeployed?`);
+        toast.error(`Teamlid toegevoegd, maar de e-mail is niet verstuurd: ${e.message || e}`);
       }
     }
   };

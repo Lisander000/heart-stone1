@@ -58,13 +58,14 @@ export default function Auth() {
   const formRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    (async () => {
+    let handled = false;
+    const check = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
-      // Invited users land here with a session and no password of their own yet —
-      // force them to choose one before anything else.
+      // Invited / magic-link users land here with a session and no password of their own
+      // yet — force them to choose one before anything else.
       const { data: { user } } = await supabase.auth.getUser();
-      if (user?.user_metadata?.must_change_password) { setEmail(user.email ?? ""); advanceTo("set-password"); return; }
+      if (user?.user_metadata?.must_change_password) { handled = true; setEmail(user.email ?? ""); advanceTo("set-password"); return; }
       const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       if (aal?.currentLevel === "aal2") { navigate(returnTo, { replace: true }); return; }
       if (aal?.nextLevel === "aal2") {
@@ -77,7 +78,13 @@ export default function Auth() {
           advanceTo("mfa-verify");
         }
       }
-    })();
+    };
+    check();
+    // A magic-link/invite session is created a moment after mount — catch it too.
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (!handled && (event === "SIGNED_IN" || event === "USER_UPDATED" || event === "INITIAL_SESSION")) check();
+    });
+    return () => sub.subscription.unsubscribe();
   }, [navigate, returnTo]);
 
   function advanceTo(next: Step) {
