@@ -15,7 +15,7 @@ type Order = { id: string; order_number: string | null; customer_name: string | 
 const payTone = (v?: string | null) => (v === "paid" ? "ok" : v === "refunded" || v === "cancelled" ? "bad" : "warn");
 const fulfilTone = (v?: string | null) => (v === "fulfilled" ? "ok" : v === "partial" ? "warn" : "bad");
 const sbTone = (t: string) => (t === "ok" ? "success" : t === "bad" ? "danger" : "warn") as "success" | "warn" | "danger";
-const toneColor = (t: string) => (({ ok: "hsl(var(--ok))", warn: "hsl(var(--warn))", bad: "hsl(var(--bad))", info: "hsl(var(--info))" }) as Record<string, string>)[t] ?? "hsl(var(--muted-foreground))";
+const toneColor = (t: string) => (({ ok: "hsl(var(--ok))", warn: "hsl(var(--warn))", bad: "hsl(var(--bad))", info: "hsl(var(--info))", ember: "hsl(var(--ember))", grape: "hsl(var(--grape))" }) as Record<string, string>)[t] ?? "hsl(var(--muted-foreground))";
 const eur = (v: number, c = "EUR") => new Intl.NumberFormat("nl-BE", { style: "currency", currency: c || "EUR" }).format(v || 0);
 const fmtDate = (iso?: string | null) => (iso ? new Date(iso).toLocaleDateString("nl-BE", { day: "numeric", month: "short", year: "numeric" }) : "—");
 
@@ -116,8 +116,8 @@ export default function OrderDetail() {
               <h2 className="text-sm font-semibold text-foreground">Order &amp; status</h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <Metric label="Orderbedrag" value={eur(Number(order.total ?? 0), cur)} tone="info" />
-                <Metric label="Shipments" value={String(shipments.length)} tone="info" />
-                <Metric label="Returns" value={String(returns.length)} tone={returns.length ? "warn" : "info"} />
+                <Metric label="Shipments" value={String(shipments.length)} tone="ember" />
+                <Metric label="Returns" value={String(returns.length)} tone="bad" />
                 <Metric label="Netto finance" value={eur(netFinance, cur)} tone={netFinance >= 0 ? "ok" : "bad"} />
               </div>
               {/* betaal- & fulfilmentstatus komen uit de orderbron (Shopify) — alleen-lezen hier */}
