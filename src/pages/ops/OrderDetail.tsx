@@ -122,7 +122,7 @@ export default function OrderDetail() {
               </div>
               {/* betaal- & fulfilmentstatus komen uit de orderbron (Shopify) — alleen-lezen hier */}
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Status · gesynct vanuit de orderbron</p>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Status</p>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-xl border border-border bg-muted/30 px-3 py-2">
                     <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Betaalstatus</p>
