@@ -233,7 +233,7 @@ export function AppSidebar() {
             </span>
             <span className="text-[13px]">{item.title}</span>
             {badge > 0 && !collapsed && (
-              <span className="ml-auto min-w-[18px] h-[18px] px-1.5 rounded-full grid place-items-center text-[10px] font-bold tabular-nums" style={active ? { background: "#fff", color: "hsl(var(--primary))" } : { background: accent, color: "#fff" }}>
+              <span className="ml-auto min-w-[18px] h-[18px] px-1 rounded-full inline-flex items-center justify-center text-[10px] font-bold leading-none tabular-nums" style={active ? { background: "#fff", color: "hsl(var(--primary))" } : { background: accent, color: "#fff" }}>
                 {badge}
               </span>
             )}
