@@ -133,7 +133,6 @@ export default function OrderDetail() {
                     <StatusBadge value={order.fulfillment_status ?? "—"} tone={sbTone(fulfilTone(order.fulfillment_status))} />
                   </div>
                 </div>
-                <p className="text-[10px] text-muted-foreground mt-1.5">Betaal- en fulfilmentstatus worden opgehaald uit de orderbron (bv. Shopify) en zijn hier alleen-lezen. Het trackingnummer kan je wel aanvullen.</p>
               </div>
               <Field label="Tracking nummer">
                 <input value={order.tracking_number ?? ""} onChange={(e) => patch({ tracking_number: e.target.value })} placeholder="Trackingnummer" className="w-full bg-transparent text-[13px] outline-none" />
