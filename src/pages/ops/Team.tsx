@@ -91,7 +91,7 @@ export default function Team() {
     toast.success(on ? `${email} is nu super user.` : `Super user verwijderd voor ${email}.`);
   };
 
-  const GRID = "minmax(130px,1.3fr) minmax(180px,2fr) minmax(110px,0.8fr) 108px 122px minmax(150px,1fr) 44px";
+  const GRID = "minmax(150px,1.4fr) minmax(190px,2fr) minmax(110px,0.85fr) 110px minmax(150px,1fr) 44px";
 
   return (
     <div className="min-h-screen">
@@ -118,7 +118,7 @@ export default function Team() {
           <div className="overflow-x-auto">
             <div className="min-w-full">
               <div className="grid bg-muted border-b border-border" style={{ gridTemplateColumns: GRID }}>
-                {["Naam", "E-mail", "Rol", "Status", "Super user", "Toegang", ""].map((h, i) => <div key={i} className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{h}</div>)}
+                {["Naam", "E-mail", "Rol", "Status", "Toegang", ""].map((h, i) => <div key={i} className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{h}</div>)}
               </div>
               {loading ? (
                 Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-14 shimmer m-px" />)
@@ -131,7 +131,15 @@ export default function Team() {
                     const isMe = !!m.email && !!me.email && m.email.toLowerCase() === me.email.toLowerCase();
                     return (
                       <motion.div key={m.id} variants={fadeUp} className="group grid items-center hover:bg-muted/40 transition-colors" style={{ gridTemplateColumns: GRID }}>
-                        <div className="px-4 py-3 text-[13px] font-medium text-foreground break-words">{isMe && me.name ? me.name : (m.name || "—")}{isMe && <span className="ml-1.5 text-[10px] font-semibold text-primary/70">(jij)</span>}</div>
+                        <div className="px-4 py-3 flex items-center gap-1.5 min-w-0">
+                          <span className="text-[13px] font-medium text-foreground truncate">{isMe && me.name ? me.name : (m.name || "—")}</span>
+                          {isMe && <span className="text-[10px] font-semibold text-primary/70 shrink-0">(jij)</span>}
+                          <button onClick={() => toggleSuper(m.email)} disabled={!iAmSuper}
+                            title={su ? (iAmSuper ? "Super user — klik om te verwijderen" : "Super user") : iAmSuper ? "Maak super user" : ""}
+                            className={`shrink-0 transition-colors disabled:cursor-default ${su ? "text-ok" : iAmSuper ? "text-transparent group-hover:text-muted-foreground/40 hover:!text-ok cursor-pointer" : "hidden"}`}>
+                            <Star className={`h-3.5 w-3.5 ${su ? "fill-current" : ""}`} />
+                          </button>
+                        </div>
                         <div className="px-4 py-3 text-[13px] text-muted-foreground break-words">{m.email || "—"}</div>
                         <div className="px-4 py-3">
                           {editingId === m.id ? (
@@ -151,14 +159,6 @@ export default function Team() {
                           )}
                         </div>
                         <div className="px-4 py-3"><Pill value={m.status} tone={statusTone(m.status)} /></div>
-                        <div className="px-4 py-3">
-                          <button onClick={() => toggleSuper(m.email)}
-                            className={`inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full text-[11px] font-medium transition-all ${su ? "text-ok" : "text-muted-foreground hover:text-foreground"}`}
-                            style={su ? { background: "hsl(var(--ok)/0.14)" } : { background: "hsl(var(--muted))" }}
-                            title={iAmSuper ? "Klik om super user aan/uit te zetten" : SUPERUSER_BLOCK}>
-                            <Star className={`h-3.5 w-3.5 ${su ? "fill-current" : ""}`} /> {su ? "Super user" : "Standaard"}
-                          </button>
-                        </div>
                         <div className="px-4 py-3">
                           {su ? (
                             <span className="text-[11px] text-muted-foreground">Alle categorieën</span>
