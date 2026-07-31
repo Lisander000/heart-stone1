@@ -12,8 +12,6 @@ import { StatusBadge } from "@/components/ops/ResourcePage";
 
 type Order = { id: string; order_number: string | null; customer_name: string | null; customer_email: string | null; status: string; fulfillment_status: string | null; total: number | null; currency: string | null; tracking_number: string | null; notes: string | null; created_at?: string };
 
-const PAY = ["open", "paid", "cancelled", "refunded"];
-const FULFIL = ["unfulfilled", "partial", "fulfilled"];
 const payTone = (v?: string | null) => (v === "paid" ? "ok" : v === "refunded" || v === "cancelled" ? "bad" : "warn");
 const fulfilTone = (v?: string | null) => (v === "fulfilled" ? "ok" : v === "partial" ? "warn" : "bad");
 const sbTone = (t: string) => (t === "ok" ? "success" : t === "bad" ? "danger" : "warn") as "success" | "warn" | "danger";
@@ -117,22 +115,25 @@ export default function OrderDetail() {
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5 space-y-4">
               <h2 className="text-sm font-semibold text-foreground">Order &amp; status</h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <Metric label="Totaal" value={eur(Number(order.total ?? 0), cur)} tone="info" />
+                <Metric label="Orderbedrag" value={eur(Number(order.total ?? 0), cur)} tone="info" />
                 <Metric label="Shipments" value={String(shipments.length)} tone="info" />
                 <Metric label="Returns" value={String(returns.length)} tone={returns.length ? "warn" : "info"} />
                 <Metric label="Netto finance" value={eur(netFinance, cur)} tone={netFinance >= 0 ? "ok" : "bad"} />
               </div>
+              {/* betaal- & fulfilmentstatus komen uit de orderbron (Shopify) — alleen-lezen hier */}
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Betaalstatus</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {PAY.map((s) => { const active = order.status === s; const col = toneColor(payTone(s)); return <button key={s} onClick={() => patch({ status: s })} className="h-8 px-2.5 rounded-lg text-[11px] font-medium border capitalize transition-colors" style={active ? { background: col, color: "#fff", borderColor: col } : { borderColor: "hsl(var(--border))", color: "hsl(var(--muted-foreground))" }}>{s}</button>; })}
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Status · gesynct vanuit de orderbron</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-xl border border-border bg-muted/30 px-3 py-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Betaalstatus</p>
+                    <StatusBadge value={order.status} tone={sbTone(payTone(order.status))} />
+                  </div>
+                  <div className="rounded-xl border border-border bg-muted/30 px-3 py-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Fulfilment</p>
+                    <StatusBadge value={order.fulfillment_status ?? "—"} tone={sbTone(fulfilTone(order.fulfillment_status))} />
+                  </div>
                 </div>
-              </div>
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Fulfilmentstatus</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {FULFIL.map((s) => { const active = (order.fulfillment_status || "unfulfilled") === s; const col = toneColor(fulfilTone(s)); return <button key={s} onClick={() => patch({ fulfillment_status: s })} className="h-8 px-2.5 rounded-lg text-[11px] font-medium border capitalize transition-colors" style={active ? { background: col, color: "#fff", borderColor: col } : { borderColor: "hsl(var(--border))", color: "hsl(var(--muted-foreground))" }}>{s}</button>; })}
-                </div>
+                <p className="text-[10px] text-muted-foreground mt-1.5">Betaal- en fulfilmentstatus worden opgehaald uit de orderbron (bv. Shopify) en zijn hier alleen-lezen. Het trackingnummer kan je wel aanvullen.</p>
               </div>
               <Field label="Tracking nummer">
                 <input value={order.tracking_number ?? ""} onChange={(e) => patch({ tracking_number: e.target.value })} placeholder="Trackingnummer" className="w-full bg-transparent text-[13px] outline-none" />
