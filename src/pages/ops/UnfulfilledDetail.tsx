@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { fadeUp } from "@/lib/motion";
 import {
   ArrowLeft, PackageOpen, User, Mail, MapPin, Truck, ExternalLink, Plus, ChevronRight,
-  Loader2, Save, Clock, AlertTriangle, CheckCircle2,
+  Loader2, Save, Clock, CheckCircle2,
 } from "lucide-react";
 import { StatusBadge } from "@/components/ops/ResourcePage";
 
@@ -80,13 +80,13 @@ export default function UnfulfilledDetail() {
   const paid = order.status === "paid";
   const addr = orderAddress(order);
   const backQ = `?order_id=${id}&return_to=${encodeURIComponent(`/unfulfilled/${id}`)}`;
-  // urgency: paid orders that sit unshipped for long are the priority
-  const tone = fulfilled ? "ok" : days > 5 ? "bad" : days >= 2 ? "warn" : "info";
+  // urgency: paid orders that sit unshipped for long are the priority (never alarm-red)
+  const tone = fulfilled ? "ok" : days >= 2 ? "warn" : "info";
   const bannerLabel = fulfilled ? "Volledig verzonden" : `${days} ${days === 1 ? "dag" : "dagen"} onvervuld`;
   const bannerSub = fulfilled ? "Deze order is verzonden — niets meer te doen." : paid ? "Betaald · wacht op verzending — pak dit op door een shipment aan te maken." : "Nog niet betaald — controleer de betaling voor je verzendt.";
 
   return (
-    <div className="min-h-screen" style={tone === "bad" ? { background: "hsl(var(--bad)/0.04)" } : undefined}>
+    <div className="min-h-screen">
       <div className="max-w-5xl mx-auto px-6 py-7 space-y-5">
         {/* header */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
@@ -106,12 +106,11 @@ export default function UnfulfilledDetail() {
 
         {/* aging / urgency banner */}
         <motion.div variants={fadeUp} initial="hidden" animate="visible" className="rounded-2xl px-4 py-3.5 flex items-center gap-3" style={{ background: `hsl(var(--${tone}) / 0.1)`, boxShadow: `inset 0 0 0 1px hsl(var(--${tone}) / 0.35)` }}>
-          <span className="h-10 w-10 rounded-xl grid place-items-center shrink-0 text-white" style={{ background: toneColor(tone) }}>{fulfilled ? <CheckCircle2 className="h-5 w-5" /> : tone === "bad" ? <AlertTriangle className="h-5 w-5" /> : <Clock className="h-5 w-5" />}</span>
+          <span className="h-10 w-10 rounded-xl grid place-items-center shrink-0 text-white" style={{ background: toneColor(tone) }}>{fulfilled ? <CheckCircle2 className="h-5 w-5" /> : <Clock className="h-5 w-5" />}</span>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold" style={{ color: toneColor(tone) }}>{bannerLabel}</p>
             <p className="text-xs text-muted-foreground">{bannerSub}</p>
           </div>
-          {tone === "bad" && <AlertTriangle className="h-5 w-5 shrink-0 animate-pulse" style={{ color: toneColor(tone) }} />}
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -124,7 +123,7 @@ export default function UnfulfilledDetail() {
                 <Metric label="Orderbedrag" value={eur(Number(order.total ?? 0), cur)} tone="info" />
                 <Metric label="Onvervuld" value={`${days}d`} tone={tone === "info" ? "info" : tone} />
                 <Metric label="Shipments" value={String(shipments.length)} tone="ember" />
-                <Metric label="Betaald" value={paid ? "Ja" : "Nee"} tone={paid ? "ok" : "bad"} />
+                <Metric label="Betaald" value={paid ? "Ja" : "Nee"} tone={paid ? "ok" : "warn"} />
               </div>
               {/* read-only synced status */}
               <div>
