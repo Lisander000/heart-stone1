@@ -14,6 +14,7 @@ import Offers from "./pages/Offers.tsx";
 import Orders from "./pages/ops/Orders.tsx";
 import OrderDetail from "./pages/ops/OrderDetail.tsx";
 import Unfulfilled from "./pages/ops/Unfulfilled.tsx";
+import UnfulfilledDetail from "./pages/ops/UnfulfilledDetail.tsx";
 import Shipments from "./pages/ops/Shipments.tsx";
 import ShipmentDetail from "./pages/ops/ShipmentDetail.tsx";
 import Returns from "./pages/ops/Returns.tsx";
@@ -65,6 +66,7 @@ const App = () => (
               <Route path="/orders/:orderId" element={<OrderDetail />} />
               <Route path="/unfulfilled" element={<Unfulfilled />} />
               <Route path="/unfulfilled/dashboard" element={<Unfulfilled />} />
+              <Route path="/unfulfilled/:id" element={<UnfulfilledDetail />} />
               <Route path="/shipments" element={<Shipments />} />
               <Route path="/shipments/dashboard" element={<Shipments />} />
               <Route path="/shipments/:id" element={<ShipmentDetail />} />

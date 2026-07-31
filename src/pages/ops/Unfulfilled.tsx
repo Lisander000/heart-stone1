@@ -14,7 +14,7 @@ export default function Unfulfilled() {
       description="Betaalde orders die nog verzonden moeten worden."
       table="orders"
       extraFilter={{ fulfillment_status: "unfulfilled" }}
-      rowLinkTo={(r) => `/orders/${r.id}`}
+      rowLinkTo={(r) => `/unfulfilled/${r.id}`}
       dashboard={
         <ResourceDashboard
           table="orders" label="orders" accent="hsl(var(--warn))"
