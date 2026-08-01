@@ -71,7 +71,11 @@ export default function Auth() {
       if (user?.user_metadata?.must_change_password) { handled = true; setEmail(user.email ?? ""); advanceTo("set-password"); return; }
       // Lost-authenticator recovery: the email link proves control of the inbox, so let
       // them enroll a fresh authenticator instead of asking for a code they don't have.
-      if (recover) {
+      // Intent is carried by a localStorage flag (survives the clean redirect) or ?recover=1.
+      const rf = localStorage.getItem("gb_mfa_recover");
+      const wantRecover = recover || (!!rf && Date.now() - Number(rf) < 15 * 60 * 1000);
+      if (wantRecover) {
+        localStorage.removeItem("gb_mfa_recover");
         handled = true; setRecovering(true); setEmail(user?.email ?? "");
         try { await startMFASetup(user?.email ?? "user"); }
         catch (e: any) { toast.error(e?.message || "Kon geen nieuwe authenticator starten."); }
@@ -218,13 +222,18 @@ export default function Auth() {
     if (!target) { const { data } = await supabase.auth.getUser(); target = data.user?.email ?? ""; }
     if (!target) { toast.error("Onbekend e-mailadres — ga terug en log opnieuw in."); return; }
     try {
+      // Remember the recovery intent locally: the email link returns to a CLEAN /auth URL
+      // (query params can trip up Supabase's redirect allow-list), and this flag tells the
+      // app to show the "enroll a new authenticator" QR screen instead of asking for a code.
+      localStorage.setItem("gb_mfa_recover", String(Date.now()));
       const { error } = await supabase.auth.signInWithOtp({
         email: target,
-        options: { shouldCreateUser: false, emailRedirectTo: `${SITE_URL}/auth?recover=1` },
+        options: { shouldCreateUser: false, emailRedirectTo: `${SITE_URL}/auth` },
       });
       if (error) throw error;
-      toast.success(`Herstel-link verstuurd naar ${target}. Open die mail om een nieuwe authenticator te koppelen.`);
+      toast.success(`Herstel-link verstuurd naar ${target}. Open die mail in deze browser om een nieuwe authenticator te koppelen.`);
     } catch (err: any) {
+      localStorage.removeItem("gb_mfa_recover");
       toast.error(err.message || "Kon geen herstel-link versturen.");
     }
   }
