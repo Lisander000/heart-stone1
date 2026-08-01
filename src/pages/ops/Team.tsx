@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ConfirmDelete } from "@/components/ConfirmDelete";
 import { useIsSuperUser, useCurrentUser, isSuperUser, setSuperUser, useSuperUsers, SUPERUSER_BLOCK } from "@/lib/superuser";
 import { CATEGORIES, DEFAULT_CATEGORIES, getUserAccess, setUserAccess, useAllAccess } from "@/lib/access";
+import { authRedirectUrl } from "@/lib/siteUrl";
 
 type Member = { id: string; name: string; email: string | null; role: string; status: string; invited_at?: string };
 const ROLES = ["owner", "admin", "member", "viewer"];
@@ -73,7 +74,7 @@ export default function Team() {
           options: {
             shouldCreateUser: true,
             data: { full_name: row.name, must_change_password: true },
-            emailRedirectTo: `${window.location.origin}/auth`,
+            emailRedirectTo: authRedirectUrl(),
           },
         });
         if (error) throw error;
