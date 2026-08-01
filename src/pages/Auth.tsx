@@ -212,18 +212,11 @@ export default function Auth() {
     }
   }
 
-  // Lost authenticator: the password was already verified to reach this step, so enroll a
-  // fresh authenticator right away and show its QR. The old factor is removed once the new
-  // code is confirmed (see handleVerify). No email round-trip — that proved too fragile.
-  async function handleLostAuthenticator() {
-    setErrorMsg(""); setOtpCode(""); setRecovering(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      await startMFASetup(user?.email ?? email ?? "user");
-    } catch (err: any) {
-      setRecovering(false);
-      toast.error(err.message || "Kon geen nieuwe authenticator starten.");
-    }
+  // Self-service recovery isn't possible: Supabase requires AAL2 (a valid current code) to
+  // enroll a new factor, which a user who lost their authenticator can't provide. Recovery
+  // is therefore a super-user action — they reset the factor from the Team page.
+  function handleLostAuthenticator() {
+    toast.info("Je authenticator kan alleen door een super user gereset worden (Team-pagina). Daarna stel je bij je volgende login een nieuwe in.");
   }
 
   return (

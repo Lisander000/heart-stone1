@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { fadeUp, stagger } from "@/lib/motion";
-import { Plus, Shield, Star, RefreshCw, Trash2, UsersRound, Pencil, Check, SlidersHorizontal } from "lucide-react";
+import { Plus, Shield, Star, RefreshCw, Trash2, UsersRound, Pencil, Check, SlidersHorizontal, KeyRound } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ConfirmDelete } from "@/components/ConfirmDelete";
 import { useIsSuperUser, useCurrentUser, isSuperUser, setSuperUser, useSuperUsers, SUPERUSER_BLOCK } from "@/lib/superuser";
@@ -111,7 +111,26 @@ export default function Team() {
     toast.success(on ? `${email} is nu super user.` : `Super user verwijderd voor ${email}.`);
   };
 
-  const GRID = "minmax(150px,1.4fr) minmax(190px,2fr) minmax(110px,0.85fr) 110px minmax(150px,1fr) 44px";
+  const [resetMember, setResetMember] = useState<Member | null>(null);
+  const [resetting, setResetting] = useState<string | null>(null);
+  const resetMfa = async (m: Member | null) => {
+    if (!m) return;
+    if (!iAmSuper) { toast.error(SUPERUSER_BLOCK); return; }
+    if (!m.email) { toast.error("Dit teamlid heeft geen e-mail."); return; }
+    setResetting(m.id);
+    try {
+      const { data, error } = await supabase.functions.invoke("reset-mfa", { body: { email: m.email } });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      toast.success(`Authenticator gereset voor ${m.email}. Ze stellen bij de volgende login een nieuwe in.`);
+    } catch (e: any) {
+      toast.error(`Reset mislukt: ${e.message || e}. Is de reset-mfa functie gedeployed?`);
+    } finally {
+      setResetting(null);
+    }
+  };
+
+  const GRID = "minmax(150px,1.4fr) minmax(190px,2fr) minmax(110px,0.85fr) 110px minmax(150px,1fr) 84px";
 
   return (
     <div className="min-h-screen">
@@ -190,7 +209,16 @@ export default function Team() {
                             </button>
                           )}
                         </div>
-                        <button onClick={() => setDeleteId(m.id)} className="px-2 grid place-items-center text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-bad transition-colors"><Trash2 className="h-4 w-4" /></button>
+                        <div className="px-2 flex items-center justify-end gap-0.5">
+                          {iAmSuper && m.email && (
+                            <button onClick={() => setResetMember(m)} disabled={resetting === m.id}
+                              title="Authenticator (MFA) resetten — bij verloren authenticator" aria-label="Reset MFA"
+                              className="h-7 w-7 grid place-items-center rounded-lg text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-primary disabled:opacity-50 transition-colors">
+                              {resetting === m.id ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <KeyRound className="h-4 w-4" />}
+                            </button>
+                          )}
+                          <button onClick={() => setDeleteId(m.id)} aria-label="Verwijderen" className="h-7 w-7 grid place-items-center rounded-lg text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-bad transition-colors"><Trash2 className="h-4 w-4" /></button>
+                        </div>
                       </motion.div>
                     );
                   })}
@@ -205,6 +233,7 @@ export default function Team() {
       <AddMemberDialog open={addOpen} onOpenChange={setAddOpen} onAdd={addMember} />
       <AccessDialog member={accessMember} onClose={() => setAccessMember(null)} canEdit={iAmSuper} />
       <ConfirmDelete open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)} onConfirm={() => { if (deleteId) removeMember(deleteId); setDeleteId(null); }} title="Teamlid verwijderen?" description="Dit teamlid wordt permanent verwijderd." />
+      <ConfirmDelete open={!!resetMember} onOpenChange={(o) => !o && setResetMember(null)} onConfirm={() => { const m = resetMember; setResetMember(null); resetMfa(m); }} title="Authenticator resetten?" description="De MFA-authenticator van dit teamlid wordt verwijderd. Bij de volgende login stellen ze een nieuwe in. Gebruik dit als iemand zijn authenticator kwijt is." />
     </div>
   );
 }
