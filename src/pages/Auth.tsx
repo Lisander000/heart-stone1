@@ -24,6 +24,9 @@ function GooodboysWordmark() {
 
 type Step = "credentials" | "set-password" | "mfa-setup" | "mfa-verify";
 
+// Who team members should contact to get their authenticator reset (a super admin).
+const SUPPORT_CONTACT = "lisander@gooodboys.com";
+
 function StepDots({ current }: { current: 1 | 2 }) {
   return (
     <div className="flex items-center justify-center gap-1.5 mt-6">
@@ -42,6 +45,7 @@ export default function Auth() {
 
   const [step, setStep] = useState<Step>("credentials");
   const [recovering, setRecovering] = useState(false);
+  const [showRecoverHelp, setShowRecoverHelp] = useState(false);
   const [logoError, setLogoError] = useState(false);
   const [animating, setAnimating] = useState(false);
   const [email, setEmail] = useState("");
@@ -210,13 +214,6 @@ export default function Auth() {
     } finally {
       setLoading(false);
     }
-  }
-
-  // Self-service recovery isn't possible: Supabase requires AAL2 (a valid current code) to
-  // enroll a new factor, which a user who lost their authenticator can't provide. Recovery
-  // is therefore a super-user action — they reset the factor from the Team page.
-  function handleLostAuthenticator() {
-    toast.info("Je authenticator kan alleen door een super user gereset worden (Team-pagina). Daarna stel je bij je volgende login een nieuwe in.");
   }
 
   return (
@@ -429,11 +426,18 @@ export default function Auth() {
                 </form>
                 <button
                   type="button"
-                  onClick={handleLostAuthenticator}
+                  onClick={() => setShowRecoverHelp((v) => !v)}
                   className="w-full text-center text-xs text-muted-foreground/80 hover:text-foreground mt-4 transition-colors"
                 >
-                  Authenticator kwijt? <span className="underline underline-offset-2">Opnieuw koppelen</span>
+                  <span className="underline underline-offset-2">Authenticator kwijt?</span>
                 </button>
+                {showRecoverHelp && (
+                  <div className="mt-2 rounded-xl border border-border bg-muted/50 px-3 py-2.5 text-[11px] leading-relaxed text-muted-foreground animate-fade-in">
+                    Om veiligheidsredenen kan je je authenticator niet zelf herstellen. Vraag een super user om je te resetten via de Team-pagina — contacteer{" "}
+                    <a href={`mailto:${SUPPORT_CONTACT}`} className="font-medium text-foreground underline underline-offset-2">{SUPPORT_CONTACT}</a>.
+                    Daarna stel je bij je volgende login een nieuwe authenticator in.
+                  </div>
+                )}
                 <StepDots current={2} />
                 <p className="text-[11px] text-muted-foreground/60 text-center mt-3">Stap 2 van 2</p>
               </>
