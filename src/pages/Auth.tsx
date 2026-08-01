@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { SITE_URL } from "@/lib/siteUrl";
 import { toast } from "sonner";
@@ -36,9 +36,10 @@ function StepDots({ current }: { current: 1 | 2 }) {
 
 export default function Auth() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const returnTo = searchParams.get("returnTo") || "/";
-  const recover = searchParams.get("recover") === "1";
+  const recover = location.pathname === "/recover-mfa" || searchParams.get("recover") === "1";
 
   const [step, setStep] = useState<Step>("credentials");
   const [recovering, setRecovering] = useState(false);
@@ -69,13 +70,10 @@ export default function Auth() {
       // yet — force them to choose one before anything else.
       const { data: { user } } = await supabase.auth.getUser();
       if (user?.user_metadata?.must_change_password) { handled = true; setEmail(user.email ?? ""); advanceTo("set-password"); return; }
-      // Lost-authenticator recovery: the email link proves control of the inbox, so let
-      // them enroll a fresh authenticator instead of asking for a code they don't have.
-      // Intent is carried by a localStorage flag (survives the clean redirect) or ?recover=1.
-      const rf = localStorage.getItem("gb_mfa_recover");
-      const wantRecover = recover || (!!rf && Date.now() - Number(rf) < 15 * 60 * 1000);
-      if (wantRecover) {
-        localStorage.removeItem("gb_mfa_recover");
+      // Lost-authenticator recovery: the email link (→ /recover-mfa) proves control of the
+      // inbox, so let them enroll a fresh authenticator instead of asking for a code they
+      // don't have. The intent lives in the URL path, so it works in any browser or device.
+      if (recover) {
         handled = true; setRecovering(true); setEmail(user?.email ?? "");
         try { await startMFASetup(user?.email ?? "user"); }
         catch (e: any) { toast.error(e?.message || "Kon geen nieuwe authenticator starten."); }
@@ -222,18 +220,16 @@ export default function Auth() {
     if (!target) { const { data } = await supabase.auth.getUser(); target = data.user?.email ?? ""; }
     if (!target) { toast.error("Onbekend e-mailadres — ga terug en log opnieuw in."); return; }
     try {
-      // Remember the recovery intent locally: the email link returns to a CLEAN /auth URL
-      // (query params can trip up Supabase's redirect allow-list), and this flag tells the
-      // app to show the "enroll a new authenticator" QR screen instead of asking for a code.
-      localStorage.setItem("gb_mfa_recover", String(Date.now()));
+      // The email link returns to a dedicated /recover-mfa route. A path survives Supabase's
+      // redirect allow-list (unlike query params) and carries the intent in the URL itself,
+      // so recovery works even when the mail is opened in another browser or on the phone.
       const { error } = await supabase.auth.signInWithOtp({
         email: target,
-        options: { shouldCreateUser: false, emailRedirectTo: `${SITE_URL}/auth` },
+        options: { shouldCreateUser: false, emailRedirectTo: `${SITE_URL}/recover-mfa` },
       });
       if (error) throw error;
-      toast.success(`Herstel-link verstuurd naar ${target}. Open die mail in deze browser om een nieuwe authenticator te koppelen.`);
+      toast.success(`Herstel-link verstuurd naar ${target}. Open die mail om een nieuwe authenticator te koppelen.`);
     } catch (err: any) {
-      localStorage.removeItem("gb_mfa_recover");
       toast.error(err.message || "Kon geen herstel-link versturen.");
     }
   }

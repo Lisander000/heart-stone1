@@ -52,6 +52,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/auth" element={<Auth />} />
+            <Route path="/recover-mfa" element={<Auth />} />
             <Route element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
               <Route path="/" element={<Home />} />
               <Route path="/bank" element={<Index initialView="brands" />} />
