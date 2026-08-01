@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { SITE_URL } from "@/lib/siteUrl";
 import { toast } from "sonner";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { ArrowRight, Loader2, ShieldCheck } from "lucide-react";
@@ -213,24 +212,17 @@ export default function Auth() {
     }
   }
 
-  // Lost authenticator: email a recovery link. Clicking it returns to /auth?recover=1
-  // where the mount effect lets them enroll a fresh authenticator (old one is replaced).
+  // Lost authenticator: the password was already verified to reach this step, so enroll a
+  // fresh authenticator right away and show its QR. The old factor is removed once the new
+  // code is confirmed (see handleVerify). No email round-trip — that proved too fragile.
   async function handleLostAuthenticator() {
-    let target = email;
-    if (!target) { const { data } = await supabase.auth.getUser(); target = data.user?.email ?? ""; }
-    if (!target) { toast.error("Onbekend e-mailadres — ga terug en log opnieuw in."); return; }
+    setErrorMsg(""); setOtpCode(""); setRecovering(true);
     try {
-      // The email link returns to a dedicated /recover-mfa route. A path survives Supabase's
-      // redirect allow-list (unlike query params) and carries the intent in the URL itself,
-      // so recovery works even when the mail is opened in another browser or on the phone.
-      const { error } = await supabase.auth.signInWithOtp({
-        email: target,
-        options: { shouldCreateUser: false, emailRedirectTo: `${SITE_URL}/recover-mfa` },
-      });
-      if (error) throw error;
-      toast.success(`Herstel-link verstuurd naar ${target}. Open die mail om een nieuwe authenticator te koppelen.`);
+      const { data: { user } } = await supabase.auth.getUser();
+      await startMFASetup(user?.email ?? email ?? "user");
     } catch (err: any) {
-      toast.error(err.message || "Kon geen herstel-link versturen.");
+      setRecovering(false);
+      toast.error(err.message || "Kon geen nieuwe authenticator starten.");
     }
   }
 
