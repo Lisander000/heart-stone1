@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { SITE_URL } from "@/lib/siteUrl";
 import { toast } from "sonner";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { ArrowRight, Loader2, ShieldCheck } from "lucide-react";
@@ -37,8 +38,10 @@ export default function Auth() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const returnTo = searchParams.get("returnTo") || "/";
+  const recover = searchParams.get("recover") === "1";
 
   const [step, setStep] = useState<Step>("credentials");
+  const [recovering, setRecovering] = useState(false);
   const [logoError, setLogoError] = useState(false);
   const [animating, setAnimating] = useState(false);
   const [email, setEmail] = useState("");
@@ -66,6 +69,14 @@ export default function Auth() {
       // yet — force them to choose one before anything else.
       const { data: { user } } = await supabase.auth.getUser();
       if (user?.user_metadata?.must_change_password) { handled = true; setEmail(user.email ?? ""); advanceTo("set-password"); return; }
+      // Lost-authenticator recovery: the email link proves control of the inbox, so let
+      // them enroll a fresh authenticator instead of asking for a code they don't have.
+      if (recover) {
+        handled = true; setRecovering(true); setEmail(user?.email ?? "");
+        try { await startMFASetup(user?.email ?? "user"); }
+        catch (e: any) { toast.error(e?.message || "Kon geen nieuwe authenticator starten."); }
+        return;
+      }
       const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       if (aal?.currentLevel === "aal2") { navigate(returnTo, { replace: true }); return; }
       if (aal?.nextLevel === "aal2") {
@@ -85,7 +96,7 @@ export default function Auth() {
       if (!handled && (event === "SIGNED_IN" || event === "USER_UPDATED" || event === "INITIAL_SESSION")) check();
     });
     return () => sub.subscription.unsubscribe();
-  }, [navigate, returnTo]);
+  }, [navigate, returnTo, recover]);
 
   function advanceTo(next: Step) {
     setAnimating(true);
@@ -161,7 +172,7 @@ export default function Auth() {
     const { data, error } = await supabase.auth.mfa.enroll({
       factorType: "totp",
       issuer: "Gooodboys",
-      friendlyName: `${userEmail}-totp`,
+      friendlyName: `${userEmail}-${Date.now()}`,
     });
     if (error) throw error;
     setFactorId(data.id);
@@ -182,6 +193,14 @@ export default function Auth() {
     try {
       const { error } = await supabase.auth.mfa.verify({ factorId, challengeId, code: otpCode });
       if (error) throw error;
+      // After a (re-)enrollment, drop any older TOTP factors so the next login always
+      // challenges the just-created one (needed for lost-authenticator recovery).
+      if (step === "mfa-setup") {
+        try {
+          const { data: fs } = await supabase.auth.mfa.listFactors();
+          for (const f of (fs?.totp ?? [])) if (f.id !== factorId) await supabase.auth.mfa.unenroll({ factorId: f.id });
+        } catch { /* best-effort cleanup */ }
+      }
       navigate(returnTo, { replace: true });
     } catch (err: any) {
       shakeError(err.message || "Ongeldige code");
@@ -189,6 +208,24 @@ export default function Auth() {
       setOtpCode("");
     } finally {
       setLoading(false);
+    }
+  }
+
+  // Lost authenticator: email a recovery link. Clicking it returns to /auth?recover=1
+  // where the mount effect lets them enroll a fresh authenticator (old one is replaced).
+  async function handleLostAuthenticator() {
+    let target = email;
+    if (!target) { const { data } = await supabase.auth.getUser(); target = data.user?.email ?? ""; }
+    if (!target) { toast.error("Onbekend e-mailadres — ga terug en log opnieuw in."); return; }
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: target,
+        options: { shouldCreateUser: false, emailRedirectTo: `${SITE_URL}/auth?recover=1` },
+      });
+      if (error) throw error;
+      toast.success(`Herstel-link verstuurd naar ${target}. Open die mail om een nieuwe authenticator te koppelen.`);
+    } catch (err: any) {
+      toast.error(err.message || "Kon geen herstel-link versturen.");
     }
   }
 
@@ -307,11 +344,13 @@ export default function Auth() {
                 <div className="flex items-center gap-2 mb-1">
                   <ShieldCheck className="h-5 w-5 text-primary" strokeWidth={1.75} />
                   <h1 className="font-display text-xl font-semibold text-foreground tracking-tight">
-                    Beveiliging instellen
+                    {recovering ? "Nieuwe authenticator" : "Beveiliging instellen"}
                   </h1>
                 </div>
                 <p className="text-sm text-muted-foreground mb-5">
-                  Scan de QR-code met Google Authenticator, Authy of een andere TOTP-app.
+                  {recovering
+                    ? "Je oude authenticator wordt vervangen. Scan deze nieuwe QR-code met Google Authenticator, Authy of een andere TOTP-app."
+                    : "Scan de QR-code met Google Authenticator, Authy of een andere TOTP-app."}
                 </p>
                 {qrDataUrl && (
                   <div className="flex justify-center mb-4">
@@ -398,6 +437,13 @@ export default function Auth() {
                     {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Inloggen <ArrowRight className="h-4 w-4" /></>}
                   </button>
                 </form>
+                <button
+                  type="button"
+                  onClick={handleLostAuthenticator}
+                  className="w-full text-center text-xs text-muted-foreground/80 hover:text-foreground mt-4 transition-colors"
+                >
+                  Authenticator kwijt? <span className="underline underline-offset-2">Opnieuw koppelen</span>
+                </button>
                 <StepDots current={2} />
                 <p className="text-[11px] text-muted-foreground/60 text-center mt-3">Stap 2 van 2</p>
               </>
