@@ -1,41 +1,39 @@
 // Category access — super users decide which sidebar categories each user may see.
-// Backed by a SHARED Supabase table (`user_access`) so a restriction set by a super
-// user actually reaches that user on their own device. localStorage is only an
-// instant-paint cache + offline fallback: if the table doesn't exist yet the behaviour
-// gracefully falls back to the previous per-browser model. Super users see everything.
+// Enforcement is SECURE and SHARED via Supabase auth app_metadata: only the service role can
+// write it, so a user can't lift their own restriction, and every device reads the same value.
+// A super user sets it through the `manage-access` edge function; each user reads their own
+// categories from their session. No custom table needed (Lovable Cloud won't create one from
+// here, but it does deploy edge functions).
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useCurrentUserEmail, useIsSuperUser } from "./superuser";
+import { useIsSuperUser } from "./superuser";
 
 export const CATEGORIES = ["Finance", "Creative", "Research", "Strategy", "Operations", "Development"] as const;
 export type Category = (typeof CATEGORIES)[number];
 // what a user sees when a super user hasn't set anything yet (everything except Development)
 export const DEFAULT_CATEGORIES: string[] = ["Finance", "Creative", "Research", "Strategy", "Operations"];
 
-const LS = "gb_user_access";
-const EV = "gb:useraccess";
 type AccessMap = Record<string, string[]>;
+const EV = "gb:useraccess";
 
-function readLS(): AccessMap { try { return JSON.parse(localStorage.getItem(LS) || "{}"); } catch { return {}; } }
-function writeLS(m: AccessMap) { try { localStorage.setItem(LS, JSON.stringify(m)); } catch { /* ignore */ } }
-function emit() { try { window.dispatchEvent(new CustomEvent(EV)); } catch { /* ignore */ } }
-
-// Shared source of truth = Supabase; localStorage seeds the cache for instant paint.
-let cache: AccessMap = readLS();
+// Cache of ALL users' access — populated on the Team page via the admin `list` action; used
+// only for the super user's Team display. A user's OWN enforcement reads their app_metadata.
+let cache: AccessMap = {};
 let inFlight = false;
 
-async function pull(): Promise<void> {
+async function pullAll(): Promise<void> {
   if (inFlight) return;
   inFlight = true;
   try {
-    const { data, error } = await (supabase as any).from("user_access").select("email, categories");
-    if (error) return; // table missing (404) / offline → keep the localStorage cache
+    const { data, error } = await supabase.functions.invoke("manage-access", { body: { action: "list" } });
+    if (error || (data as any)?.error) return; // not a super user / not deployed → keep cache
     const m: AccessMap = {};
-    for (const r of ((data as any[]) ?? [])) {
-      const e = String(r.email || "").toLowerCase();
-      if (e) m[e] = Array.isArray(r.categories) ? r.categories : [];
+    for (const u of ((data as any)?.users ?? [])) {
+      const e = String(u.email || "").toLowerCase();
+      if (e) m[e] = Array.isArray(u.categories) ? u.categories : DEFAULT_CATEGORIES;
     }
-    cache = m; writeLS(m); emit();
+    cache = m;
+    try { window.dispatchEvent(new CustomEvent(EV)); } catch { /* ignore */ }
   } finally {
     inFlight = false;
   }
@@ -49,45 +47,48 @@ export function getUserAccess(email?: string | null): string[] {
 export function hasExplicitAccess(email?: string | null): boolean {
   return !!email && email.toLowerCase() in cache;
 }
-export function setUserAccess(email: string, cats: string[]) {
-  const e = email.trim().toLowerCase(); if (!e) return;
+
+/** Super user sets a user's allowed categories (persisted to their auth app_metadata). */
+export async function setUserAccess(email: string, cats: string[]): Promise<void> {
+  const e = email.trim().toLowerCase();
+  if (!e) return;
   const next = [...new Set(cats)];
-  cache = { ...cache, [e]: next }; writeLS(cache); emit(); // optimistic, instant UI
-  // shared persistence (best-effort; if the table is missing it stays local-only)
-  (supabase as any)
-    .from("user_access")
-    .upsert({ email: e, categories: next, updated_at: new Date().toISOString() }, { onConflict: "email" })
-    .then(({ error }: any) => { if (error) console.warn("user_access upsert failed:", error.message); });
+  cache = { ...cache, [e]: next };
+  try { window.dispatchEvent(new CustomEvent(EV)); } catch { /* ignore */ }
+  const { data, error } = await supabase.functions.invoke("manage-access", { body: { action: "set", email: e, categories: next } });
+  if (error || (data as any)?.error) throw new Error((error as any)?.message || (data as any)?.error || "Kon toegang niet opslaan.");
 }
 
+/** Team page: map of every user's access (super-admin only; empty otherwise). */
 export function useAllAccess(): AccessMap {
   const [m, setM] = useState<AccessMap>(cache);
   useEffect(() => {
-    const onEv = () => setM({ ...cache });
-    const onStorage = (e: StorageEvent) => { if (e.key === LS) { cache = readLS(); setM({ ...cache }); } };
-    window.addEventListener(EV, onEv);
-    window.addEventListener("storage", onStorage);
-    void pull(); // refresh from the shared table on mount
-    const { data: sub } = supabase.auth.onAuthStateChange((ev) => {
-      if (ev === "SIGNED_IN" || ev === "INITIAL_SESSION" || ev === "USER_UPDATED") void pull();
-    });
-    return () => {
-      window.removeEventListener(EV, onEv);
-      window.removeEventListener("storage", onStorage);
-      sub.subscription.unsubscribe();
-    };
+    const on = () => setM({ ...cache });
+    window.addEventListener(EV, on);
+    void pullAll();
+    return () => window.removeEventListener(EV, on);
   }, []);
   return m;
 }
 
-/** Categories the current signed-in user may see (super users see all). */
+/** Categories the current signed-in user may see (super users see all). Reads the user's own
+ *  app_metadata so the restriction is enforced securely on every device. */
 export function useMyAllowedCategories(): string[] {
-  const email = useCurrentUserEmail();
   const iAmSuper = useIsSuperUser();
-  const all = useAllAccess(); // re-render when any access changes / after the Supabase pull
+  const [cats, setCats] = useState<string[] | null>(null);
+  useEffect(() => {
+    let alive = true;
+    const load = async () => {
+      const { data } = await supabase.auth.getUser();
+      const c = (data.user?.app_metadata as any)?.categories;
+      if (alive) setCats(Array.isArray(c) ? c : null);
+    };
+    void load();
+    const { data: sub } = supabase.auth.onAuthStateChange(() => { void load(); });
+    return () => { alive = false; sub.subscription.unsubscribe(); };
+  }, []);
   if (iAmSuper) return [...CATEGORIES];
-  const v = all[(email ?? "").toLowerCase()];
-  return Array.isArray(v) ? v : DEFAULT_CATEGORIES;
+  return cats ?? DEFAULT_CATEGORIES;
 }
 
 // url → category, for guarding direct navigation to a hidden category

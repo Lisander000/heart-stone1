@@ -250,7 +250,13 @@ function AccessDialog({ member, onClose, canEdit }: { member: Member | null; onC
   if (!member) return null;
   const su = isSuperUser(member.email);
   const toggle = (c: string) => setSel((p) => (p.includes(c) ? p.filter((x) => x !== c) : [...p, c]));
-  const save = () => { if (member.email) { setUserAccess(member.email, sel); toast.success(`Toegang bijgewerkt voor ${member.name || member.email}.`); } onClose(); };
+  const save = async () => {
+    if (member.email) {
+      try { await setUserAccess(member.email, sel); toast.success(`Toegang bijgewerkt voor ${member.name || member.email}.`); }
+      catch (e: any) { toast.error(`Kon toegang niet opslaan: ${e.message || e}. Is de manage-access functie gedeployed?`); return; }
+    }
+    onClose();
+  };
   return (
     <Dialog open={!!member} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-md">
