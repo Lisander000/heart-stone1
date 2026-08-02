@@ -29,6 +29,7 @@ import Agents from "./pages/ops/Agents.tsx";
 import DeveloperDashboard from "./pages/ops/DeveloperDashboard.tsx";
 import Finance from "./pages/ops/Finance.tsx";
 import ForecastActual from "./pages/finance/ForecastActual.tsx";
+import UnitEconomics from "./pages/finance/UnitEconomics.tsx";
 import Notifications from "./pages/ops/Notifications.tsx";
 import Team from "./pages/ops/Team.tsx";
 import AppShell from "./layouts/AppShell.tsx";
@@ -83,6 +84,7 @@ const App = () => (
               <Route path="/developer" element={<SuperOnly><DeveloperDashboard /></SuperOnly>} />
               <Route path="/finance" element={<Finance />} />
               <Route path="/finance/forecast" element={<ForecastActual />} />
+              <Route path="/finance/unit-economics" element={<UnitEconomics />} />
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/team" element={<Team />} />
               <Route path="/ops/:table/new" element={<RecordForm />} />
