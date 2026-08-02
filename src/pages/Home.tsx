@@ -15,6 +15,10 @@ import {
 import { rollupDaily, salesByChannel, costBreakdown } from "@/lib/finance";
 import { PERIODS, rangeFor, within, pctDelta, prevLabelFor, type Period } from "@/lib/period";
 import { SEED_AC, FORECAST_LS, type Scenario } from "./finance/ForecastActual";
+import { navGroups } from "@/lib/navGroups";
+import { useIsSuperUser } from "@/lib/superuser";
+import { useMyAllowedCategories } from "@/lib/access";
+import { useOpsBadges, BADGE_ACCENT } from "@/lib/opsBadges";
 
 /* ─── helpers ─────────────────────────────────────────────────────────────── */
 const GREET = () => { const h = new Date().getHours(); return h < 12 ? "Goedemorgen" : h < 18 ? "Goedemiddag" : "Goedenavond"; };
@@ -42,7 +46,7 @@ const groupBy = (arr: any[], key: string, fallback = "Onbekend") => {
 
 
 /* ─── main ────────────────────────────────────────────────────────────────── */
-export default function Home() {
+function SuperOverview() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(true);
   const [daily, setDaily] = useState<any[]>([]);
@@ -242,6 +246,82 @@ export default function Home() {
       </div>
     </div>
   );
+}
+
+/* ─── member launcher (non-super users) ──────────────────────────────────── */
+const CATEGORY_ACCENT: Record<string, string> = {
+  Finance: "ok", Creative: "sun", Research: "info", Strategy: "grape", Operations: "ember", Development: "muted-foreground",
+};
+
+function MemberHome() {
+  const [name, setName] = useState("");
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) =>
+      setName((data.user?.user_metadata?.full_name ?? data.user?.email?.split("@")[0] ?? "").split(" ")[0]));
+  }, []);
+  const allowed = useMyAllowedCategories();
+  const badges = useOpsBadges();
+  const groups = navGroups.filter((g) => g.label !== "Overview" && !g.devOnly && allowed.includes(g.label));
+
+  return (
+    <div className="min-h-screen">
+      <div className="max-w-5xl mx-auto px-6 py-7 space-y-8">
+        <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }} className="flex items-center gap-2.5">
+          <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--primary) / 0.1)" }}><HomeIcon className="h-5 w-5 text-primary" /></span>
+          <div>
+            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground mb-1">Overview</p>
+            <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">{GREET()}{name ? `, ${name}` : ""} <span className="align-middle">👋</span></h1>
+          </div>
+        </motion.div>
+
+        {groups.length === 0 ? (
+          <div className="card-soft py-16 text-center">
+            <p className="text-sm font-semibold text-foreground mb-1">Nog geen toegang</p>
+            <p className="text-xs text-muted-foreground">Vraag een super user om je toegang te geven tot een categorie.</p>
+          </div>
+        ) : groups.map((group) => {
+          const v = CATEGORY_ACCENT[group.label] ?? "primary";
+          const accent = `hsl(var(--${v}))`;
+          const items = [...("pinnedItems" in group ? group.pinnedItems : []), ...group.items];
+          return (
+            <motion.section key={group.label} initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.35 }} className="space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="rounded-full" style={{ background: accent, width: 8, height: 8 }} />
+                <h2 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{group.label}</h2>
+              </div>
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                {items.map((item) => {
+                  const count = badges[item.url] ?? 0;
+                  const badgeColor = BADGE_ACCENT[item.url] ?? accent;
+                  const Icon = item.icon;
+                  return (
+                    <Link key={item.url} to={item.url} className="card-soft card-lift p-4 flex items-center gap-3 group">
+                      <span className="h-10 w-10 rounded-xl grid place-items-center shrink-0" style={{ background: `hsl(var(--${v}) / 0.1)` }}>
+                        <Icon className="h-5 w-5" style={{ color: accent }} />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-foreground truncate">{item.title}</p>
+                        {count > 0 && <p className="text-[11px] text-muted-foreground">{count} openstaand</p>}
+                      </div>
+                      {count > 0 && (
+                        <span className="min-w-[20px] h-5 px-1.5 rounded-full inline-flex items-center justify-center text-[11px] font-bold text-white tabular-nums shrink-0" style={{ background: badgeColor }}>{count}</span>
+                      )}
+                      <ArrowUpRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary transition-colors shrink-0" />
+                    </Link>
+                  );
+                })}
+              </div>
+            </motion.section>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export default function Home() {
+  const iAmSuper = useIsSuperUser();
+  return iAmSuper ? <SuperOverview /> : <MemberHome />;
 }
 
 /* ─── small pieces ───────────────────────────────────────────────────────── */
