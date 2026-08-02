@@ -130,6 +130,7 @@ export default function Team() {
     }
   };
 
+  const [blockOpen, setBlockOpen] = useState(false);
   const activeMap = useActiveMembers();
   const GRID = "minmax(150px,1.4fr) minmax(190px,2fr) minmax(110px,0.85fr) 110px minmax(150px,1fr) 84px";
 
@@ -149,7 +150,7 @@ export default function Team() {
           </motion.div>
           <div className="flex items-center gap-2">
             <button onClick={load} className="h-9 px-3.5 rounded-full border border-border bg-card text-sm font-medium text-muted-foreground hover:text-foreground shadow-xs flex items-center gap-1.5 transition-colors"><RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} /> Ververs</button>
-            <button onClick={() => setAddOpen(true)} className="h-9 px-4 rounded-full bg-primary text-primary-foreground text-sm font-medium flex items-center gap-1.5 shadow-sm hover:shadow-md transition-all"><Plus className="h-4 w-4" /> Teamlid</button>
+            <button onClick={() => { if (!iAmSuper) { setBlockOpen(true); return; } setAddOpen(true); }} className="h-9 px-4 rounded-full bg-primary text-primary-foreground text-sm font-medium flex items-center gap-1.5 shadow-sm hover:shadow-md transition-all"><Plus className="h-4 w-4" /> Teamlid</button>
           </div>
         </div>
 
@@ -193,7 +194,7 @@ export default function Team() {
                               className="h-7 w-full max-w-[150px] px-2 rounded-lg border border-primary/40 bg-card text-[12px] text-foreground outline-none focus:ring-2 focus:ring-primary/25"
                             />
                           ) : (
-                            <button type="button" onClick={() => setEditingId(m.id)} title="Klik om de rol te wijzigen" className="group/role inline-flex items-center gap-1 rounded-full hover:ring-2 hover:ring-primary/20 transition cursor-text">
+                            <button type="button" onClick={() => { if (!iAmSuper) { setBlockOpen(true); return; } setEditingId(m.id); }} title={iAmSuper ? "Klik om de rol te wijzigen" : "Alleen super users kunnen dit aanpassen"} className="group/role inline-flex items-center gap-1 rounded-full hover:ring-2 hover:ring-primary/20 transition cursor-text">
                               <Pill value={m.role} tone={roleTone(m.role)} />
                               <Pencil className="h-3 w-3 text-muted-foreground/0 group-hover/role:text-muted-foreground/60 transition-colors shrink-0" />
                             </button>
@@ -219,7 +220,7 @@ export default function Team() {
                               {resetting === m.id ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <KeyRound className="h-4 w-4" />}
                             </button>
                           )}
-                          <button onClick={() => setDeleteId(m.id)} aria-label="Verwijderen" className="h-7 w-7 grid place-items-center rounded-lg text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-bad transition-colors"><Trash2 className="h-4 w-4" /></button>
+                          <button onClick={() => { if (!iAmSuper) { setBlockOpen(true); return; } setDeleteId(m.id); }} aria-label="Verwijderen" className="h-7 w-7 grid place-items-center rounded-lg text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-bad transition-colors"><Trash2 className="h-4 w-4" /></button>
                         </div>
                       </motion.div>
                     );
@@ -236,6 +237,16 @@ export default function Team() {
       <AccessDialog member={accessMember} onClose={() => setAccessMember(null)} canEdit={iAmSuper} />
       <ConfirmDelete open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)} onConfirm={() => { if (deleteId) removeMember(deleteId); setDeleteId(null); }} title="Teamlid verwijderen?" description="Dit teamlid wordt permanent verwijderd." />
       <ConfirmDelete open={!!resetMember} onOpenChange={(o) => !o && setResetMember(null)} onConfirm={() => { const m = resetMember; setResetMember(null); resetMfa(m); }} title="Authenticator resetten?" description="De MFA-authenticator van dit teamlid wordt verwijderd. Bij de volgende login stellen ze een nieuwe in. Gebruik dit als iemand zijn authenticator kwijt is." />
+      <Dialog open={blockOpen} onOpenChange={setBlockOpen}>
+        <DialogContent className="max-w-sm">
+          <div className="text-center space-y-3 py-1">
+            <div className="mx-auto h-12 w-12 rounded-2xl grid place-items-center bg-primary/10"><Shield className="h-6 w-6 text-primary" /></div>
+            <DialogHeader><DialogTitle className="font-display text-lg text-center">Alleen voor super users</DialogTitle></DialogHeader>
+            <p className="text-sm text-muted-foreground leading-relaxed">Je kan zelf geen teamleden toevoegen of aanpassen. Ga naar je directe leidinggevende om dit te laten regelen.</p>
+            <button onClick={() => setBlockOpen(false)} className="w-full h-10 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">Begrepen</button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
