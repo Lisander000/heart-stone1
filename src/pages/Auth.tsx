@@ -445,10 +445,6 @@ export default function Auth() {
 
           </div>
         </div>
-
-        <p className="text-[11px] text-muted-foreground/50 text-center mt-5">
-          Intern systeem · Gooodboys © {new Date().getFullYear()}
-        </p>
       </div>
     </div>
   );
