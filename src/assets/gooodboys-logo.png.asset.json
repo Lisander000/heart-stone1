@@ -1,6 +1,11 @@
 {
-  "url": "/gb-wordmark.png",
-  "alt": "Gooodboys",
-  "width": 491,
-  "height": 126
+  "version": 1,
+  "asset_id": "f9fce281-7dd1-45d9-9054-7eab614b0d55",
+  "project_id": "c88bb876-2862-4997-b8b0-c42323619061",
+  "url": "/__l5e/assets-v1/f9fce281-7dd1-45d9-9054-7eab614b0d55/gooodboys-logo.png",
+  "r2_key": "a/v1/c88bb876-2862-4997-b8b0-c42323619061/f9fce281-7dd1-45d9-9054-7eab614b0d55/gooodboys-logo.png",
+  "original_filename": "gooodboys-logo.png",
+  "size": 71235,
+  "content_type": "image/png",
+  "created_at": "2026-08-02T09:57:09Z"
 }

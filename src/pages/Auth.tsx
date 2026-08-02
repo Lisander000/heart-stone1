@@ -236,7 +236,7 @@ export default function Auth() {
             <img
               src={logoAsset.url}
               alt="Gooodboys"
-              className="h-12 w-auto select-none"
+              className="h-24 w-auto select-none"
               draggable={false}
               onError={() => setLogoError(true)}
             />

@@ -10,9 +10,9 @@ export const fadeUp: Variants = {
 };
 
 /** Container that staggers its children. Use with initial="hidden" animate="visible". */
-export const stagger = (staggerChildren = 0.05): Variants => ({
+export const stagger = (staggerChildren = 0.05, delayChildren = 0.02): Variants => ({
   hidden: {},
-  visible: { transition: { staggerChildren, delayChildren: 0.02 } },
+  visible: { transition: { staggerChildren, delayChildren } },
 });
 
 /** Page-level transition used by the AppShell (initial="hidden" animate="visible" exit="exit"). */

@@ -13,7 +13,8 @@ const n = (v: any) => Number(v) || 0;
 /** Period roll-up using the exact same formulas as the Daily Tracker.
  *  paid = meta + google · ad spend = paid + creator + bol + email + organic */
 export function rollupDaily(days: DailyRow[]) {
-  const t = days.reduce(
+  type Totals = { net: number; orders: number; paid: number; spend: number; meta: number; google: number; creator: number; bol: number; email: number; organic: number };
+  const t = days.reduce<Totals>(
     (a, d) => {
       const paid = n(d.meta_spend) + n(d.google_spend);
       const spend = paid + n(d.creator_sales) + n(d.bol_sales) + n(d.email_sales) + n(d.organic_sales);

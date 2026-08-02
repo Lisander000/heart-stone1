@@ -1826,7 +1826,7 @@ function BrandDetail(props: any) {
           </div>
         )}
         {entries.map((entry: EntryUI) => (
-          <EntryCard key={entry.id} entry={entry} containerLabel={brand.name} containerKind="brand" sourceInfo={getSourceLabel(entry.source)} expanded={expandedEntry === entry.id} onToggle={() => setExpandedEntry(expandedEntry === entry.id ? null : entry.id)} onDelete={() => askDelete(() => deleteEntry(entry.id), "Entry verwijderen?", "Deze entry wordt permanent verwijderd. Deze actie kan niet ongedaan gemaakt worden.")} deleting={deletingId === entry.id} showContainer={false} displayMode={displayMode} onReExtract={onReExtract} onUpdateTranslation={onUpdateTranslation} />
+          <EntryCard key={entry.id} entry={entry} containerLabel={brand.name} containerKind="brand" sourceInfo={getSourceLabel(entry.source)} expanded={expandedEntry === entry.id} onToggle={() => setExpandedEntry(expandedEntry === entry.id ? null : entry.id)} onDelete={() => deleteEntry(entry.id)} deleting={deletingId === entry.id} showContainer={false} displayMode={displayMode} onReExtract={onReExtract} onUpdateTranslation={onUpdateTranslation} />
         ))}
       </div>
     </div>

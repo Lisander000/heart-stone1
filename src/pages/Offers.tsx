@@ -44,6 +44,7 @@ import {
   Trash2,
   Tag,
   Trophy,
+  X,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { getPricing, setPricing, usePricing, useAllPricing, isSub, singleDays, singleDayPrice, singleDayPriceBundle, singlePerUnit, SUB_TIERS, tierDayPrice, subBestDayPrice, dayPrice, headlinePrice, type OfferPricing, type OfferModel } from "@/lib/offerPricing";
@@ -763,7 +764,7 @@ function CompareMatrix({
                   else if (c.key === "price30") content = sub && p.price30 ? `${money(p.price30, o.currency)} · ${perDayFmt(tierDayPrice(p.price30, 30), o.currency)}` : "—";
                   else if (c.key === "price90") content = sub && p.price90 ? `${money(p.price90, o.currency)} · ${perDayFmt(tierDayPrice(p.price90, 90), o.currency)}` : "—";
                   else if (c.key === "price180") content = sub && p.price180 ? `${money(p.price180, o.currency)} · ${perDayFmt(tierDayPrice(p.price180, 180), o.currency)}` : "—";
-                  else if (c.key === "per_unit") content = !sub && singlePerUnit(p) > 0 ? `${money(singlePerUnit(p), o.currency)}/stuk` : "—";
+                  else if ((c.key as string) === "per_unit") content = !sub && singlePerUnit(p) > 0 ? `${money(singlePerUnit(p), o.currency)}/stuk` : "—";
                   else if (c.key === "total") content = sub ? (p.singleRef30 ? `${money(p.singleRef30, o.currency)} (30 dagen)` : "—") : (p.total ? money(p.total, o.currency) : "—");
                   else if (c.key === "bundle") content = !sub && p.bundleDiscount ? `${p.bundleDiscount}%` : "—";
                   else if (c.key === "grams") content = p.gramsPerUnit != null ? `${p.gramsPerUnit} g` : "—";
