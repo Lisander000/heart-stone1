@@ -173,7 +173,7 @@ export function AppSidebar() {
               <img
                 src="/gb-wordmark.png"
                 alt="Gooodboys"
-                className="h-14 w-auto select-none transition-transform duration-300 group-hover/logo:scale-[1.03]"
+                className="h-9 w-auto select-none transition-transform duration-300 group-hover/logo:scale-[1.03]"
                 draggable={false}
                 onError={(e) => {
                   e.currentTarget.style.display = "none";
