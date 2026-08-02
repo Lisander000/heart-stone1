@@ -19,6 +19,7 @@ const EV = "gb:useraccess";
 // Cache of ALL users' access — populated on the Team page via the admin `list` action; used
 // only for the super user's Team display. A user's OWN enforcement reads their app_metadata.
 let cache: AccessMap = {};
+let activeCache: Record<string, boolean> = {}; // email → has signed in at least once
 let inFlight = false;
 
 async function pullAll(): Promise<void> {
@@ -28,11 +29,12 @@ async function pullAll(): Promise<void> {
     const { data, error } = await supabase.functions.invoke("manage-access", { body: { action: "list" } });
     if (error || (data as any)?.error) return; // not a super user / not deployed → keep cache
     const m: AccessMap = {};
+    const act: Record<string, boolean> = {};
     for (const u of ((data as any)?.users ?? [])) {
       const e = String(u.email || "").toLowerCase();
-      if (e) m[e] = Array.isArray(u.categories) ? u.categories : DEFAULT_CATEGORIES;
+      if (e) { m[e] = Array.isArray(u.categories) ? u.categories : DEFAULT_CATEGORIES; act[e] = !!u.active; }
     }
-    cache = m;
+    cache = m; activeCache = act;
     try { window.dispatchEvent(new CustomEvent(EV)); } catch { /* ignore */ }
   } finally {
     inFlight = false;
@@ -64,6 +66,18 @@ export function useAllAccess(): AccessMap {
   const [m, setM] = useState<AccessMap>(cache);
   useEffect(() => {
     const on = () => setM({ ...cache });
+    window.addEventListener(EV, on);
+    void pullAll();
+    return () => window.removeEventListener(EV, on);
+  }, []);
+  return m;
+}
+
+/** Team page: which users have actually signed in at least once (email → true). */
+export function useActiveMembers(): Record<string, boolean> {
+  const [m, setM] = useState<Record<string, boolean>>(activeCache);
+  useEffect(() => {
+    const on = () => setM({ ...activeCache });
     window.addEventListener(EV, on);
     void pullAll();
     return () => window.removeEventListener(EV, on);

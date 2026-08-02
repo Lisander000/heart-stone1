@@ -49,13 +49,14 @@ Deno.serve(async (req) => {
     const action = String(body.action ?? "");
 
     if (action === "list") {
-      const users: { email: string; categories: string[] | null }[] = [];
+      const users: { email: string; categories: string[] | null; active: boolean }[] = [];
       for (let page = 1; page <= 20; page++) {
         const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 200 });
         if (error) return json({ error: error.message }, 400);
         for (const u of (data.users ?? [])) {
           const cats = (u.app_metadata as any)?.categories;
-          users.push({ email: u.email ?? "", categories: Array.isArray(cats) ? cats : null });
+          // active = has actually signed in at least once (accepted the invite)
+          users.push({ email: u.email ?? "", categories: Array.isArray(cats) ? cats : null, active: !!(u as any).last_sign_in_at });
         }
         if ((data.users ?? []).length < 200) break;
       }

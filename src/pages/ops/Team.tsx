@@ -7,7 +7,7 @@ import { Plus, Shield, Star, RefreshCw, Trash2, UsersRound, Pencil, Check, Slide
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ConfirmDelete } from "@/components/ConfirmDelete";
 import { useIsSuperUser, useCurrentUser, isSuperUser, setSuperUser, useSuperUsers, SUPERUSER_BLOCK } from "@/lib/superuser";
-import { CATEGORIES, DEFAULT_CATEGORIES, getUserAccess, setUserAccess, useAllAccess } from "@/lib/access";
+import { CATEGORIES, DEFAULT_CATEGORIES, getUserAccess, setUserAccess, useAllAccess, useActiveMembers } from "@/lib/access";
 import { authRedirectUrl } from "@/lib/siteUrl";
 
 type Member = { id: string; name: string; email: string | null; role: string; status: string; invited_at?: string };
@@ -130,6 +130,7 @@ export default function Team() {
     }
   };
 
+  const activeMap = useActiveMembers();
   const GRID = "minmax(150px,1.4fr) minmax(190px,2fr) minmax(110px,0.85fr) 110px minmax(150px,1fr) 84px";
 
   return (
@@ -168,6 +169,7 @@ export default function Team() {
                   {members.map((m) => {
                     const su = isSuperUser(m.email);
                     const isMe = !!m.email && !!me.email && m.email.toLowerCase() === me.email.toLowerCase();
+                    const shownStatus = (m.status === "invited" && activeMap[(m.email || "").toLowerCase()]) ? "active" : m.status;
                     return (
                       <motion.div key={m.id} variants={fadeUp} className="group grid items-center hover:bg-muted/40 transition-colors" style={{ gridTemplateColumns: GRID }}>
                         <div className="px-4 py-3 flex items-center gap-1.5 min-w-0">
@@ -197,7 +199,7 @@ export default function Team() {
                             </button>
                           )}
                         </div>
-                        <div className="px-4 py-3"><Pill value={m.status} tone={statusTone(m.status)} /></div>
+                        <div className="px-4 py-3"><Pill value={shownStatus} tone={statusTone(shownStatus)} /></div>
                         <div className="px-4 py-3">
                           {su ? (
                             <span className="text-[11px] text-muted-foreground">Alle categorieën</span>
