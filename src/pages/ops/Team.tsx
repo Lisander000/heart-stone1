@@ -43,6 +43,18 @@ export default function Team() {
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
     setUid(user?.id ?? "");
+    // Shared roster via the admin function so EVERY user sees the whole team — team_members
+    // RLS otherwise limits rows to the ones a user created. Falls back to direct/local.
+    try {
+      const { data, error } = await supabase.functions.invoke("manage-access", { body: { action: "roster" } });
+      const roster = (data as any)?.members;
+      if (!error && Array.isArray(roster)) {
+        setMembers(roster as Member[]);
+        setBackend("supabase");
+        setLoading(false);
+        return;
+      }
+    } catch { /* fall through to direct/local */ }
     const be = await detectBackend();
     setBackend(be);
     if (be === "supabase") {

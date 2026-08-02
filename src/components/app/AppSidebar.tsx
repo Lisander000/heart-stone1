@@ -104,7 +104,7 @@ export function AppSidebar() {
   // Highlight only the *most specific* matching item, so /finance/forecast doesn't
   // also light up /finance (a prefix). Longest matching url wins.
   const activeUrl = useMemo(() => {
-    const urls = navGroups.flatMap((g) => [...("pinnedItems" in g ? g.pinnedItems : []), ...g.items]).map((i) => i.url);
+    const urls = [...navGroups.flatMap((g) => [...("pinnedItems" in g ? g.pinnedItems : []), ...g.items]).map((i) => i.url), "/team"];
     // a generic ops detail (/ops/<table>/<id|new|edit>) belongs to that resource's nav
     // item (e.g. /ops/tickets/123 → Tickets), not to the /ops "Ops overview" item.
     let matchPath = pathname;
