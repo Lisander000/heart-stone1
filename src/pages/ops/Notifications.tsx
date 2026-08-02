@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ConfirmDelete } from "@/components/ConfirmDelete";
 import { fmtDate } from "@/components/ops/ResourcePage";
 import { enableNotifications, sendTestNotification } from "@/lib/notify";
+import { useMyAllowedCategories, categoryForPath } from "@/lib/access";
 
 /* ─── types ──────────────────────────────────────────────────────────────── */
 type Kind = "info" | "warning" | "critical" | "success";
@@ -163,17 +164,27 @@ export default function Notifications() {
     else await (supabase as any).from("notifications_inbox").delete().eq("id", id);
   };
 
+  /* — only show notifications for categories this user may access — */
+  const allowed = useMyAllowedCategories();
+  const accessible = useMemo(
+    () => notifs.filter((n) => {
+      const cat = n.link && n.link.startsWith("/") ? categoryForPath(n.link) : null;
+      return !cat || allowed.includes(cat); // no category (or general link) → visible to all
+    }),
+    [notifs, allowed]
+  );
+
   /* — counts + filter — */
   const counts = useMemo(() => {
-    const c: Record<string, number> = { all: notifs.length };
+    const c: Record<string, number> = { all: accessible.length };
     STATUS_META.forEach((s) => (c[s.id] = 0));
-    notifs.forEach((n) => { c[getState(states, n.id).status]++; });
+    accessible.forEach((n) => { c[getState(states, n.id).status]++; });
     return c;
-  }, [notifs, states]);
+  }, [accessible, states]);
 
   const visible = useMemo(
-    () => (filter === "all" ? notifs : notifs.filter((n) => getState(states, n.id).status === filter)),
-    [notifs, states, filter]
+    () => (filter === "all" ? accessible : accessible.filter((n) => getState(states, n.id).status === filter)),
+    [accessible, states, filter]
   );
 
   return (
