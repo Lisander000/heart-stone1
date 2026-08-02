@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { LogOut, Loader2, User, ChevronDown } from "lucide-react";
+import { LogOut, Loader2, User, ChevronDown, UsersRound } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -241,8 +241,11 @@ export function AppSidebar() {
         })}
       </SidebarContent>
 
-      {/* ── Footer: user + dropdown ── */}
+      {/* ── Footer: Team (visible to everyone) + user + dropdown ── */}
       <SidebarFooter className="p-2">
+        <SidebarMenu className="mb-1 pb-1 border-b border-sidebar-border/60">
+          {renderNavItem({ title: "Team", url: "/team", icon: UsersRound })}
+        </SidebarMenu>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button

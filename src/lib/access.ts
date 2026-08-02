@@ -111,7 +111,7 @@ const CATEGORY_PREFIXES: Record<string, string[]> = {
   Creative: ["/creative"],
   Research: ["/bank", "/collections", "/synthesis", "/entries"],
   Strategy: ["/icp", "/competitors", "/offers"],
-  Operations: ["/orders", "/unfulfilled", "/shipments", "/returns", "/tickets", "/product-health", "/team", "/ops", "/notifications"],
+  Operations: ["/orders", "/unfulfilled", "/shipments", "/returns", "/tickets", "/product-health", "/ops", "/notifications"],
   Development: ["/developer", "/agents"],
 };
 export function categoryForPath(pathname: string): string | null {

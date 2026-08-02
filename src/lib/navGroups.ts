@@ -3,7 +3,7 @@ import type { ElementType } from "react";
 import {
   Home, Database, FolderOpen, Sparkles, Users, Swords, Tag,
   ShoppingCart, PackageOpen, Truck, RotateCcw, LifeBuoy, HeartPulse, Bot, Wallet,
-  UsersRound, Activity, Terminal, Lightbulb, PenLine, FlaskConical, Clapperboard, TrendingUp,
+  Activity, Terminal, Lightbulb, PenLine, FlaskConical, Clapperboard, TrendingUp,
 } from "lucide-react";
 
 export type NavItem = { title: string; url: string; icon: ElementType };
@@ -70,7 +70,6 @@ export const navGroups: NavGroup[] = [
       { title: "Returns", url: "/returns", icon: RotateCcw },
       { title: "Tickets", url: "/tickets", icon: LifeBuoy },
       { title: "Product Health", url: "/product-health", icon: HeartPulse },
-      { title: "Team", url: "/team", icon: UsersRound },
     ],
   },
   {
