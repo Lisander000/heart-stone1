@@ -294,7 +294,7 @@ export default function Auth() {
                 </form>
                 <StepDots current={1} />
                 <p className="text-[11px] text-muted-foreground/60 text-center mt-3">
-                  Alleen @gooodboys.com · Stap 1 van 2
+                  Stap 1 van 2
                 </p>
               </>
             )}
