@@ -21,8 +21,8 @@ const numS = (v: number, d = 1) => (!Number.isFinite(v) ? "∞" : v.toLocaleStri
 type Mode = "single" | "subscription";
 type Inputs = {
   name: string;
-  price: number; priceInclVat: boolean; vatPct: number;
-  cogs: number; packaging: number; shippingCost: number; shippingCharged: number; fulfillment: number;
+  price: number; vatPct: number;
+  cogs: number; packaging: number; shippingCharged: number; fulfillment: number;
   paymentPct: number; paymentFixed: number; platformPct: number; discountPct: number;
   returnsPct: number; returnCost: number; otherVar: number;
   cac: number; ordersPerCustomer: number;
@@ -31,8 +31,8 @@ type Inputs = {
 
 const DEFAULTS: Inputs = {
   name: "Product",
-  price: 39.95, priceInclVat: true, vatPct: 21,
-  cogs: 8.5, packaging: 1.2, shippingCost: 4.5, shippingCharged: 0, fulfillment: 1.5,
+  price: 39.95, vatPct: 21,
+  cogs: 8.5, packaging: 1.2, shippingCharged: 0, fulfillment: 6.0,
   paymentPct: 2.4, paymentFixed: 0.25, platformPct: 0, discountPct: 0,
   returnsPct: 4, returnCost: 3.5, otherVar: 0,
   cac: 22, ordersPerCustomer: 1.8,
@@ -40,22 +40,23 @@ const DEFAULTS: Inputs = {
 };
 
 function computeOrder(price: number, i: Inputs) {
-  const vatF = i.priceInclVat ? 1 + i.vatPct / 100 : 1;
+  const vatF = 1 + i.vatPct / 100;               // prijs wordt altijd incl. btw ingegeven
   const chargedProduct = price * (1 - i.discountPct / 100);
   const chargedTotal = chargedProduct + i.shippingCharged;
   const paymentFee = (chargedTotal * i.paymentPct) / 100 + i.paymentFixed;
   const platformFee = (chargedTotal * i.platformPct) / 100;
-  const netRevenue = chargedTotal / vatF;
+  const netRevenue = chargedTotal / vatF;         // omzet excl. btw
+  const priceExVat = price / vatF;                // verkoopprijs excl. btw
   const vatAmount = chargedTotal - netRevenue;
   const returnsCost = (i.returnsPct / 100) * i.returnCost;
   const cogsTotal = i.cogs + i.packaging;
   const fees = paymentFee + platformFee;
-  const variableCosts = cogsTotal + i.shippingCost + i.fulfillment + fees + i.otherVar + returnsCost;
+  const variableCosts = cogsTotal + i.fulfillment + fees + i.otherVar + returnsCost;
   const cm = netRevenue - variableCosts;
   const cmPct = netRevenue > 0 ? cm / netRevenue : 0;
   const grossMargin = netRevenue - cogsTotal;
   const grossPct = netRevenue > 0 ? grossMargin / netRevenue : 0;
-  return { chargedTotal, netRevenue, vatAmount, cogsTotal, shipping: i.shippingCost, fulfillment: i.fulfillment, fees, returnsCost, other: i.otherVar, variableCosts, cm, cmPct, grossMargin, grossPct };
+  return { chargedTotal, netRevenue, priceExVat, vatAmount, cogsTotal, fulfillment: i.fulfillment, fees, returnsCost, other: i.otherVar, variableCosts, cm, cmPct, grossMargin, grossPct };
 }
 
 export default function UnitEconomics() {
@@ -97,8 +98,7 @@ export default function UnitEconomics() {
 
   const segs = [
     { label: "COGS + verpakking", value: o.cogsTotal, v: "grape" },
-    { label: "Verzending", value: o.shipping, v: "info" },
-    { label: "Fulfilment", value: o.fulfillment, v: "sun" },
+    { label: "Fulfillment", value: o.fulfillment, v: "info" },
     { label: "Fees (betaal + platform)", value: o.fees, v: "warn" },
     { label: "Retouren (verwacht)", value: o.returnsCost, v: "bad" },
     { label: "Overige", value: o.other, v: "muted-foreground" },
@@ -144,33 +144,25 @@ export default function UnitEconomics() {
                   className="mt-1 w-full h-9 px-2.5 rounded-lg border border-border bg-card text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/15" />
               </label>
               {mode === "single" ? (
-                <Field label="Verkoopprijs" value={i.price} onChange={(v) => set("price", v)} unit="€" />
+                <Field label="Verkoopprijs (incl. btw)" value={i.price} onChange={(v) => set("price", v)} unit="€" />
               ) : (
                 <>
-                  <Field label="Prijs per levering" value={i.subPrice} onChange={(v) => set("subPrice", v)} unit="€" />
+                  <Field label="Prijs / levering (incl. btw)" value={i.subPrice} onChange={(v) => set("subPrice", v)} unit="€" />
                   <Field label="Levering elke" value={i.subEveryWeeks} onChange={(v) => set("subEveryWeeks", v)} unit="wkn" step={1} />
                 </>
               )}
               <Field label="Btw" value={i.vatPct} onChange={(v) => set("vatPct", v)} unit="%" step={1} />
-              <div className="sm:col-span-2">
-                <span className="text-[11px] font-medium text-muted-foreground">Prijs is</span>
-                <div className="mt-1 inline-flex rounded-lg border border-border bg-card p-0.5 w-full">
-                  {[["incl", true], ["excl", false]].map(([lab, val]) => (
-                    <button key={lab as string} type="button" onClick={() => set("priceInclVat", val as boolean)}
-                      className={`flex-1 h-8 rounded-md text-xs font-medium transition-all ${i.priceInclVat === val ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
-                      {lab === "incl" ? "incl. btw" : "excl. btw"}
-                    </button>
-                  ))}
-                </div>
+              <div className="sm:col-span-2 flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
+                <span className="text-[11px] text-muted-foreground">Prijs excl. btw</span>
+                <span className="text-[13px] font-semibold text-foreground tabular-nums">{eur(o.priceExVat)}</span>
               </div>
             </Section>
 
             <Section icon={Package} title="Kostprijs & fulfilment" accent="grape">
-              <Field label="Inkoop / COGS per stuk" value={i.cogs} onChange={(v) => set("cogs", v)} unit="€" info="Wat het product jou kost om in te kopen of te maken." />
+              <Field label="COGS / stuk" value={i.cogs} onChange={(v) => set("cogs", v)} unit="€" info="Wat het product jou kost om in te kopen of te maken." />
               <Field label="Verpakking" value={i.packaging} onChange={(v) => set("packaging", v)} unit="€" />
-              <Field label="Verzendkost (jij betaalt)" value={i.shippingCost} onChange={(v) => set("shippingCost", v)} unit="€" />
+              <Field label="Fulfillment" value={i.fulfillment} onChange={(v) => set("fulfillment", v)} unit="€" info="Pick & pack + de verzendkost die jij betaalt, samen." />
               <Field label="Verzending aangerekend" value={i.shippingCharged} onChange={(v) => set("shippingCharged", v)} unit="€" info="Wat je de klant aanrekent voor verzending (telt als extra omzet)." />
-              <Field label="Fulfilment / pick & pack" value={i.fulfillment} onChange={(v) => set("fulfillment", v)} unit="€" />
             </Section>
 
             <Section icon={Truck} title="Fees, korting & retouren" accent="warn">
