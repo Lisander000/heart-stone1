@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ElementType, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fadeUp, stagger } from "@/lib/motion";
-import { Pencil, Plus, Trash2, Check, X, Users } from "lucide-react";
+import { Pencil, Plus, Trash2, Check, X, Users, Dog, User, Brain, AlertTriangle, Target, Zap, ShoppingBag } from "lucide-react";
 import { ConfirmDelete } from "@/components/ConfirmDelete";
 
 /* ─── types ──────────────────────────────────────────────────────────────── */
@@ -126,15 +126,33 @@ function TIn({ value, onChange, placeholder }: { value: string; onChange: (v: st
 function TArea({ value, onChange, placeholder, rows = 3 }: { value: string; onChange: (v: string) => void; placeholder?: string; rows?: number }) {
   return <textarea value={value} placeholder={placeholder} rows={rows} onChange={(e) => onChange(e.target.value)} className={`${IN} resize-y leading-relaxed`} />;
 }
-function TextBlock({ title, value, editing, onChange, accent }: { title: string; value: string; editing: boolean; onChange: (v: string) => void; accent?: string }) {
+function SectionCard({ icon: Icon, title, accent, children }: { icon: ElementType; title: string; accent: string; children: ReactNode }) {
   return (
-    <motion.section variants={fadeUp}>
-      <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground mb-3">{title}</h2>
-      {editing
-        ? <TArea value={value} onChange={onChange} rows={4} />
-        : <p className={`text-sm text-foreground leading-relaxed ${accent ? "border-l-2 pl-4" : ""}`} style={accent ? { borderColor: `hsl(var(--${accent}))` } : undefined}>{value || "—"}</p>}
+    <motion.section variants={fadeUp} className="card-soft p-5">
+      <div className="flex items-center gap-2.5 mb-4">
+        <span className="h-8 w-8 rounded-xl grid place-items-center shrink-0" style={{ background: `hsl(var(--${accent}) / 0.12)` }}>
+          <Icon className="h-4 w-4" style={{ color: `hsl(var(--${accent}))` }} />
+        </span>
+        <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+      </div>
+      {children}
     </motion.section>
   );
+}
+function FieldTile({ label, value, editing, onChange, area }: { label: string; value: string; editing: boolean; onChange: (v: string) => void; area?: boolean }) {
+  return (
+    <div className="rounded-xl bg-muted/40 px-3 py-2.5">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">{label}</p>
+      {editing
+        ? (area ? <TArea value={value} onChange={onChange} rows={3} /> : <TIn value={value} onChange={onChange} />)
+        : <p className="text-sm text-foreground leading-relaxed">{value || "—"}</p>}
+    </div>
+  );
+}
+function TextField({ value, editing, onChange }: { value: string; editing: boolean; onChange: (v: string) => void }) {
+  return editing
+    ? <TArea value={value} onChange={onChange} rows={4} />
+    : <p className="text-sm text-foreground leading-relaxed">{value || "—"}</p>;
 }
 
 export default function ICPDocument() {
@@ -238,72 +256,54 @@ export default function ICPDocument() {
 
             {/* ── Profile ── */}
             {activeTab === "profile" && (
-              <motion.div variants={stagger(0.04)} initial="hidden" animate="visible" className="space-y-8">
+              <motion.div variants={stagger(0.04)} initial="hidden" animate="visible" className="space-y-4">
                 {/* 1 · De hond */}
-                <motion.section variants={fadeUp}>
-                  <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground mb-4">1 · De hond</h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <SectionCard icon={Dog} title="1 · De hond" accent="info">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                     {([["Ras & grootte","breed"],["Leeftijd","age"]] as const).map(([label, key]) => (
-                      <div key={key} className="p-3 rounded-xl border border-border bg-card">
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">{label}</p>
-                        {editing
-                          ? <TIn value={persona.dog[key]} onChange={(v) => patchDog({ [key]: v } as any)} />
-                          : <p className="text-sm text-foreground leading-snug">{persona.dog[key] || "—"}</p>}
-                      </div>
+                      <FieldTile key={key} label={label} value={persona.dog[key]} editing={editing} onChange={(v) => patchDog({ [key]: v } as any)} />
                     ))}
                   </div>
-                  <div className="p-3 rounded-xl border border-border bg-card">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Extra info.</p>
-                    {editing
-                      ? <TArea value={persona.dog.needs} onChange={(v) => patchDog({ needs: v })} rows={2} />
-                      : <p className="text-sm text-foreground leading-snug">{persona.dog.needs || "—"}</p>}
-                  </div>
-                </motion.section>
+                  <FieldTile label="Extra info." value={persona.dog.needs} editing={editing} onChange={(v) => patchDog({ needs: v })} area />
+                </SectionCard>
 
                 {/* 2 · Het baasje */}
-                <motion.section variants={fadeUp}>
-                  <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground mb-4">2 · Het baasje</h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <SectionCard icon={User} title="2 · Het baasje" accent="grape">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {([["Leeftijd","age"],["Inkomen","income"],["Locatie","location"],["Huishouden","household"]] as const).map(([label, key]) => (
-                      <div key={key} className="p-3 rounded-xl border border-border bg-card">
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">{label}</p>
-                        {editing
-                          ? <TIn value={persona.owner[key]} onChange={(v) => patchOwner({ [key]: v } as any)} />
-                          : <p className="text-sm text-foreground leading-snug">{persona.owner[key] || "—"}</p>}
-                      </div>
+                      <FieldTile key={key} label={label} value={persona.owner[key]} editing={editing} onChange={(v) => patchOwner({ [key]: v } as any)} />
                     ))}
                   </div>
-                </motion.section>
+                </SectionCard>
 
                 {/* 3 · Psychografie */}
-                <TextBlock title="3 · Psychografie — hoe denken ze over hun hond?" value={persona.psychographics} editing={editing} onChange={(v) => patch({ psychographics: v })} />
+                <SectionCard icon={Brain} title="3 · Psychografie — hoe denken ze over hun hond?" accent="ember">
+                  <TextField value={persona.psychographics} editing={editing} onChange={(v) => patch({ psychographics: v })} />
+                </SectionCard>
 
                 {/* 4 · Kernprobleem */}
-                <TextBlock title="4 · Kernprobleem" value={persona.coreProblem} editing={editing} onChange={(v) => patch({ coreProblem: v })} accent="bad" />
+                <SectionCard icon={AlertTriangle} title="4 · Kernprobleem" accent="bad">
+                  <TextField value={persona.coreProblem} editing={editing} onChange={(v) => patch({ coreProblem: v })} />
+                </SectionCard>
 
                 {/* 5 · Doelen */}
-                <motion.div variants={fadeUp}>
-                  <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground mb-4">5 · Doelen</h2>
-                  <ListEditor title="Doelen" dot="bg-emerald-500" items={persona.goals} editing={editing} onChange={(v) => patch({ goals: v })} />
-                </motion.div>
+                <SectionCard icon={Target} title="5 · Doelen" accent="ok">
+                  <ListEditor title="" dot="bg-emerald-500" items={persona.goals} editing={editing} onChange={(v) => patch({ goals: v })} />
+                </SectionCard>
 
                 {/* 6 · Triggers */}
-                <TextBlock title="6 · Wat triggert hen?" value={persona.triggers} editing={editing} onChange={(v) => patch({ triggers: v })} accent="sun" />
+                <SectionCard icon={Zap} title="6 · Wat triggert hen?" accent="sun">
+                  <TextField value={persona.triggers} editing={editing} onChange={(v) => patch({ triggers: v })} />
+                </SectionCard>
 
                 {/* 7 · Koopgedrag */}
-                <motion.section variants={fadeUp}>
-                  <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground mb-4">7 · Koopgedrag — waar, wat &amp; hoe?</h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <SectionCard icon={ShoppingBag} title="7 · Koopgedrag — waar, wat & hoe?" accent="warn">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {([["Waar","where"],["Wat","what"],["Hoe","how"]] as const).map(([label, key]) => (
-                      <div key={key} className="p-4 rounded-xl border border-border bg-card">
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">{label}</p>
-                        {editing
-                          ? <TArea value={persona.buying[key]} onChange={(v) => patchBuying({ [key]: v } as any)} rows={4} />
-                          : <p className="text-sm text-foreground leading-relaxed">{persona.buying[key] || "—"}</p>}
-                      </div>
+                      <FieldTile key={key} label={label} value={persona.buying[key]} editing={editing} onChange={(v) => patchBuying({ [key]: v } as any)} area />
                     ))}
                   </div>
-                </motion.section>
+                </SectionCard>
 
                 {/* Data evidence */}
                 <motion.section variants={fadeUp}>
