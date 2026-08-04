@@ -185,8 +185,8 @@ export default function UnitEconomics() {
             </Section>
           </div>
 
-          {/* ── Results (sticky) ── */}
-          <div className="space-y-4 lg:sticky lg:top-6">
+          {/* ── Results ── */}
+          <div className="space-y-4">
             {/* verdict */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="rounded-2xl border p-4 flex items-start gap-3"
               style={{ background: `hsl(var(--${vTone}) / 0.08)`, borderColor: `hsl(var(--${vTone}) / 0.3)` }}>
@@ -201,73 +201,79 @@ export default function UnitEconomics() {
               </div>
             </motion.div>
 
-            {/* hero KPIs */}
-            <div className="grid grid-cols-2 gap-3">
-              <Kpi big label={`Contributiemarge / ${perOrderLabel}`} value={eur(o.cm)} sub={pctS(o.cmPct)} tone={cmTone as Tone}
-                info="Wat er per order overblijft na álle variabele kosten (COGS, verzending, fees, retouren). Dít betaalt je marketing en vaste kosten." />
-              <Kpi label={mode === "subscription" ? "LTV (levenslang)" : "LTV / klant"} value={eur(m.ltv)} accent="hsl(var(--info))"
-                info="Lifetime Value: totale contributiemarge die één klant over zijn hele leven oplevert." />
-              <Kpi label="LTV : CAC" value={Number.isFinite(m.ltvCac) ? `${numS(m.ltvCac, 1)}×` : "∞"} tone={ratioTone as Tone}
-                info="Verhouding tussen wat een klant opbrengt en wat hij kost om te werven. Gezond = 3× of meer." />
-              <Kpi label="Winst per klant" value={eur(m.profit)} tone={(m.profit >= 0 ? "ok" : "bad") as Tone}
-                info="LTV minus CAC — de netto winst die één nieuwe klant je uiteindelijk oplevert." />
-            </div>
-
-            {/* LTV vs CAC visual */}
-            <div className="card-soft p-4">
-              <div className="flex items-center justify-between mb-2.5">
-                <h3 className="text-sm font-semibold text-foreground">LTV vs. CAC</h3>
-                <span className="text-xs font-semibold" style={{ color: `hsl(var(--${ratioTone}))` }}>{Number.isFinite(m.ltvCac) ? `${numS(m.ltvCac, 1)}×` : "∞"}</span>
+            {/* ── PER ORDER ── */}
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Per {perOrderLabel}</h3>
+                <span className="text-[11px] text-muted-foreground">omzet {eur(o.netRevenue)} · excl. btw</span>
               </div>
-              <MiniBar label="LTV" value={m.ltv} max={ltvCacMax} color="hsl(var(--info))" />
-              <MiniBar label="CAC" value={i.cac} max={ltvCacMax} color="hsl(var(--muted-foreground))" />
-            </div>
-
-            {/* cost breakdown */}
-            <div className="card-soft p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-foreground">Waar gaat elke euro naartoe?</h3>
-                <span className="text-xs text-muted-foreground">van {eur(o.netRevenue)} netto omzet</span>
+              <div className="flex items-end justify-between gap-3 pb-4 mb-4 border-b border-border/60">
+                <div>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">Contributiemarge <Tip text="Wat er per order overblijft na álle variabele kosten (COGS, fulfillment, fees, retouren). Dít betaalt je marketing en vaste kosten." /></p>
+                  <p className="font-num font-bold leading-none tabular-nums mt-1.5" style={{ color: `hsl(var(--${cmTone}))`, fontSize: "2.5rem" }}>{eur(o.cm)}</p>
+                </div>
+                <span className="text-2xl font-bold tabular-nums mb-1" style={{ color: `hsl(var(--${cmTone}))` }}>{pctS(o.cmPct)}</span>
               </div>
-              <div className="flex h-4 w-full rounded-full overflow-hidden bg-muted">
+              <div className="grid grid-cols-2 gap-2.5 mb-5">
+                <StatBox label="Brutomarge" value={pctS(o.grossPct)} sub={eur(o.grossMargin)} />
+                <StatBox label="Variabele kosten" value={eur(o.variableCosts)} />
+                <StatBox label="Prijs excl. btw" value={eur(o.priceExVat)} />
+                <StatBox label="Break-even ROAS" value={Number.isFinite(m.breakEvenRoas) ? `${numS(m.breakEvenRoas, 2)}×` : "—"} info="De minimale ROAS (omzet ÷ ad spend) om quitte te spelen = 1 ÷ contributiemarge%." />
+              </div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Waar gaat elke euro naartoe?</p>
+              <div className="flex h-3.5 w-full rounded-full overflow-hidden bg-muted">
                 {segs.map((s) => (
                   <div key={s.label} title={`${s.label}: ${eur(s.value)}`} style={{ width: `${(s.value / segTotal) * 100}%`, background: `hsl(var(--${s.v}))` }} />
                 ))}
               </div>
-              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5">
+              <div className="mt-3 space-y-1.5">
                 {segs.map((s) => (
                   <div key={s.label} className="flex items-center gap-2 text-xs">
                     <span className="rounded-sm shrink-0" style={{ background: `hsl(var(--${s.v}))`, width: 9, height: 9 }} />
                     <span className="text-muted-foreground flex-1 truncate">{s.label}</span>
                     <span className="font-medium text-foreground tabular-nums">{eur(s.value)}</span>
-                    <span className="text-muted-foreground tabular-nums w-10 text-right">{pctS(s.value / segTotal)}</span>
+                    <span className="text-muted-foreground tabular-nums w-11 text-right">{pctS(s.value / segTotal)}</span>
                   </div>
                 ))}
               </div>
               {o.cm < 0 && <p className="mt-3 text-xs text-bad flex items-center gap-1.5"><TrendingDown className="h-3.5 w-3.5" /> Negatieve marge — je verliest geld op elke order, nog vóór acquisitie.</p>}
-            </div>
+            </motion.div>
 
-            {/* secondary + health, side by side on wider screens */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="card-soft p-4 space-y-2.5">
-                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Kerncijfers</h3>
-                <Row label="Brutomarge" value={`${pctS(o.grossPct)}`} sub={eur(o.grossMargin)} />
-                <Row label="Netto omzet / order" value={eur(o.netRevenue)} />
-                <Row label="Variabele kosten" value={eur(o.variableCosts)} />
-                <Row label={<>Break-even ROAS <Tip text="De minimale ROAS (omzet ÷ ad spend) om quitte te spelen = 1 ÷ contributiemarge%." /></>} value={Number.isFinite(m.breakEvenRoas) ? `${numS(m.breakEvenRoas, 2)}×` : "—"} />
+            {/* ── PER KLANT ── */}
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
+              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-4">Per klant · levenslang</h3>
+              <div className="grid grid-cols-2 gap-4 pb-4 mb-4 border-b border-border/60">
+                <div>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">Winst per klant <Tip text="LTV minus CAC — de netto winst die één nieuwe klant je uiteindelijk oplevert." /></p>
+                  <p className="font-num font-bold leading-none tabular-nums mt-1.5" style={{ color: `hsl(var(--${m.profit >= 0 ? "ok" : "bad"}))`, fontSize: "2rem" }}>{eur(m.profit)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">LTV : CAC <Tip text="Verhouding tussen wat een klant opbrengt en wat hij kost om te werven. Gezond = 3× of meer." /></p>
+                  <p className="font-num font-bold leading-none tabular-nums mt-1.5" style={{ color: `hsl(var(--${ratioTone}))`, fontSize: "2rem" }}>{Number.isFinite(m.ltvCac) ? `${numS(m.ltvCac, 1)}×` : "∞"}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2.5 mb-5">
+                <StatBox label="LTV" value={eur(m.ltv)} info="Lifetime Value: totale contributiemarge die één klant over zijn hele leven oplevert." />
+                <StatBox label="CAC" value={eur(i.cac)} />
                 {mode === "subscription" ? (
                   <>
-                    <Row label="Terugverdientijd" value={Number.isFinite(m.paybackMonths) ? `${numS(m.paybackMonths, 1)} mnd` : "—"} />
-                    <Row label="Gem. levensduur" value={Number.isFinite(m.lifetimeMonths) ? `${numS(m.lifetimeMonths, 1)} mnd` : "∞"} />
-                    <Row label="Marge / maand" value={eur(m.mrrCm)} sub={`${numS(m.deliveriesPerMonth, 2)} lev./mnd`} />
+                    <StatBox label="Terugverdientijd" value={Number.isFinite(m.paybackMonths) ? `${numS(m.paybackMonths, 1)} mnd` : "—"} />
+                    <StatBox label="Gem. levensduur" value={Number.isFinite(m.lifetimeMonths) ? `${numS(m.lifetimeMonths, 1)} mnd` : "∞"} />
+                    <StatBox label="Marge / maand" value={eur(m.mrrCm)} sub={`${numS(m.deliveriesPerMonth, 2)} lev./mnd`} />
                   </>
                 ) : (
-                  <Row label="Terugverdientijd" value={Number.isFinite(m.paybackOrders) ? `${numS(m.paybackOrders, 1)} orders` : "—"} />
+                  <StatBox label="Terugverdientijd" value={Number.isFinite(m.paybackOrders) ? `${numS(m.paybackOrders, 1)} orders` : "—"} sub="tot CAC terugverdiend" />
                 )}
               </div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">LTV vs. CAC</p>
+              <MiniBar label="LTV" value={m.ltv} max={ltvCacMax} color="hsl(var(--info))" />
+              <MiniBar label="CAC" value={i.cac} max={ltvCacMax} color="hsl(var(--muted-foreground))" />
+            </motion.div>
 
-              <div className="card-soft p-4 space-y-2.5">
-                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Gezondheid</h3>
+            {/* ── GEZONDHEID ── */}
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
+              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Gezondheid</h3>
+              <div className="space-y-2.5">
                 <Health ok={o.cmPct >= 0.35} warn={o.cmPct >= 0.2 && o.cmPct < 0.35} label="Contributiemarge ≥ 35%" actual={pctS(o.cmPct)} />
                 <Health ok={m.ltvCac >= 3} warn={m.ltvCac >= 1.5 && m.ltvCac < 3} label="LTV : CAC ≥ 3×" actual={Number.isFinite(m.ltvCac) ? `${numS(m.ltvCac, 1)}×` : "∞"} />
                 <Health ok={m.profit >= 0} label="Winstgevend per klant" actual={eur(m.profit)} />
@@ -275,7 +281,7 @@ export default function UnitEconomics() {
                   ? <Health ok={Number.isFinite(m.paybackMonths) && m.paybackMonths <= 6} warn={Number.isFinite(m.paybackMonths) && m.paybackMonths > 6 && m.paybackMonths <= 12} label="Payback ≤ 6 mnd" actual={Number.isFinite(m.paybackMonths) ? `${numS(m.paybackMonths, 1)} mnd` : "—"} />
                   : <Health ok={o.grossPct >= 0.6} warn={o.grossPct >= 0.4 && o.grossPct < 0.6} label="Brutomarge ≥ 60%" actual={pctS(o.grossPct)} />}
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>
@@ -284,7 +290,6 @@ export default function UnitEconomics() {
 }
 
 /* ─── pieces ─────────────────────────────────────────────────────────────── */
-type Tone = "ok" | "bad" | "warn";
 
 function Tip({ text }: { text: string }) {
   return (
@@ -324,15 +329,12 @@ function Field({ label, value, onChange, unit, step = 0.01, info }: { label: str
   );
 }
 
-function Kpi({ label, value, sub, tone, accent, big, info }: { label: string; value: string; sub?: string; tone?: Tone; accent?: string; big?: boolean; info?: string }) {
-  const color = tone ? `hsl(var(--${tone}))` : accent ?? "hsl(var(--foreground))";
+function StatBox({ label, value, sub, info }: { label: string; value: string; sub?: string; info?: string }) {
   return (
-    <div className={`card-soft p-4 ${big ? "col-span-2" : ""}`}>
-      <p className="text-xs text-muted-foreground flex items-center gap-1">{label}{info && <Tip text={info} />}</p>
-      <div className="flex items-end gap-2 mt-1">
-        <p className="font-num font-bold leading-none tabular-nums" style={{ color, fontSize: big ? "2.25rem" : "1.5rem" }}>{value}</p>
-        {sub && <span className="text-sm font-semibold mb-1" style={{ color }}>{sub}</span>}
-      </div>
+    <div className="rounded-xl bg-muted/40 px-3 py-2.5">
+      <p className="text-[11px] text-muted-foreground flex items-center gap-1">{label}{info && <Tip text={info} />}</p>
+      <p className="text-[15px] font-semibold text-foreground tabular-nums mt-0.5 leading-tight">{value}</p>
+      {sub && <p className="text-[10px] text-muted-foreground mt-0.5">{sub}</p>}
     </div>
   );
 }
@@ -350,14 +352,6 @@ function MiniBar({ label, value, max, color }: { label: string; value: number; m
   );
 }
 
-function Row({ label, value, sub }: { label: React.ReactNode; value: string; sub?: string }) {
-  return (
-    <div className="flex items-center justify-between gap-2">
-      <span className="text-xs text-muted-foreground flex items-center gap-1">{label}</span>
-      <span className="text-[13px] font-semibold text-foreground tabular-nums text-right">{value}{sub && <span className="text-[11px] font-normal text-muted-foreground ml-1">{sub}</span>}</span>
-    </div>
-  );
-}
 
 function Health({ ok, warn, label, actual }: { ok: boolean; warn?: boolean; label: string; actual: string }) {
   const v = ok ? "ok" : warn ? "warn" : "bad";
