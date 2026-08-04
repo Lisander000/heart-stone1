@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Users2, ClipboardCheck, Layers, Plus, X, SlidersHorizontal, BarChart3, Clapperboard } from "lucide-react";
+import { Users2, ClipboardCheck, Layers, Plus, X, SlidersHorizontal, BarChart3, Clapperboard, ArrowLeft, ExternalLink } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import TrackerBoard, { BoardConfig } from "./TrackerBoard";
 import UgcDashboard from "./UgcDashboard";
@@ -118,7 +118,7 @@ function ListManager({ open, onOpenChange, title, hint, items, onSave }: {
 }
 
 /* ─── page ───────────────────────────────────────────────────────────────── */
-export default function UgcStudio() {
+function CreatorsStudio({ onBack }: { onBack?: () => void }) {
   const [active, setActive] = useState<"tracker" | "approval" | "dashboard" | null>(null);
   const [icps, setIcps] = useState<string[]>([]);
   const [products, setProducts] = useState<string[]>([]);
@@ -161,10 +161,13 @@ export default function UgcStudio() {
       <div className="max-w-full px-6 py-7 space-y-5">
         {/* header */}
         <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }} className="flex items-center gap-2.5">
-          <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--grape)/0.12)" }}><Clapperboard className="h-5 w-5" style={{ color: "hsl(var(--grape))" }} /></span>
+          {onBack && (
+            <button onClick={onBack} title="Terug naar keuze" className="h-9 w-9 grid place-items-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground shadow-xs transition-colors shrink-0"><ArrowLeft className="h-4 w-4" /></button>
+          )}
+          <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--grape)/0.12)" }}><Users2 className="h-5 w-5" style={{ color: "hsl(var(--grape))" }} /></span>
           <div>
-            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground mb-1">Creative</p>
-            <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">UGC / creators</h1>
+            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground mb-1">Creative · Creators</p>
+            <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Creators</h1>
           </div>
         </motion.div>
 
@@ -235,6 +238,75 @@ export default function UgcStudio() {
       <ListManager open={manage === "tiers"} onOpenChange={(o) => !o && setManage(null)}
         title="Tiers beheren" hint="Deze verschijnen als opties bij 'Tier'."
         items={tiers} onSave={saveTiers} />
+    </div>
+  );
+}
+
+/* ─── choose UGC (Trybe) vs Creators (our system) ────────────────────────── */
+const TRYBE_URL = "https://trybe.so"; // TODO: exacte Trybe-URL van jullie account
+
+export default function UgcStudio() {
+  const [mode, setMode] = useState<"ugc" | "creators" | null>(null);
+
+  if (mode === "creators") return <CreatorsStudio onBack={() => setMode(null)} />;
+
+  if (mode === "ugc") {
+    return (
+      <div className="min-h-screen">
+        <div className="max-w-2xl mx-auto px-6 py-7 space-y-5">
+          <div className="flex items-center gap-2.5">
+            <button onClick={() => setMode(null)} title="Terug naar keuze" className="h-9 w-9 grid place-items-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground shadow-xs transition-colors shrink-0"><ArrowLeft className="h-4 w-4" /></button>
+            <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--grape)/0.12)" }}><Clapperboard className="h-5 w-5" style={{ color: "hsl(var(--grape))" }} /></span>
+            <div>
+              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground mb-1">Creative · UGC</p>
+              <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">UGC via Trybe</h1>
+            </div>
+          </div>
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="card-soft p-8 text-center">
+            <div className="mx-auto h-14 w-14 rounded-2xl grid place-items-center mb-4" style={{ background: "hsl(var(--grape)/0.12)" }}><Clapperboard className="h-7 w-7" style={{ color: "hsl(var(--grape))" }} /></div>
+            <h2 className="font-display text-lg font-semibold text-foreground">UGC loopt via Trybe</h2>
+            <p className="text-sm text-muted-foreground mt-1.5 max-w-md mx-auto">Briefs uitsturen, creators betalen en je UGC-content ontvangen doe je in ons Trybe-account. Klik hieronder om Trybe te openen.</p>
+            <a href={TRYBE_URL} target="_blank" rel="noreferrer"
+              className="mt-5 inline-flex items-center gap-2 h-11 px-6 rounded-full bg-primary text-primary-foreground text-sm font-semibold shadow-sm hover:shadow-md active:scale-[0.98] transition-all">
+              Open Trybe <ExternalLink className="h-4 w-4" />
+            </a>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  // first choice: UGC or Creators
+  const choices = [
+    { id: "ugc" as const, icon: Clapperboard, title: "UGC", blurb: "User-generated content — briefs, betalingen en levering via Trybe.", tag: "via Trybe" },
+    { id: "creators" as const, icon: Users2, title: "Creators", blurb: "Onze eigen creator-database: outreach, approval & dashboard.", tag: "ons systeem" },
+  ];
+  return (
+    <div className="min-h-screen">
+      <div className="max-w-4xl mx-auto px-6 py-7 space-y-6">
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="flex items-center gap-2.5">
+          <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--grape)/0.12)" }}><Clapperboard className="h-5 w-5" style={{ color: "hsl(var(--grape))" }} /></span>
+          <div>
+            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground mb-1">Creative</p>
+            <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">UGC / creators</h1>
+          </div>
+        </motion.div>
+        <p className="text-sm text-muted-foreground">Waarmee wil je werken?</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {choices.map((c) => (
+            <button key={c.id} onClick={() => setMode(c.id)} className="card-soft card-lift p-7 text-left hover:shadow-md transition-all">
+              <div className="flex items-center justify-between mb-4">
+                <div className="h-12 w-12 rounded-2xl grid place-items-center" style={{ background: "hsl(var(--grape)/0.1)" }}>
+                  <c.icon className="h-6 w-6" style={{ color: "hsl(var(--grape))" }} />
+                </div>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground bg-muted rounded-full px-2.5 py-1">{c.tag}</span>
+              </div>
+              <p className="font-semibold text-foreground text-lg leading-tight">{c.title}</p>
+              <p className="text-sm text-muted-foreground mt-1.5">{c.blurb}</p>
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
