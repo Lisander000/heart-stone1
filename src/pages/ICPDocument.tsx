@@ -10,9 +10,11 @@ type Angle = { headline: string; funnel: string; why: string };
 type Evidence = { quote: string; source: string };
 type Persona = {
   id: string; name: string; tagline: string;
-  demographics: { age: string; income: string; location: string; household: string; education: string; lifestyle: string };
-  goals: string[]; fears: string[];
-  buyingBehavior: string; channels: string;
+  dog: { breed: string; age: string; size: string; temperament: string; needs: string };
+  owner: { age: string; income: string; location: string; household: string; occupation: string };
+  psychographics: string; coreProblem: string;
+  goals: string[]; triggers: string;
+  buying: { where: string; what: string; how: string };
   dataEvidence: Evidence[]; awareness: Awareness[]; topAngles: Angle[];
 };
 
@@ -20,16 +22,13 @@ type Persona = {
 const SEED: Persona[] = [
   {
     id: "aesthetic", name: "The Aesthetic", tagline: "Hond en eigenaar als visueel geheel.",
-    demographics: {
-      age: "25–40 jaar", income: "Modaal tot bovenmodaal",
-      location: "(Voor)stedelijk — Antwerpen, Brussel, Amsterdam, Berlijn, Kopenhagen",
-      household: "Koppel of alleenstaand, 1 hond", education: "Creatieve richting of HBO+",
-      lifestyle: "Design-bewust in alles: interieur, kleding, koffie, restaurants. Volgt ALD, Sporty & Rich, Aesop, Kinfolk op Instagram. Denkt in esthetische systemen — kleuren moeten matchen, stijl moet consistent zijn.",
-    },
+    dog: { breed: "Whippet, Vizsla of een rescue met clean look", age: "1–6 jaar", size: "Klein tot middelgroot", temperament: "Rustig, elegant, fotogeniek", needs: "Er verzorgd uitzien en passen bij de esthetiek van hond én baasje." },
+    owner: { age: "25–40 jaar", income: "Modaal tot bovenmodaal", location: "(Voor)stedelijk — Antwerpen, Brussel, Amsterdam, Berlijn, Kopenhagen", household: "Koppel of alleenstaand, 1 hond", occupation: "Creatieve richting of HBO+, design-bewust" },
+    psychographics: "De hond is een verlengstuk van hun eigen esthetiek en identiteit. Spullen moeten matchen met interieur, outfit en kleurenpalet — ze denken in visuele systemen waarin stijl consistent moet zijn (ALD, Aesop, Kinfolk).",
+    coreProblem: "Hondenspullen zien er goedkoop en generiek uit (babytalk branding, cartoon graphics) en passen niet bij hun verfijnde, gender-neutrale stijl.",
     goals: ["Hond en eigenaar als visueel geheel","Producten die passen bij interieur en persoonlijke stijl","Complimenten krijgen tijdens wandelingen","Seizoensgebonden vernieuwing zonder kwaliteitsverlies"],
-    fears: ["Goedkope generieke pet store look","Babytalk branding en cartoon graphics","Producten die niet bij hun esthetiek passen","Overdreven girly of overdreven rugged — ze willen gender-neutraal verfijnd"],
-    buyingBehavior: "Snellere beslisser. Koopt op visueel gevoel. Scrollt Instagram, ziet iets moois, klikt door. Koopt vaak meerdere kleuren. Seizoensgebonden koopgedrag.",
-    channels: "Instagram (primair), Pinterest, TikTok lifestyle, design blogs. Reageert sterk op visuele ads.",
+    triggers: "Mooie beelden op Instagram, matching colorways, seizoensgebonden drops en complimenten tijdens de wandeling.",
+    buying: { where: "Instagram (primair), Pinterest, TikTok lifestyle en design blogs.", what: "Meerdere kleuren, matching sets en seizoensitems — verfijnd en consistent.", how: "Snelle beslisser die op visueel gevoel koopt: ziet iets moois, klikt door en koopt vaak meteen meerdere kleuren." },
     dataEvidence: [
       { quote: "I am absolutely in love with my raincoat, which matches my dog's raincoat!!", source: "PAIKKA review" },
       { quote: "visually it fits really well in the apartment", source: "Cloud 7 review" },
@@ -52,17 +51,13 @@ const SEED: Persona[] = [
   },
   {
     id: "lover", name: "The Lover", tagline: "Doet alles voor hun hond en is er trots op.",
-    demographics: {
-      age: "24–38 jaar", income: "Modaal — besteedt disproportioneel aan hun hond",
-      location: "Stedelijk, actief op social media",
-      household: "Alleenstaand of koppel, 1 hond die behandeld wordt als persoonlijkheid",
-      education: "Variabel — lifestyle-gedreven",
-      lifestyle: "De hond is het middelpunt. Heeft een honden-Instagram. Praat over de hond op feestjes. Kent het verschil tussen goede en slechte hondenvoeding. De hond is een extensie van hun eigen identiteit.",
-    },
+    dog: { breed: "Elk ras — behandeld als een persoonlijkheid", age: "Elke leeftijd", size: "Elk formaat", temperament: "Het middelpunt van het gezin, vol karakter", needs: "Alleen het beste; producten die het waard zijn om over te posten." },
+    owner: { age: "24–38 jaar", income: "Modaal — besteedt disproportioneel aan hun hond", location: "Stedelijk, actief op social media", household: "Alleenstaand of koppel, 1 hond als persoonlijkheid", occupation: "Variabel — lifestyle-gedreven" },
+    psychographics: "De hond is een extensie van hun eigen identiteit. Heeft een honden-Instagram, praat over de hond op feestjes en kent goede van slechte hondenvoeding. Geobsedeerd — en er trots op.",
+    coreProblem: "Wil gezien worden als een toegewijde baas, niet als 'crazy dog person'. Zoekt validatie dat te veel geven om je hond cool is, niet raar.",
     goals: ["De beste dingen voor hun hond, openlijk en zonder excuus","Validatie dat geobsedeerd zijn door je hond cool is, niet raar","Producten die het waard zijn om over te posten","Een merk dat hun obsessie begrijpt en bevestigt"],
-    fears: ["Gezien worden als 'crazy dog person' in negatieve zin","Producten die het geld niet waard zijn","Merken die hun passie niet serieus nemen","Het gevoel dat ze te veel geven om iets dat 'maar een hond' is"],
-    buyingBehavior: "Impulsieve koper. Ziet iets, voelt het, koopt het. Deelt op social media. Hoge CLV wanneer emotionele band met merk sterk is. Evangelical — vertelt vrienden, post unboxing.",
-    channels: "TikTok (dominant), Instagram Reels, Reddit (r/dogs), referrals van vrienden. Reageert sterk op UGC en humor.",
+    triggers: "UGC en humor ('things I do for my dog'), nieuwe kleuren en drops, validatie van een community en referrals van vrienden.",
+    buying: { where: "TikTok (dominant), Instagram Reels, Reddit (r/dogs) en referrals.", what: "Premium items, nieuwe colorways en alles-in-één kits — emotioneel geladen aankopen.", how: "Impulsief en emotioneel: ziet iets, voelt het, koopt het en deelt het op social. Hoge CLV, evangelical." },
     dataEvidence: [
       { quote: "He only eats the best — and he's made it clear this one passes the test", source: "Maxbone review" },
       { quote: "I'm honestly obsessed with everything Maxbone", source: "Maxbone review" },
@@ -89,8 +84,11 @@ const LS = "gb_icp_personas";
 const blankAwareness = (): Awareness => ({ stage: "Nieuwe stage", thinks: "", feels: "", questions: "", channelFit: "", approach: "" });
 const blankPersona = (): Persona => ({
   id: crypto.randomUUID(), name: "Nieuwe ICP", tagline: "",
-  demographics: { age: "", income: "", location: "", household: "", education: "", lifestyle: "" },
-  goals: [], fears: [], buyingBehavior: "", channels: "", dataEvidence: [], awareness: [], topAngles: [],
+  dog: { breed: "", age: "", size: "", temperament: "", needs: "" },
+  owner: { age: "", income: "", location: "", household: "", occupation: "" },
+  psychographics: "", coreProblem: "", goals: [], triggers: "",
+  buying: { where: "", what: "", how: "" },
+  dataEvidence: [], awareness: [], topAngles: [],
 });
 
 const TABS = [
@@ -106,6 +104,16 @@ function TIn({ value, onChange, placeholder }: { value: string; onChange: (v: st
 }
 function TArea({ value, onChange, placeholder, rows = 3 }: { value: string; onChange: (v: string) => void; placeholder?: string; rows?: number }) {
   return <textarea value={value} placeholder={placeholder} rows={rows} onChange={(e) => onChange(e.target.value)} className={`${IN} resize-y leading-relaxed`} />;
+}
+function TextBlock({ title, value, editing, onChange, accent }: { title: string; value: string; editing: boolean; onChange: (v: string) => void; accent?: string }) {
+  return (
+    <motion.section variants={fadeUp}>
+      <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground mb-3">{title}</h2>
+      {editing
+        ? <TArea value={value} onChange={onChange} rows={4} />
+        : <p className={`text-sm text-foreground leading-relaxed ${accent ? "border-l-2 pl-4" : ""}`} style={accent ? { borderColor: `hsl(var(--${accent}))` } : undefined}>{value || "—"}</p>}
+    </motion.section>
+  );
 }
 
 export default function ICPDocument() {
@@ -123,7 +131,9 @@ export default function ICPDocument() {
   const persona = personas.find((p) => p.id === activeId) ?? personas[0];
 
   const patch = (p: Partial<Persona>) => setPersonas((prev) => prev.map((x) => (x.id === activeId ? { ...x, ...p } : x)));
-  const patchDemo = (d: Partial<Persona["demographics"]>) => patch({ demographics: { ...persona.demographics, ...d } });
+  const patchDog = (d: Partial<Persona["dog"]>) => patch({ dog: { ...persona.dog, ...d } });
+  const patchOwner = (d: Partial<Persona["owner"]>) => patch({ owner: { ...persona.owner, ...d } });
+  const patchBuying = (d: Partial<Persona["buying"]>) => patch({ buying: { ...persona.buying, ...d } });
 
   const addPersona = () => { const p = blankPersona(); setPersonas((prev) => [...prev, p]); setActiveId(p.id); setActiveTab("profile"); setEditing(true); };
   const delPersona = () => { setPersonas((prev) => { const next = prev.filter((p) => p.id !== activeId); setActiveId(next[0]?.id ?? ""); return next; }); setConfirmDel(false); };
@@ -208,41 +218,71 @@ export default function ICPDocument() {
             {/* ── Profile ── */}
             {activeTab === "profile" && (
               <motion.div variants={stagger(0.04)} initial="hidden" animate="visible" className="space-y-8">
-                {/* Demographics */}
+                {/* 1 · De hond */}
                 <motion.section variants={fadeUp}>
-                  <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground mb-4">Demografie</h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
-                    {([["Leeftijd","age"],["Inkomen","income"],["Locatie","location"],["Huishouden","household"],["Opleiding","education"]] as const).map(([label, key]) => (
+                  <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground mb-4">1 · De hond</h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+                    {([["Ras","breed"],["Leeftijd","age"],["Grootte","size"],["Karakter","temperament"]] as const).map(([label, key]) => (
                       <div key={key} className="p-3 rounded-xl border border-border bg-card">
                         <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">{label}</p>
                         {editing
-                          ? <TIn value={persona.demographics[key]} onChange={(v) => patchDemo({ [key]: v } as any)} />
-                          : <p className="text-sm text-foreground leading-snug">{persona.demographics[key] || "—"}</p>}
+                          ? <TIn value={persona.dog[key]} onChange={(v) => patchDog({ [key]: v } as any)} />
+                          : <p className="text-sm text-foreground leading-snug">{persona.dog[key] || "—"}</p>}
                       </div>
                     ))}
                   </div>
-                  {editing
-                    ? <TArea value={persona.demographics.lifestyle} onChange={(v) => patchDemo({ lifestyle: v })} placeholder="Lifestyle" rows={4} />
-                    : <p className="text-sm text-muted-foreground leading-relaxed italic border-l-2 border-border pl-4">{persona.demographics.lifestyle}</p>}
+                  <div className="p-3 rounded-xl border border-border bg-card">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Behoeften</p>
+                    {editing
+                      ? <TArea value={persona.dog.needs} onChange={(v) => patchDog({ needs: v })} rows={2} />
+                      : <p className="text-sm text-foreground leading-snug">{persona.dog.needs || "—"}</p>}
+                  </div>
                 </motion.section>
 
-                {/* Goals + Fears */}
-                <motion.div variants={fadeUp} className="grid sm:grid-cols-2 gap-4">
+                {/* 2 · Het baasje */}
+                <motion.section variants={fadeUp}>
+                  <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground mb-4">2 · Het baasje</h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    {([["Leeftijd","age"],["Inkomen","income"],["Locatie","location"],["Huishouden","household"],["Werk / opleiding","occupation"]] as const).map(([label, key]) => (
+                      <div key={key} className="p-3 rounded-xl border border-border bg-card">
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">{label}</p>
+                        {editing
+                          ? <TIn value={persona.owner[key]} onChange={(v) => patchOwner({ [key]: v } as any)} />
+                          : <p className="text-sm text-foreground leading-snug">{persona.owner[key] || "—"}</p>}
+                      </div>
+                    ))}
+                  </div>
+                </motion.section>
+
+                {/* 3 · Psychografie */}
+                <TextBlock title="3 · Psychografie — hoe denken ze over hun hond?" value={persona.psychographics} editing={editing} onChange={(v) => patch({ psychographics: v })} />
+
+                {/* 4 · Kernprobleem */}
+                <TextBlock title="4 · Kernprobleem" value={persona.coreProblem} editing={editing} onChange={(v) => patch({ coreProblem: v })} accent="bad" />
+
+                {/* 5 · Doelen */}
+                <motion.div variants={fadeUp}>
+                  <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground mb-4">5 · Doelen</h2>
                   <ListEditor title="Doelen" dot="bg-emerald-500" items={persona.goals} editing={editing} onChange={(v) => patch({ goals: v })} />
-                  <ListEditor title="Angsten" dot="bg-red-500" items={persona.fears} editing={editing} onChange={(v) => patch({ fears: v })} />
                 </motion.div>
 
-                {/* Buying + Channels */}
-                <motion.div variants={fadeUp} className="grid sm:grid-cols-2 gap-4">
-                  {([["Koopgedrag","buyingBehavior"],["Favoriete kanalen","channels"]] as const).map(([title, key]) => (
-                    <div key={key} className="p-4 rounded-xl border border-border bg-card">
-                      <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground mb-2">{title}</h2>
-                      {editing
-                        ? <TArea value={persona[key]} onChange={(v) => patch({ [key]: v } as any)} rows={4} />
-                        : <p className="text-sm text-foreground leading-relaxed">{persona[key] || "—"}</p>}
-                    </div>
-                  ))}
-                </motion.div>
+                {/* 6 · Triggers */}
+                <TextBlock title="6 · Wat triggert hen?" value={persona.triggers} editing={editing} onChange={(v) => patch({ triggers: v })} accent="sun" />
+
+                {/* 7 · Koopgedrag */}
+                <motion.section variants={fadeUp}>
+                  <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground mb-4">7 · Koopgedrag — waar, wat &amp; hoe?</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {([["Waar","where"],["Wat","what"],["Hoe","how"]] as const).map(([label, key]) => (
+                      <div key={key} className="p-4 rounded-xl border border-border bg-card">
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">{label}</p>
+                        {editing
+                          ? <TArea value={persona.buying[key]} onChange={(v) => patchBuying({ [key]: v } as any)} rows={4} />
+                          : <p className="text-sm text-foreground leading-relaxed">{persona.buying[key] || "—"}</p>}
+                      </div>
+                    ))}
+                  </div>
+                </motion.section>
 
                 {/* Data evidence */}
                 <motion.section variants={fadeUp}>
