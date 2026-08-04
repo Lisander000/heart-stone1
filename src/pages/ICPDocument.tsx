@@ -91,6 +91,27 @@ const blankPersona = (): Persona => ({
   dataEvidence: [], awareness: [], topAngles: [],
 });
 
+/* migrate a saved persona (old shape: demographics/fears/buyingBehavior/channels) to the new shape */
+function migrate(p: any): Persona {
+  const b = blankPersona();
+  const d = p?.demographics ?? {};
+  return {
+    id: p?.id ?? b.id,
+    name: p?.name ?? b.name,
+    tagline: p?.tagline ?? "",
+    dog: { ...b.dog, ...(p?.dog ?? {}) },
+    owner: p?.owner ?? { age: d.age ?? "", income: d.income ?? "", location: d.location ?? "", household: d.household ?? "", occupation: d.education ?? "" },
+    psychographics: p?.psychographics ?? d.lifestyle ?? "",
+    coreProblem: p?.coreProblem ?? (Array.isArray(p?.fears) ? p.fears.join(" · ") : ""),
+    goals: Array.isArray(p?.goals) ? p.goals : [],
+    triggers: p?.triggers ?? "",
+    buying: p?.buying ?? { where: p?.channels ?? "", what: "", how: p?.buyingBehavior ?? "" },
+    dataEvidence: Array.isArray(p?.dataEvidence) ? p.dataEvidence : [],
+    awareness: Array.isArray(p?.awareness) ? p.awareness : [],
+    topAngles: Array.isArray(p?.topAngles) ? p.topAngles : [],
+  };
+}
+
 const TABS = [
   { id: "profile",   label: "Profiel" },
   { id: "awareness", label: "Awareness stages" },
@@ -118,7 +139,7 @@ function TextBlock({ title, value, editing, onChange, accent }: { title: string;
 
 export default function ICPDocument() {
   const [personas, setPersonas] = useState<Persona[]>(() => {
-    try { const r = localStorage.getItem(LS); if (r) return JSON.parse(r); } catch { /* ignore */ }
+    try { const r = localStorage.getItem(LS); if (r) return (JSON.parse(r) as any[]).map(migrate); } catch { /* ignore */ }
     return SEED;
   });
   const [activeId, setActiveId] = useState(() => personas[0]?.id ?? "");
