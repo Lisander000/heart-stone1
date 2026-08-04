@@ -243,7 +243,7 @@ function CreatorsStudio({ onBack }: { onBack?: () => void }) {
 }
 
 /* ─── choose UGC (Trybe) vs Creators (our system) ────────────────────────── */
-const TRYBE_URL = "https://trybe.so"; // TODO: exacte Trybe-URL van jullie account
+const TRYBE_URL = "https://www.jointrybe.com";
 
 export default function UgcStudio() {
   const [mode, setMode] = useState<"ugc" | "creators" | null>(null);
