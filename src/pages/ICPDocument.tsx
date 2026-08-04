@@ -10,8 +10,8 @@ type Angle = { headline: string; funnel: string; why: string };
 type Evidence = { quote: string; source: string };
 type Persona = {
   id: string; name: string; tagline: string;
-  dog: { breed: string; age: string; size: string; temperament: string; needs: string };
-  owner: { age: string; income: string; location: string; household: string; occupation: string };
+  dog: { breed: string; age: string; needs: string };
+  owner: { age: string; income: string; location: string; household: string };
   psychographics: string; coreProblem: string;
   goals: string[]; triggers: string;
   buying: { where: string; what: string; how: string };
@@ -22,8 +22,8 @@ type Persona = {
 const SEED: Persona[] = [
   {
     id: "aesthetic", name: "The Aesthetic", tagline: "Hond en eigenaar als visueel geheel.",
-    dog: { breed: "Whippet, Vizsla of een rescue met clean look", age: "1–6 jaar", size: "Klein tot middelgroot", temperament: "Rustig, elegant, fotogeniek", needs: "Er verzorgd uitzien en passen bij de esthetiek van hond én baasje." },
-    owner: { age: "25–40 jaar", income: "Modaal tot bovenmodaal", location: "(Voor)stedelijk — Antwerpen, Brussel, Amsterdam, Berlijn, Kopenhagen", household: "Koppel of alleenstaand, 1 hond", occupation: "Creatieve richting of HBO+, design-bewust" },
+    dog: { breed: "Whippet, Vizsla of rescue met clean look · klein tot middelgroot", age: "1–6 jaar", needs: "Rustig, elegant en fotogeniek. Moet er verzorgd uitzien en passen bij de esthetiek van hond én baasje." },
+    owner: { age: "25–40 jaar", income: "Modaal tot bovenmodaal", location: "(Voor)stedelijk — Antwerpen, Brussel, Amsterdam, Berlijn, Kopenhagen", household: "Koppel of alleenstaand, 1 hond" },
     psychographics: "De hond is een verlengstuk van hun eigen esthetiek en identiteit. Spullen moeten matchen met interieur, outfit en kleurenpalet — ze denken in visuele systemen waarin stijl consistent moet zijn (ALD, Aesop, Kinfolk).",
     coreProblem: "Hondenspullen zien er goedkoop en generiek uit (babytalk branding, cartoon graphics) en passen niet bij hun verfijnde, gender-neutrale stijl.",
     goals: ["Hond en eigenaar als visueel geheel","Producten die passen bij interieur en persoonlijke stijl","Complimenten krijgen tijdens wandelingen","Seizoensgebonden vernieuwing zonder kwaliteitsverlies"],
@@ -51,8 +51,8 @@ const SEED: Persona[] = [
   },
   {
     id: "lover", name: "The Lover", tagline: "Doet alles voor hun hond en is er trots op.",
-    dog: { breed: "Elk ras — behandeld als een persoonlijkheid", age: "Elke leeftijd", size: "Elk formaat", temperament: "Het middelpunt van het gezin, vol karakter", needs: "Alleen het beste; producten die het waard zijn om over te posten." },
-    owner: { age: "24–38 jaar", income: "Modaal — besteedt disproportioneel aan hun hond", location: "Stedelijk, actief op social media", household: "Alleenstaand of koppel, 1 hond als persoonlijkheid", occupation: "Variabel — lifestyle-gedreven" },
+    dog: { breed: "Elk ras — behandeld als een persoonlijkheid · elk formaat", age: "Elke leeftijd", needs: "Het middelpunt van het gezin, vol karakter. Wil alleen het beste; producten die het waard zijn om over te posten." },
+    owner: { age: "24–38 jaar", income: "Modaal — besteedt disproportioneel aan hun hond", location: "Stedelijk, actief op social media", household: "Alleenstaand of koppel, 1 hond als persoonlijkheid" },
     psychographics: "De hond is een extensie van hun eigen identiteit. Heeft een honden-Instagram, praat over de hond op feestjes en kent goede van slechte hondenvoeding. Geobsedeerd — en er trots op.",
     coreProblem: "Wil gezien worden als een toegewijde baas, niet als 'crazy dog person'. Zoekt validatie dat te veel geven om je hond cool is, niet raar.",
     goals: ["De beste dingen voor hun hond, openlijk en zonder excuus","Validatie dat geobsedeerd zijn door je hond cool is, niet raar","Producten die het waard zijn om over te posten","Een merk dat hun obsessie begrijpt en bevestigt"],
@@ -84,8 +84,8 @@ const LS = "gb_icp_personas";
 const blankAwareness = (): Awareness => ({ stage: "Nieuwe stage", thinks: "", feels: "", questions: "", channelFit: "", approach: "" });
 const blankPersona = (): Persona => ({
   id: crypto.randomUUID(), name: "Nieuwe ICP", tagline: "",
-  dog: { breed: "", age: "", size: "", temperament: "", needs: "" },
-  owner: { age: "", income: "", location: "", household: "", occupation: "" },
+  dog: { breed: "", age: "", needs: "" },
+  owner: { age: "", income: "", location: "", household: "" },
   psychographics: "", coreProblem: "", goals: [], triggers: "",
   buying: { where: "", what: "", how: "" },
   dataEvidence: [], awareness: [], topAngles: [],
@@ -99,8 +99,8 @@ function migrate(p: any): Persona {
     id: p?.id ?? b.id,
     name: p?.name ?? b.name,
     tagline: p?.tagline ?? "",
-    dog: { ...b.dog, ...(p?.dog ?? {}) },
-    owner: p?.owner ?? { age: d.age ?? "", income: d.income ?? "", location: d.location ?? "", household: d.household ?? "", occupation: d.education ?? "" },
+    dog: { breed: [p?.dog?.breed, p?.dog?.size].filter(Boolean).join(" · "), age: p?.dog?.age ?? "", needs: [p?.dog?.temperament, p?.dog?.needs].filter(Boolean).join(" ") },
+    owner: { age: p?.owner?.age ?? d.age ?? "", income: p?.owner?.income ?? d.income ?? "", location: p?.owner?.location ?? d.location ?? "", household: p?.owner?.household ?? d.household ?? "" },
     psychographics: p?.psychographics ?? d.lifestyle ?? "",
     coreProblem: p?.coreProblem ?? (Array.isArray(p?.fears) ? p.fears.join(" · ") : ""),
     goals: Array.isArray(p?.goals) ? p.goals : [],
@@ -242,8 +242,8 @@ export default function ICPDocument() {
                 {/* 1 · De hond */}
                 <motion.section variants={fadeUp}>
                   <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground mb-4">1 · De hond</h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
-                    {([["Ras","breed"],["Leeftijd","age"],["Grootte","size"],["Karakter","temperament"]] as const).map(([label, key]) => (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    {([["Ras & grootte","breed"],["Leeftijd","age"]] as const).map(([label, key]) => (
                       <div key={key} className="p-3 rounded-xl border border-border bg-card">
                         <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">{label}</p>
                         {editing
@@ -253,7 +253,7 @@ export default function ICPDocument() {
                     ))}
                   </div>
                   <div className="p-3 rounded-xl border border-border bg-card">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Behoeften</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Extra info.</p>
                     {editing
                       ? <TArea value={persona.dog.needs} onChange={(v) => patchDog({ needs: v })} rows={2} />
                       : <p className="text-sm text-foreground leading-snug">{persona.dog.needs || "—"}</p>}
@@ -264,7 +264,7 @@ export default function ICPDocument() {
                 <motion.section variants={fadeUp}>
                   <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground mb-4">2 · Het baasje</h2>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    {([["Leeftijd","age"],["Inkomen","income"],["Locatie","location"],["Huishouden","household"],["Werk / opleiding","occupation"]] as const).map(([label, key]) => (
+                    {([["Leeftijd","age"],["Inkomen","income"],["Locatie","location"],["Huishouden","household"]] as const).map(([label, key]) => (
                       <div key={key} className="p-3 rounded-xl border border-border bg-card">
                         <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">{label}</p>
                         {editing
