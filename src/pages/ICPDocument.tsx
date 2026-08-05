@@ -114,8 +114,7 @@ function migrate(p: any): Persona {
 
 const TABS = [
   { id: "profile",   label: "Profiel" },
-  { id: "awareness", label: "Awareness stages" },
-  { id: "angles",    label: "Top angles" },
+  { id: "awareness", label: "Stages matrix" },
 ] as const;
 
 /* ─── tiny inline editors ────────────────────────────────────────────────── */
@@ -161,7 +160,7 @@ export default function ICPDocument() {
     return SEED;
   });
   const [activeId, setActiveId] = useState(() => personas[0]?.id ?? "");
-  const [activeTab, setActiveTab] = useState<"profile" | "awareness" | "angles">("profile");
+  const [activeTab, setActiveTab] = useState<"profile" | "awareness">("profile");
   const [editing, setEditing] = useState(false);
   const [confirmDel, setConfirmDel] = useState(false);
 
@@ -354,11 +353,7 @@ export default function ICPDocument() {
                         : <span className="text-[10px] font-medium text-muted-foreground bg-muted px-2.5 py-1 rounded-full shrink-0">{a.channelFit}</span>}
                     </div>
                     <div className="p-5 space-y-4">
-                      <div className="grid sm:grid-cols-2 gap-4">
-                        <AwField label="Denkt" value={a.thinks} editing={editing} italic onChange={(v) => patch({ awareness: patchList(persona.awareness, i, { thinks: v }) })} />
-                        <AwField label="Voelt" value={a.feels} editing={editing} onChange={(v) => patch({ awareness: patchList(persona.awareness, i, { feels: v }) })} />
-                      </div>
-                      <AwField label="Vragen" value={a.questions} editing={editing} muted onChange={(v) => patch({ awareness: patchList(persona.awareness, i, { questions: v }) })} />
+                      <AwField label="Denkt" value={a.thinks} editing={editing} italic onChange={(v) => patch({ awareness: patchList(persona.awareness, i, { thinks: v }) })} />
                       <div className="p-4 rounded-xl bg-primary/[0.04] border border-border">
                         <p className="text-[10px] font-semibold uppercase tracking-wider text-primary mb-2">Gooodboys aanpak</p>
                         {editing
@@ -372,40 +367,6 @@ export default function ICPDocument() {
               </motion.div>
             )}
 
-            {/* ── Angles ── */}
-            {activeTab === "angles" && (
-              <motion.div variants={stagger(0.06)} initial="hidden" animate="visible">
-                <p className="text-sm text-muted-foreground mb-6">Top marketing angles voor <strong className="text-foreground">{persona.name}</strong>, met funnel-positie en onderbouwing.</p>
-                <div className="space-y-3">
-                  {persona.topAngles.map((a, i) => (
-                    <motion.div key={i} variants={fadeUp} className="rounded-2xl border border-border bg-card p-5 flex gap-4 items-start">
-                      <span className="font-display text-2xl font-semibold text-muted-foreground/25 leading-none shrink-0 mt-0.5">{String(i + 1).padStart(2, "0")}</span>
-                      <div className="flex-1">
-                        {editing ? (
-                          <div className="space-y-2">
-                            <div className="flex gap-2">
-                              <TIn value={a.headline} onChange={(v) => patch({ topAngles: patchList(persona.topAngles, i, { headline: v }) })} placeholder="Headline" />
-                              <div className="w-28 shrink-0"><TIn value={a.funnel} onChange={(v) => patch({ topAngles: patchList(persona.topAngles, i, { funnel: v }) })} placeholder="Funnel" /></div>
-                              <RemoveBtn onClick={() => patch({ topAngles: persona.topAngles.filter((_, j) => j !== i) })} />
-                            </div>
-                            <TArea value={a.why} onChange={(v) => patch({ topAngles: patchList(persona.topAngles, i, { why: v }) })} placeholder="Waarom werkt dit" rows={2} />
-                          </div>
-                        ) : (
-                          <>
-                            <div className="flex items-start justify-between gap-3 mb-2">
-                              <h3 className="font-display text-lg font-semibold italic text-foreground leading-tight">"{a.headline}"</h3>
-                              <span className="text-[10px] font-semibold text-muted-foreground bg-muted px-2.5 py-1 rounded-full shrink-0">{a.funnel}</span>
-                            </div>
-                            <p className="text-sm text-muted-foreground leading-relaxed">{a.why}</p>
-                          </>
-                        )}
-                      </div>
-                    </motion.div>
-                  ))}
-                  {editing && <button onClick={() => patch({ topAngles: [...persona.topAngles, { headline: "", funnel: "TOF", why: "" }] })} className="w-full h-11 rounded-2xl border-2 border-dashed border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:border-foreground/30 flex items-center justify-center gap-1.5"><Plus className="h-4 w-4" /> Angle toevoegen</button>}
-                </div>
-              </motion.div>
-            )}
           </motion.div>
         </AnimatePresence>
       </div>
