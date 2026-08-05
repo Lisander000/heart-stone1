@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import {
   Calculator, RotateCcw, ShoppingBag, Repeat, HelpCircle, TrendingDown,
   CheckCircle2, AlertTriangle, XCircle, Package, Truck, Megaphone, Receipt,
+  Sparkles, Gauge, Lightbulb, ArrowLeftRight,
 } from "lucide-react";
 import { fadeUp } from "@/lib/motion";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -88,6 +89,57 @@ export default function UnitEconomics() {
 
   const cmTone = o.cmPct >= 0.35 ? "ok" : o.cmPct >= 0.2 ? "warn" : "bad";
   const ratioTone = m.ltvCac >= 3 ? "ok" : m.ltvCac >= 1.5 ? "warn" : "bad";
+
+  // ── auto insights ──────────────────────────────────────────────────────
+  const ins = useMemo(() => {
+    const price = mode === "subscription" ? i.subPrice : i.price;
+    const cmOf = (patch: Partial<Inputs>, priceOverride?: number) => computeOrder(priceOverride ?? price, { ...i, ...patch }).cm;
+    const base = o.cm;
+    const levers = [
+      { label: "Prijs +10%", delta: cmOf({}, price * 1.1) - base },
+      { label: "COGS −10%", delta: cmOf({ cogs: i.cogs * 0.9 }) - base },
+      { label: "Fulfillment −10%", delta: cmOf({ fulfillment: i.fulfillment * 0.9 }) - base },
+      { label: "Betaalkost −10%", delta: cmOf({ paymentPct: i.paymentPct * 0.9 }) - base },
+      { label: "Retouren −10%", delta: cmOf({ returnsPct: i.returnsPct * 0.9 }) - base },
+      { label: "Verpakking −10%", delta: cmOf({ packaging: i.packaging * 0.9 }) - base },
+    ].filter((l) => l.delta > 0.0001).sort((a, b) => b.delta - a.delta);
+    const leverMax = Math.max(...levers.map((l) => l.delta), 0.01);
+
+    const maxCac3 = Number.isFinite(m.ltv) ? m.ltv / 3 : Infinity;
+    const breakEvenCac = m.ltv;
+    let maxDiscount = Infinity;
+    if (o.cm > 0) { let lo = i.discountPct, hi = 100; for (let k = 0; k < 40; k++) { const mid = (lo + hi) / 2; if (computeOrder(price, { ...i, discountPct: mid }).cm > 0) lo = mid; else hi = mid; } maxDiscount = lo; }
+    const maxReturns = i.returnCost > 0 && o.cm > 0 ? i.returnsPct + (o.cm * 100) / i.returnCost : Infinity;
+    const maxChurn = mode === "subscription" && i.cac > 0 && o.cm > 0 ? (o.cm * 100 * m.deliveriesPerMonth) / (3 * i.cac) : null;
+    const minOrders = mode === "single" && o.cm > 0 ? (3 * i.cac) / o.cm : null;
+
+    const single = computeOrder(i.price, i);
+    const sub = computeOrder(i.subPrice, i);
+    const singleLtv = single.cm * i.ordersPerCustomer;
+    const subDeliv = i.subEveryWeeks > 0 ? 4.345 / i.subEveryWeeks : 0;
+    const subLife = i.churnPct > 0 ? 100 / i.churnPct : Infinity;
+    const subLtv = subLife === Infinity ? Infinity : sub.cm * subLife * subDeliv;
+    const singleRatio = i.cac > 0 ? singleLtv / i.cac : Infinity;
+    const subRatio = i.cac > 0 ? subLtv / i.cac : Infinity;
+
+    const costs = [
+      { label: "COGS + verpakking", value: o.cogsTotal },
+      { label: "Fulfillment", value: o.fulfillment },
+      { label: "Fees", value: o.fees },
+      { label: "Retouren", value: o.returnsCost },
+    ].sort((a, b) => b.value - a.value);
+    const bullets: { tone: string; text: string }[] = [];
+    if (costs[0] && o.netRevenue > 0) bullets.push({ tone: "info", text: `${costs[0].label} is je grootste kost — ${pctS(costs[0].value / o.netRevenue)} van de omzet.` });
+    if (o.cmPct < 0.35 && levers[0]) bullets.push({ tone: "bad", text: `Marge ${pctS(o.cmPct)} ligt onder de gezonde 35%. Grootste hefboom: ${levers[0].label} (+${eur(levers[0].delta)}).` });
+    else if (o.cmPct >= 0.35 && m.ltvCac < 3) bullets.push({ tone: "warn", text: "Marge is gezond maar LTV:CAC is krap — retentie verhogen loont meer dan CAC verlagen." });
+    if (m.ltvCac >= 3 && Number.isFinite(maxCac3)) bullets.push({ tone: "ok", text: `Ruimte om te schalen: je kan tot ${eur(maxCac3)} CAC betalen en nog 3:1 halen (nu ${eur(i.cac)}).` });
+    if (Number.isFinite(maxReturns) && maxReturns < 100) bullets.push({ tone: "warn", text: `Boven ${pctS(maxReturns / 100)} retouren verdwijnt je marge volledig.` });
+    else if (Number.isFinite(maxDiscount) && maxDiscount < 100 && maxDiscount > i.discountPct + 0.5) bullets.push({ tone: "info", text: `Je kan tot ${pctS(maxDiscount / 100)} korting geven vóór je per order verlies maakt.` });
+    if (mode === "subscription" && Number.isFinite(m.paybackMonths) && m.paybackMonths > 6) bullets.push({ tone: "warn", text: `Een abonnee is pas na ${numS(m.paybackMonths, 1)} mnd terugverdiend — dat is lang.` });
+    if (Number.isFinite(subRatio) && Number.isFinite(singleRatio)) bullets.push({ tone: "ok", text: `${subRatio >= singleRatio ? "Abonnement" : "Eenmalig"} is winstgevender: LTV:CAC ${numS(Math.max(subRatio, singleRatio), 1)}× vs ${numS(Math.min(subRatio, singleRatio), 1)}×.` });
+
+    return { levers, leverMax, maxCac3, breakEvenCac, maxDiscount, maxReturns, maxChurn, minOrders, singleLtv, subLtv, singleRatio, subRatio, bullets };
+  }, [o, i, m, mode]);
 
   // overall verdict
   const healthy = m.profit >= 0 && m.ltvCac >= 3 && o.cmPct >= 0.35;
@@ -284,6 +336,79 @@ export default function UnitEconomics() {
             </motion.div>
           </div>
         </div>
+
+        {/* ══════════════ INZICHTEN (auto dashboard) ══════════════ */}
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <h2 className="text-base font-semibold text-foreground">Inzichten</h2>
+            <span className="text-xs text-muted-foreground">— automatisch uit je cijfers</span>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Hefbomen */}
+            <div className="card-soft p-5">
+              <div className="flex items-center gap-2 mb-1"><Gauge className="h-4 w-4 text-muted-foreground" /><h3 className="text-sm font-semibold text-foreground">Grootste hefbomen</h3></div>
+              <p className="text-[11px] text-muted-foreground mb-3">10% verbetering per knop → extra marge / {perOrderLabel}</p>
+              <div className="space-y-2">
+                {ins.levers.slice(0, 5).map((l) => (
+                  <div key={l.label} className="flex items-center gap-2.5">
+                    <span className="text-xs text-muted-foreground w-28 shrink-0 truncate">{l.label}</span>
+                    <div className="flex-1 h-5 rounded-md bg-muted overflow-hidden"><div className="h-full rounded-md transition-all" style={{ width: `${(l.delta / ins.leverMax) * 100}%`, background: "hsl(var(--ok))" }} /></div>
+                    <span className="text-xs font-semibold text-foreground tabular-nums w-14 text-right">+{eur(l.delta)}</span>
+                  </div>
+                ))}
+                {ins.levers.length === 0 && <p className="text-xs text-muted-foreground">Vul kosten in om hefbomen te zien.</p>}
+              </div>
+            </div>
+
+            {/* Grenzen */}
+            <div className="card-soft p-5">
+              <div className="flex items-center gap-2 mb-3"><AlertTriangle className="h-4 w-4 text-muted-foreground" /><h3 className="text-sm font-semibold text-foreground">Je grenzen</h3></div>
+              <div className="grid grid-cols-2 gap-2.5">
+                <StatBox label="Max. CAC (3:1)" value={eur(ins.maxCac3)} info="Het maximum dat je per nieuwe klant mag betalen om nog een gezonde 3:1 LTV:CAC te halen." />
+                <StatBox label="Break-even CAC" value={eur(ins.breakEvenCac)} sub="1:1 — kop noch staart" />
+                <StatBox label="Max. korting" value={Number.isFinite(ins.maxDiscount) ? pctS(ins.maxDiscount / 100) : "—"} sub="voor verlies / order" />
+                <StatBox label="Max. retouren" value={Number.isFinite(ins.maxReturns) && ins.maxReturns < 100 ? pctS(ins.maxReturns / 100) : "—"} sub="voor marge = 0" />
+                {mode === "subscription"
+                  ? <StatBox label="Max. churn (3:1)" value={ins.maxChurn != null && Number.isFinite(ins.maxChurn) ? `${pctS(ins.maxChurn / 100)}/mnd` : "—"} />
+                  : <StatBox label="Min. orders (3:1)" value={ins.minOrders != null ? `${numS(ins.minOrders, 1)}×` : "—"} sub="per klant" />}
+              </div>
+            </div>
+
+            {/* Aanbevelingen */}
+            <div className="card-soft p-5">
+              <div className="flex items-center gap-2 mb-3"><Lightbulb className="h-4 w-4 text-muted-foreground" /><h3 className="text-sm font-semibold text-foreground">Aanbevelingen</h3></div>
+              <ul className="space-y-2.5">
+                {ins.bullets.map((b, bi) => (
+                  <li key={bi} className="flex items-start gap-2 text-xs leading-relaxed">
+                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full shrink-0" style={{ background: `hsl(var(--${b.tone}))` }} />
+                    <span className="text-foreground">{b.text}</span>
+                  </li>
+                ))}
+                {ins.bullets.length === 0 && <li className="text-xs text-muted-foreground">Vul je cijfers in voor aanbevelingen.</li>}
+              </ul>
+            </div>
+          </div>
+
+          {/* Eenmalig vs abonnement */}
+          <div className="card-soft p-5">
+            <div className="flex items-center gap-2 mb-1"><ArrowLeftRight className="h-4 w-4 text-muted-foreground" /><h3 className="text-sm font-semibold text-foreground">Eenmalig vs. abonnement</h3></div>
+            <p className="text-[11px] text-muted-foreground mb-4">zelfde product · beide modellen naast elkaar</p>
+            <div className="grid grid-cols-2 gap-3">
+              {([["Eenmalig", ins.singleLtv, ins.singleRatio, ins.singleRatio >= ins.subRatio], ["Abonnement", ins.subLtv, ins.subRatio, ins.subRatio > ins.singleRatio]] as const).map(([title, ltv, ratio, win]) => (
+                <div key={title} className="rounded-xl p-4 border" style={win ? { borderColor: "hsl(var(--ok) / 0.4)", background: "hsl(var(--ok) / 0.05)" } : { borderColor: "hsl(var(--border))", background: "hsl(var(--muted) / 0.3)" }}>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-semibold text-foreground">{title}</p>
+                    {win && <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "hsl(var(--ok))" }}>beter</span>}
+                  </div>
+                  <p className="text-2xl font-num font-bold tabular-nums mt-2" style={{ color: `hsl(var(--${ratio >= 3 ? "ok" : ratio >= 1.5 ? "warn" : "bad"}))` }}>{Number.isFinite(ratio) ? `${numS(ratio, 1)}×` : "∞"}</p>
+                  <p className="text-[11px] text-muted-foreground">LTV:CAC · LTV {eur(ltv)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
