@@ -1,7 +1,7 @@
 import { useEffect, useState, type ElementType, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fadeUp, stagger } from "@/lib/motion";
-import { Pencil, Plus, Trash2, Check, X, Users, Dog, User, Brain, AlertTriangle, Target, Zap, ShoppingBag } from "lucide-react";
+import { Pencil, Plus, Trash2, Check, X, Users, Dog, User, Brain, AlertTriangle, Target, Zap, ShoppingBag, Download } from "lucide-react";
 import { ConfirmDelete } from "@/components/ConfirmDelete";
 
 /* ─── types ──────────────────────────────────────────────────────────────── */
@@ -112,6 +112,39 @@ function migrate(p: any): Persona {
   };
 }
 
+/* ─── export one ICP to a clean, printable HTML document ─────────────────── */
+function exportPersona(p: Persona) {
+  const esc = (s: string) => (s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const row = (label: string, val: string) => val ? `<div class="row"><span class="lab">${esc(label)}</span><span class="val">${esc(val)}</span></div>` : "";
+  const para = (title: string, val: string) => val ? `<section><h2>${esc(title)}</h2><p>${esc(val)}</p></section>` : "";
+  const goals = p.goals.filter(Boolean).map((g) => `<li>${esc(g)}</li>`).join("");
+  const stages = p.awareness.map((a, i) => `
+      <div class="stage">
+        <div class="stage-head"><strong>${String(i + 1).padStart(2, "0")} · ${esc(a.stage)}</strong>${a.channelFit ? `<span class="chip">${esc(a.channelFit)}</span>` : ""}</div>
+        ${a.thinks ? `<p class="denkt"><em>&ldquo;${esc(a.thinks)}&rdquo;</em></p>` : ""}
+        ${a.approach ? `<div class="aanpak"><span class="aanpak-lab">Gooodboys aanpak</span><p>${esc(a.approach)}</p></div>` : ""}
+      </div>`).join("");
+  const css = `*{box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#1a1a1a;max-width:760px;margin:40px auto;padding:0 24px;line-height:1.55}header{border-bottom:3px solid #490303;padding-bottom:16px;margin-bottom:28px}h1{font-size:32px;margin:0 0 4px;color:#490303}.tag{font-size:16px;color:#555;margin:0;font-style:italic}.meta{font-size:12px;color:#999;margin-top:8px;text-transform:uppercase;letter-spacing:.08em}section{margin:0 0 22px;page-break-inside:avoid}h2{font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:#490303;border-bottom:1px solid #eee;padding-bottom:6px;margin:0 0 12px}.row{display:flex;gap:12px;padding:4px 0;border-bottom:1px solid #f4f4f4}.lab{font-weight:600;width:150px;flex-shrink:0;color:#444;font-size:14px}.val{color:#222;font-size:14px}.extra{margin-top:10px;color:#333;font-size:14px}p{font-size:14px;color:#222;margin:0}ul{margin:0;padding-left:20px}li{font-size:14px;margin:4px 0}.stage{border:1px solid #eee;border-radius:10px;padding:14px 16px;margin-bottom:12px;page-break-inside:avoid}.stage-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:12px}.chip{font-size:11px;background:#f0f0f0;color:#666;padding:3px 8px;border-radius:20px;white-space:nowrap}.denkt{color:#333;margin-bottom:8px}.aanpak{background:#fafafa;border-left:3px solid #490303;padding:8px 12px;border-radius:6px}.aanpak-lab{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#490303;font-weight:600;display:block;margin-bottom:4px}@media print{body{margin:0}}`;
+  const html = `<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(p.name)} — ICP</title><style>${css}</style></head><body>`
+    + `<header><h1>${esc(p.name)}</h1><p class="tag">${esc(p.tagline)}</p><p class="meta">Focus ICP · Gooodboys · ${new Date().toLocaleDateString("nl-BE")}</p></header>`
+    + `<section><h2>1 &middot; De hond</h2>${row("Ras & grootte", p.dog.breed)}${row("Leeftijd", p.dog.age)}${p.dog.needs ? `<p class="extra">${esc(p.dog.needs)}</p>` : ""}</section>`
+    + `<section><h2>2 &middot; Het baasje</h2>${row("Leeftijd", p.owner.age)}${row("Inkomen", p.owner.income)}${row("Locatie", p.owner.location)}${row("Huishouden", p.owner.household)}${p.owner.extra ? `<p class="extra">${esc(p.owner.extra)}</p>` : ""}</section>`
+    + para("3 · Psychografie — hoe denken ze over hun hond?", p.psychographics)
+    + para("4 · Kernprobleem", p.coreProblem)
+    + (goals ? `<section><h2>5 &middot; Doelen</h2><ul>${goals}</ul></section>` : "")
+    + para("6 · Wat triggert hen?", p.triggers)
+    + `<section><h2>7 &middot; Koopgedrag</h2>${row("Waar", p.buying.where)}${row("Wat", p.buying.what)}${row("Hoe", p.buying.how)}</section>`
+    + (stages ? `<section><h2>Stages matrix</h2>${stages}</section>` : "")
+    + `</body></html>`;
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const slug = (p.name || "icp").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "icp";
+  a.href = url; a.download = `${slug}-icp.html`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
 const TABS = [
   { id: "profile",   label: "Profiel" },
   { id: "awareness", label: "Stages matrix" },
@@ -201,10 +234,16 @@ export default function ICPDocument() {
               <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">Focus ICP's</h1>
             </div>
           </motion.div>
-          <button onClick={() => setEditing((e) => !e)}
-            className={`h-9 px-4 rounded-full text-sm font-medium flex items-center gap-1.5 transition-all shadow-xs ${editing ? "bg-primary text-primary-foreground shadow-sm" : "border border-border bg-card text-muted-foreground hover:text-foreground"}`}>
-            {editing ? <><Check className="h-4 w-4" /> Klaar</> : <><Pencil className="h-3.5 w-3.5" /> Bewerken</>}
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={() => persona && exportPersona(persona)}
+              className="h-9 px-4 rounded-full text-sm font-medium flex items-center gap-1.5 transition-all shadow-xs border border-border bg-card text-muted-foreground hover:text-foreground">
+              <Download className="h-3.5 w-3.5" /> Exporteren
+            </button>
+            <button onClick={() => setEditing((e) => !e)}
+              className={`h-9 px-4 rounded-full text-sm font-medium flex items-center gap-1.5 transition-all shadow-xs ${editing ? "bg-primary text-primary-foreground shadow-sm" : "border border-border bg-card text-muted-foreground hover:text-foreground"}`}>
+              {editing ? <><Check className="h-4 w-4" /> Klaar</> : <><Pencil className="h-3.5 w-3.5" /> Bewerken</>}
+            </button>
+          </div>
         </div>
 
         {/* Persona switcher */}
