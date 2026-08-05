@@ -154,12 +154,6 @@ export default function UnitEconomics() {
     return { levers, leverMax, maxCac3, breakEvenCac, maxDiscount, maxReturns, maxChurn, minOrders, singleLtv, subLtv, singleRatio, subRatio, bullets, netPerCustomer, netPerCustomerPct, netFirstSale, netFirstSalePct, maxCreator, maxCreatorPct };
   }, [o, i, m, mode]);
 
-  // overall verdict
-  const healthy = m.profit >= 0 && m.ltvCac >= 3 && o.cmPct >= 0.35;
-  const okay = m.profit >= 0 && m.ltvCac >= 1.5;
-  const vTone = healthy ? "ok" : okay ? "warn" : "bad";
-  const VIcon = healthy ? CheckCircle2 : okay ? AlertTriangle : XCircle;
-  const vTitle = healthy ? "Gezonde unit economics" : okay ? "Krappe marges — kan beter" : (m.profit < 0 ? "Verlieslatend per klant" : "Te lage marge");
 
   const segs = [
     { label: "COGS + verpakking", value: o.cogsTotal, v: "grape" },
@@ -255,10 +249,7 @@ export default function UnitEconomics() {
 
             {/* ── PER ORDER ── */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Per {perOrderLabel}</h3>
-                <span className="text-[11px] text-muted-foreground">omzet {eur(o.netRevenue)} · excl. btw</span>
-              </div>
+              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-4">Per {perOrderLabel}</h3>
               <div className="flex items-end justify-between gap-3 pb-4 mb-4 border-b border-border/60">
                 <div>
                   <p className="text-xs text-muted-foreground flex items-center gap-1">Contributiemarge <Tip text="Wat er per order overblijft na álle variabele kosten (COGS, fulfillment, fees, retouren). Dít betaalt je marketing en vaste kosten." /></p>
