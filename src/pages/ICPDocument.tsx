@@ -11,7 +11,7 @@ type Evidence = { quote: string; source: string };
 type Persona = {
   id: string; name: string; tagline: string;
   dog: { breed: string; age: string; needs: string };
-  owner: { age: string; income: string; location: string; household: string };
+  owner: { age: string; income: string; location: string; household: string; extra: string };
   psychographics: string; coreProblem: string;
   goals: string[]; triggers: string;
   buying: { where: string; what: string; how: string };
@@ -23,7 +23,7 @@ const SEED: Persona[] = [
   {
     id: "aesthetic", name: "The Aesthetic", tagline: "Hond en eigenaar als visueel geheel.",
     dog: { breed: "Whippet, Vizsla of rescue met clean look · klein tot middelgroot", age: "1–6 jaar", needs: "Rustig, elegant en fotogeniek. Moet er verzorgd uitzien en passen bij de esthetiek van hond én baasje." },
-    owner: { age: "25–40 jaar", income: "Modaal tot bovenmodaal", location: "(Voor)stedelijk — Antwerpen, Brussel, Amsterdam, Berlijn, Kopenhagen", household: "Koppel of alleenstaand, 1 hond" },
+    owner: { age: "25–40 jaar", income: "Modaal tot bovenmodaal", location: "(Voor)stedelijk — Antwerpen, Brussel, Amsterdam, Berlijn, Kopenhagen", household: "Koppel of alleenstaand, 1 hond", extra: "Woont in een strak, design-bewust interieur en volgt merken als Aesop, ALD en Kinfolk. Koopt weloverwogen en hecht aan kwaliteit en een consistente uitstraling." },
     psychographics: "De hond is een verlengstuk van hun eigen esthetiek en identiteit. Spullen moeten matchen met interieur, outfit en kleurenpalet — ze denken in visuele systemen waarin stijl consistent moet zijn (ALD, Aesop, Kinfolk).",
     coreProblem: "Hondenspullen zien er goedkoop en generiek uit (babytalk branding, cartoon graphics) en passen niet bij hun verfijnde, gender-neutrale stijl.",
     goals: ["Hond en eigenaar als visueel geheel","Producten die passen bij interieur en persoonlijke stijl","Complimenten krijgen tijdens wandelingen","Seizoensgebonden vernieuwing zonder kwaliteitsverlies"],
@@ -52,7 +52,7 @@ const SEED: Persona[] = [
   {
     id: "lover", name: "The Lover", tagline: "Doet alles voor hun hond en is er trots op.",
     dog: { breed: "Elk ras — behandeld als een persoonlijkheid · elk formaat", age: "Elke leeftijd", needs: "Het middelpunt van het gezin, vol karakter. Wil alleen het beste; producten die het waard zijn om over te posten." },
-    owner: { age: "24–38 jaar", income: "Modaal — besteedt disproportioneel aan hun hond", location: "Stedelijk, actief op social media", household: "Alleenstaand of koppel, 1 hond als persoonlijkheid" },
+    owner: { age: "24–38 jaar", income: "Modaal — besteedt disproportioneel aan hun hond", location: "Stedelijk, actief op social media", household: "Alleenstaand of koppel, 1 hond als persoonlijkheid", extra: "Zeer actief op social media rond hun hond, deelt alles en zoekt aansluiting bij gelijkgestemden. Besteedt gul aan de hond, ook als dat 'te veel' lijkt." },
     psychographics: "De hond is een extensie van hun eigen identiteit. Heeft een honden-Instagram, praat over de hond op feestjes en kent goede van slechte hondenvoeding. Geobsedeerd — en er trots op.",
     coreProblem: "Wil gezien worden als een toegewijde baas, niet als 'crazy dog person'. Zoekt validatie dat te veel geven om je hond cool is, niet raar.",
     goals: ["De beste dingen voor hun hond, openlijk en zonder excuus","Validatie dat geobsedeerd zijn door je hond cool is, niet raar","Producten die het waard zijn om over te posten","Een merk dat hun obsessie begrijpt en bevestigt"],
@@ -85,7 +85,7 @@ const blankAwareness = (): Awareness => ({ stage: "Nieuwe stage", thinks: "", fe
 const blankPersona = (): Persona => ({
   id: crypto.randomUUID(), name: "Nieuwe ICP", tagline: "",
   dog: { breed: "", age: "", needs: "" },
-  owner: { age: "", income: "", location: "", household: "" },
+  owner: { age: "", income: "", location: "", household: "", extra: "" },
   psychographics: "", coreProblem: "", goals: [], triggers: "",
   buying: { where: "", what: "", how: "" },
   dataEvidence: [], awareness: [], topAngles: [],
@@ -100,7 +100,7 @@ function migrate(p: any): Persona {
     name: p?.name ?? b.name,
     tagline: p?.tagline ?? "",
     dog: { breed: [p?.dog?.breed, p?.dog?.size].filter(Boolean).join(" · "), age: p?.dog?.age ?? "", needs: [p?.dog?.temperament, p?.dog?.needs].filter(Boolean).join(" ") },
-    owner: { age: p?.owner?.age ?? d.age ?? "", income: p?.owner?.income ?? d.income ?? "", location: p?.owner?.location ?? d.location ?? "", household: p?.owner?.household ?? d.household ?? "" },
+    owner: { age: p?.owner?.age ?? d.age ?? "", income: p?.owner?.income ?? d.income ?? "", location: p?.owner?.location ?? d.location ?? "", household: p?.owner?.household ?? d.household ?? "", extra: p?.owner?.extra ?? "" },
     psychographics: p?.psychographics ?? d.lifestyle ?? "",
     coreProblem: p?.coreProblem ?? (Array.isArray(p?.fears) ? p.fears.join(" · ") : ""),
     goals: Array.isArray(p?.goals) ? p.goals : [],
@@ -269,11 +269,12 @@ export default function ICPDocument() {
 
                 {/* 2 · Het baasje */}
                 <SectionCard icon={User} title="2 · Het baasje" accent="grape">
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
                     {([["Leeftijd","age"],["Inkomen","income"],["Locatie","location"],["Huishouden","household"]] as const).map(([label, key]) => (
                       <FieldTile key={key} label={label} value={persona.owner[key]} editing={editing} onChange={(v) => patchOwner({ [key]: v } as any)} />
                     ))}
                   </div>
+                  <FieldTile label="Extra info." value={persona.owner.extra} editing={editing} onChange={(v) => patchOwner({ extra: v })} area />
                 </SectionCard>
 
                 {/* 3 · Psychografie */}
