@@ -252,19 +252,6 @@ export default function UnitEconomics() {
 
           {/* ── Results ── */}
           <div className="space-y-4">
-            {/* verdict */}
-            <motion.div variants={fadeUp} initial="hidden" animate="visible" className="rounded-2xl border p-4 flex items-start gap-3"
-              style={{ background: `hsl(var(--${vTone}) / 0.08)`, borderColor: `hsl(var(--${vTone}) / 0.3)` }}>
-              <VIcon className="h-5 w-5 mt-0.5 shrink-0" style={{ color: `hsl(var(--${vTone}))` }} />
-              <div className="min-w-0">
-                <p className="font-semibold text-foreground leading-tight">{vTitle}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {Number.isFinite(m.profit)
-                    ? <>{eur(m.profit)} winst per klant · LTV:CAC {numS(m.ltvCac, 1)}× · marge {pctS(o.cmPct)}</>
-                    : <>Marge {pctS(o.cmPct)} — vul CAC/churn in voor het volledige plaatje</>}
-                </p>
-              </div>
-            </motion.div>
 
             {/* ── PER ORDER ── */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
