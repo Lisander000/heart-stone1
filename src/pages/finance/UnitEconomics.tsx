@@ -138,7 +138,20 @@ export default function UnitEconomics() {
     if (mode === "subscription" && Number.isFinite(m.paybackMonths) && m.paybackMonths > 6) bullets.push({ tone: "warn", text: `Een abonnee is pas na ${numS(m.paybackMonths, 1)} mnd terugverdiend — dat is lang.` });
     if (Number.isFinite(subRatio) && Number.isFinite(singleRatio)) bullets.push({ tone: "ok", text: `${subRatio >= singleRatio ? "Abonnement" : "Eenmalig"} is winstgevender: LTV:CAC ${numS(Math.max(subRatio, singleRatio), 1)}× vs ${numS(Math.min(subRatio, singleRatio), 1)}×.` });
 
-    return { levers, leverMax, maxCac3, breakEvenCac, maxDiscount, maxReturns, maxChurn, minOrders, singleLtv, subLtv, singleRatio, subRatio, bullets };
+    // net margin: before vs after ad spend (CAC)
+    const lifetimeRevenue = mode === "subscription"
+      ? (subLife === Infinity ? Infinity : o.netRevenue * subLife * subDeliv)
+      : o.netRevenue * i.ordersPerCustomer;
+    const netPerCustomer = m.profit; // LTV − CAC
+    const netPerCustomerPct = lifetimeRevenue === Infinity ? o.cmPct : (lifetimeRevenue > 0 ? netPerCustomer / lifetimeRevenue : 0);
+    const netFirstSale = o.cm - i.cac;
+    const netFirstSalePct = o.netRevenue > 0 ? netFirstSale / o.netRevenue : 0;
+    // max creator payout (as acquisition cost) to keep payback < 3 months (sub) / stay profitable (single)
+    const maxCreator = mode === "subscription" ? 3 * m.mrrCm : o.cm;
+    const priceBase = mode === "subscription" ? i.subPrice : i.price;
+    const maxCreatorPct = priceBase > 0 ? maxCreator / priceBase : 0;
+
+    return { levers, leverMax, maxCac3, breakEvenCac, maxDiscount, maxReturns, maxChurn, minOrders, singleLtv, subLtv, singleRatio, subRatio, bullets, netPerCustomer, netPerCustomerPct, netFirstSale, netFirstSalePct, maxCreator, maxCreatorPct };
   }, [o, i, m, mode]);
 
   // overall verdict
@@ -322,16 +335,32 @@ export default function UnitEconomics() {
               <MiniBar label="CAC" value={i.cac} max={ltvCacMax} color="hsl(var(--muted-foreground))" />
             </motion.div>
 
-            {/* ── GEZONDHEID ── */}
+            {/* ── NETTO MARGE · met vs. zonder ad spend ── */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
-              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Gezondheid</h3>
-              <div className="space-y-2.5">
-                <Health ok={o.cmPct >= 0.35} warn={o.cmPct >= 0.2 && o.cmPct < 0.35} label="Contributiemarge ≥ 35%" actual={pctS(o.cmPct)} />
-                <Health ok={m.ltvCac >= 3} warn={m.ltvCac >= 1.5 && m.ltvCac < 3} label="LTV : CAC ≥ 3×" actual={Number.isFinite(m.ltvCac) ? `${numS(m.ltvCac, 1)}×` : "∞"} />
-                <Health ok={m.profit >= 0} label="Winstgevend per klant" actual={eur(m.profit)} />
-                {mode === "subscription"
-                  ? <Health ok={Number.isFinite(m.paybackMonths) && m.paybackMonths <= 6} warn={Number.isFinite(m.paybackMonths) && m.paybackMonths > 6 && m.paybackMonths <= 12} label="Payback ≤ 6 mnd" actual={Number.isFinite(m.paybackMonths) ? `${numS(m.paybackMonths, 1)} mnd` : "—"} />
-                  : <Health ok={o.grossPct >= 0.6} warn={o.grossPct >= 0.4 && o.grossPct < 0.6} label="Brutomarge ≥ 60%" actual={pctS(o.grossPct)} />}
+              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-4">Netto marge · met vs. zonder ad spend</h3>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-xl p-4" style={{ background: "hsl(var(--ok) / 0.06)" }}>
+                  <p className="text-[11px] font-semibold text-foreground flex items-center gap-1">Zónder ad spend <Tip text="Contributiemarge: wat je per order overhoudt vóór marketing/acquisitie. Dít is de bekende marge (bv. 57%)." /></p>
+                  <p className="text-[10px] text-muted-foreground mb-2">contributiemarge / {perOrderLabel}</p>
+                  <p className="font-num text-2xl font-bold tabular-nums leading-none" style={{ color: "hsl(var(--ok))" }}>{pctS(o.cmPct)}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{eur(o.cm)} / {perOrderLabel}</p>
+                </div>
+                <div className="rounded-xl p-4" style={{ background: `hsl(var(--${ins.netPerCustomer >= 0 ? "info" : "bad"}) / 0.06)` }}>
+                  <p className="text-[11px] font-semibold text-foreground flex items-center gap-1">Mét ad spend <Tip text="Netto marge ná aftrek van de acquisitiekost (CAC), over de hele klant. Dít houd je écht over." /></p>
+                  <p className="text-[10px] text-muted-foreground mb-2">na CAC · over de hele klant</p>
+                  <p className="font-num text-2xl font-bold tabular-nums leading-none" style={{ color: `hsl(var(--${ins.netPerCustomer >= 0 ? "info" : "bad"}))` }}>{pctS(ins.netPerCustomerPct)}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{eur(ins.netPerCustomer)} / klant</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2.5 mt-3">
+                <StatBox label="Netto / 1e sale" value={eur(ins.netFirstSale)} sub={`${pctS(ins.netFirstSalePct)} · na CAC`} info="Contributiemarge van de eerste aankoop mín de volledige CAC — wat een nieuwe klant je meteen netto oplevert." />
+                <StatBox label="Netto / klant (LTV)" value={eur(ins.netPerCustomer)} sub="LTV − CAC" />
+              </div>
+              <div className="mt-3 rounded-xl px-3 py-2.5 flex items-center gap-2" style={{ background: "hsl(var(--grape) / 0.08)" }}>
+                <Megaphone className="h-4 w-4 shrink-0" style={{ color: "hsl(var(--grape))" }} />
+                <p className="text-xs text-foreground leading-snug">
+                  <span className="font-semibold">Creator-budget:</span> max <span className="font-semibold tabular-nums">{pctS(ins.maxCreatorPct)}</span> van de prijs ({eur(ins.maxCreator)}) {mode === "subscription" ? "om payback < 3 mnd te houden" : "en nog winstgevend per sale"}.
+                </p>
               </div>
             </motion.div>
           </div>
