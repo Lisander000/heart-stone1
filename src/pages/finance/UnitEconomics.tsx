@@ -360,7 +360,7 @@ export default function UnitEconomics() {
             <span className="text-xs text-muted-foreground">— automatisch uit je cijfers</span>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Hefbomen */}
             <div className="card-soft p-5">
               <div className="flex items-center gap-2 mb-1"><Gauge className="h-4 w-4 text-muted-foreground" /><h3 className="text-sm font-semibold text-foreground">Grootste hefbomen</h3></div>
@@ -391,19 +391,6 @@ export default function UnitEconomics() {
               </div>
             </div>
 
-            {/* Aanbevelingen */}
-            <div className="card-soft p-5">
-              <div className="flex items-center gap-2 mb-3"><Lightbulb className="h-4 w-4 text-muted-foreground" /><h3 className="text-sm font-semibold text-foreground">Aanbevelingen</h3></div>
-              <ul className="space-y-2.5">
-                {ins.bullets.map((b, bi) => (
-                  <li key={bi} className="flex items-start gap-2 text-xs leading-relaxed">
-                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full shrink-0" style={{ background: `hsl(var(--${b.tone}))` }} />
-                    <span className="text-foreground">{b.text}</span>
-                  </li>
-                ))}
-                {ins.bullets.length === 0 && <li className="text-xs text-muted-foreground">Vul je cijfers in voor aanbevelingen.</li>}
-              </ul>
-            </div>
           </div>
 
           {/* Eenmalig vs abonnement */}
