@@ -694,7 +694,7 @@ function AxisField({
               {axis.title}
             </h4>
             <span
-              className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border"
+              className="inline-flex items-center gap-1.5 text-2xs uppercase tracking-wider px-2 py-0.5 rounded-full border"
               style={{ background: meta.bg, color: meta.text, borderColor: meta.border }}
             >
               <span
@@ -716,6 +716,8 @@ function AxisField({
                 key={s}
                 type="button"
                 onClick={() => updateStatus(s)}
+                aria-label={m.label}
+                aria-pressed={active}
                 className="w-5 h-5 rounded-full border transition-all"
                 style={{
                   background: active ? m.dot : "transparent",
@@ -907,7 +909,7 @@ function CompareView({
                       key={s}
                       onClick={() => toggleAxisStatus(axis.key, s)}
                       title={meta.label}
-                      className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider px-2 py-1 rounded-full border transition-all"
+                      className="inline-flex items-center gap-1 text-2xs uppercase tracking-wider px-2 py-1 rounded-full border transition-all"
                       style={{
                         background: on ? meta.bg : "transparent",
                         color: on ? meta.text : "hsl(var(--muted-foreground))",
@@ -980,7 +982,7 @@ function CompareView({
                       >
                         <div className="flex items-center gap-1.5 mb-2">
                           <span className="w-2 h-2 rounded-full" style={{ background: meta.dot }} />
-                          <span className="text-[10px] uppercase tracking-wider" style={{ color: meta.text }}>
+                          <span className="text-2xs uppercase tracking-wider" style={{ color: meta.text }}>
                             {meta.label}
                           </span>
                         </div>

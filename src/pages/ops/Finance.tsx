@@ -140,7 +140,7 @@ export default function Finance() {
                     </PieChart>
                   </ResponsiveContainer>
                   <div className="absolute inset-0 grid place-items-center pointer-events-none">
-                    <div className="text-center"><p className="font-num text-xl font-bold text-foreground leading-none tabular-nums">{eurC(fin.net)}</p><p className="text-[10px] text-muted-foreground uppercase tracking-wide">omzet</p></div>
+                    <div className="text-center"><p className="font-num text-xl font-bold text-foreground leading-none tabular-nums">{eurC(fin.net)}</p><p className="text-2xs text-muted-foreground uppercase tracking-wide">omzet</p></div>
                   </div>
                 </div>
                 <div className="space-y-1.5 mt-3">

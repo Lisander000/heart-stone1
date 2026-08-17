@@ -145,7 +145,7 @@ function SuperOverview() {
 
         {/* ── Period filter ── */}
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-[11px] uppercase tracking-widest text-muted-foreground mr-1 flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" /> Periode</span>
+          <span className="text-xs uppercase tracking-widest text-muted-foreground mr-1 flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" /> Periode</span>
           {PERIODS.map((p) => (
             <button key={p.id} onClick={() => { setPeriod(p.id); setCustomDate(""); }}
               className={`h-8 px-3 rounded-full text-xs font-medium transition-all ${period === p.id ? "bg-primary text-primary-foreground shadow-sm" : "bg-card border border-border text-muted-foreground hover:text-foreground shadow-xs"}`}>
@@ -157,7 +157,7 @@ function SuperOverview() {
             <input type="date" value={customDate} onChange={(e) => { setCustomDate(e.target.value); setPeriod(e.target.value ? "custom" : "30d"); }}
               className="bg-transparent outline-none cursor-pointer [color-scheme:light] dark:[color-scheme:dark]" style={{ colorScheme: "inherit" }} />
           </label>
-          <span className="text-[11px] text-muted-foreground ml-1">vs {prevLabel}</span>
+          <span className="text-xs text-muted-foreground ml-1">vs {prevLabel}</span>
         </div>
 
         {/* ══════════════ FINANCE ══════════════ */}
@@ -301,10 +301,10 @@ function MemberHome() {
                       </span>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold text-foreground truncate">{item.title}</p>
-                        {count > 0 && <p className="text-[11px] text-muted-foreground">{count} openstaand</p>}
+                        {count > 0 && <p className="text-xs text-muted-foreground">{count} openstaand</p>}
                       </div>
                       {count > 0 && (
-                        <span className="min-w-[20px] h-5 px-1.5 rounded-full inline-flex items-center justify-center text-[11px] font-bold text-white tabular-nums shrink-0" style={{ background: badgeColor }}>{count}</span>
+                        <span className="min-w-[20px] h-5 px-1.5 rounded-full inline-flex items-center justify-center text-xs font-bold text-white tabular-nums shrink-0" style={{ background: badgeColor }}>{count}</span>
                       )}
                       <ArrowUpRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary transition-colors shrink-0" />
                     </Link>
@@ -439,7 +439,7 @@ function DonutCard({ title, subtitle, data, centerValue, centerLabel, to }: {
             <div className="absolute inset-0 grid place-items-center pointer-events-none">
               <div className="text-center">
                 <p className="font-num text-2xl font-bold text-foreground leading-none tabular-nums">{centerValue}</p>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{centerLabel}</p>
+                <p className="text-2xs text-muted-foreground uppercase tracking-wide">{centerLabel}</p>
               </div>
             </div>
           </div>

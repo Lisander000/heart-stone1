@@ -57,7 +57,7 @@ export default function Profile() {
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="flex items-center gap-3">
           <span className="h-11 w-11 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--primary)/0.1)" }}><User className="h-5 w-5 text-primary" /></span>
           <div>
-            <div className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground mb-1">Account</div>
+            <div className="text-2xs uppercase tracking-[0.12em] text-muted-foreground mb-1">Account</div>
             <h1 className="font-display text-3xl font-bold tracking-tight text-primary">Mijn profiel</h1>
           </div>
         </motion.div>
@@ -75,7 +75,7 @@ export default function Profile() {
                 {role && <Pill label={role} tone={roleTone(role)} />}
                 {status && <Pill label={status} tone={statusTone(status)} />}
                 {iAmSuper && (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary bg-primary/10 rounded-full px-2 py-0.5">
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary bg-primary/10 rounded-full px-2 py-0.5">
                     <ShieldCheck className="h-3 w-3" /> Super user
                   </span>
                 )}
@@ -95,8 +95,7 @@ export default function Profile() {
         <button
           onClick={signOut}
           disabled={signingOut}
-          className="h-10 px-4 rounded-full border border-border bg-card text-sm font-medium text-muted-foreground hover:text-bad hover:border-bad/40 inline-flex items-center gap-2 transition-colors disabled:opacity-50"
-        >
+          className="h-10 px-4 rounded-full border border-border bg-card text-sm font-medium text-muted-foreground hover:text-bad hover:border-bad/40 inline-flex items-center gap-2 transition-colors disabled:opacity-50">
           {signingOut ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
           {signingOut ? "Bezig…" : "Uitloggen"}
         </button>
@@ -117,7 +116,7 @@ function Row({ icon: Icon, label, value }: { icon: React.ElementType; label: str
 
 function Pill({ label, tone }: { label: string; tone: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold capitalize"
+    <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold capitalize"
       style={{ background: `hsl(var(--${tone}) / 0.1)`, color: `hsl(var(--${tone}))`, borderColor: `hsl(var(--${tone}) / 0.35)` }}>
       <span className="rounded-full shrink-0" style={{ background: `hsl(var(--${tone}))`, width: 6, height: 6 }} />
       {label.replace(/_/g, " ")}

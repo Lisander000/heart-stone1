@@ -149,7 +149,7 @@ export default function ReturnDetail() {
               <p className="text-sm font-semibold text-bad">Retour afgewezen — case vergrendeld</p>
               <p className="text-xs text-muted-foreground">Er zijn geen acties meer mogelijk. Heropen de case om opnieuw te kunnen werken.</p>
             </div>
-            <button onClick={() => setStatus("requested")} className="h-9 px-4 rounded-lg text-white text-[13px] font-medium flex items-center gap-1.5 shrink-0" style={{ background: "hsl(var(--bad))" }}><RotateCcw className="h-4 w-4" /> Heropenen</button>
+            <button onClick={() => setStatus("requested")} className="h-9 px-4 rounded-lg text-white text-sm font-medium flex items-center gap-1.5 shrink-0" style={{ background: "hsl(var(--bad))" }}><RotateCcw className="h-4 w-4" /> Heropenen</button>
           </motion.div>
         )}
 
@@ -161,11 +161,11 @@ export default function ReturnDetail() {
             <ShieldCheck className="h-4 w-4" style={{ color: iAmOwner ? "hsl(var(--ok))" : otherOwns ? "hsl(var(--ember))" : "hsl(var(--muted-foreground))" }} />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Eigenaar van deze case</p>
+            <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">Eigenaar van deze case</p>
             {owner ? (
               <p className="text-sm text-foreground truncate">
                 <span className="font-semibold">{owner.name}</span>
-                {iAmOwner && <span className="ml-1.5 text-[10px] font-semibold text-ok bg-ok/12 rounded-full px-1.5 py-0.5 align-middle">jij</span>}
+                {iAmOwner && <span className="ml-1.5 text-2xs font-semibold text-ok bg-ok/12 rounded-full px-1.5 py-0.5 align-middle">jij</span>}
                 <span className="text-muted-foreground font-normal"> · {owner.email}</span>
               </p>
             ) : <p className="text-sm text-muted-foreground">Nog niemand behandelt deze case — neem ze op zodat collega's weten dat jij bezig bent.</p>}
@@ -186,7 +186,7 @@ export default function ReturnDetail() {
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-sm font-semibold text-foreground">CS-stappenplan</h2>
-                {method && lastDecided >= 0 && !locked && <button onClick={() => undo(lastDecided)} className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1"><Undo2 className="h-3.5 w-3.5" /> Ongedaan</button>}
+                {method && lastDecided >= 0 && !locked && <button onClick={() => undo(lastDecided)} className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"><Undo2 className="h-3.5 w-3.5" /> Ongedaan</button>}
               </div>
 
               {!method ? (
@@ -198,11 +198,11 @@ export default function ReturnDetail() {
                       const Icon = g.id === "creditcard" ? CreditCard : Wallet;
                       return (
                         <button key={g.id} onClick={() => chooseMethod(g.id)}
-                          className="group text-left rounded-2xl border border-border bg-card p-4 hover:border-primary/40 hover:bg-primary/[0.03] transition-all">
+                          className="press-soft group text-left rounded-2xl border border-border bg-card p-4 hover:border-primary/40 hover:bg-primary/[0.03] transition-all">
                           <span className="h-10 w-10 rounded-xl grid place-items-center bg-primary/10 mb-2.5"><Icon className="h-5 w-5 text-primary" /></span>
                           <p className="text-sm font-semibold text-foreground">{g.label}</p>
                           <p className="text-xs text-muted-foreground mt-0.5">{g.hint}</p>
-                          <span className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity">Stappenplan openen <ArrowRight className="h-3 w-3" /></span>
+                          <span className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity">Stappenplan openen <ArrowRight className="h-3 w-3" /></span>
                         </button>
                       );
                     })}
@@ -214,7 +214,7 @@ export default function ReturnDetail() {
               <div className="flex items-center gap-2 mb-3 rounded-xl border border-border bg-muted/30 px-3 py-2">
                 {method === "creditcard" ? <CreditCard className="h-4 w-4 text-primary shrink-0" /> : <Wallet className="h-4 w-4 text-primary shrink-0" />}
                 <p className="text-xs text-foreground"><span className="font-semibold">{methodLabel(method)}</span><span className="text-muted-foreground"> · stappenplan</span></p>
-                {!locked && <button onClick={changeMethod} className="ml-auto text-[11px] text-muted-foreground hover:text-foreground">wijzig</button>}
+                {!locked && <button onClick={changeMethod} className="ml-auto text-xs text-muted-foreground hover:text-foreground">wijzig</button>}
               </div>
 
               <div className="space-y-2">
@@ -228,13 +228,13 @@ export default function ReturnDetail() {
                     <div key={i} className={`rounded-xl border p-3 transition-colors ${isCurrent ? "border-primary/40 bg-primary/[0.04]" : "border-border bg-card"} ${na ? "opacity-45" : ""}`}>
                       <div className="flex items-start gap-3">
                         <span className="h-6 w-6 rounded-full grid place-items-center shrink-0 mt-0.5" style={{ background: nodeBg, color: nodeFg }}>
-                          {outcome === "accepted" ? <Check className="h-3.5 w-3.5" /> : outcome === "rejected" ? <X className="h-3.5 w-3.5" /> : <span className="text-[11px] font-bold">{i + 1}</span>}
+                          {outcome === "accepted" ? <Check className="h-3.5 w-3.5" /> : outcome === "rejected" ? <X className="h-3.5 w-3.5" /> : <span className="text-xs font-bold">{i + 1}</span>}
                         </span>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <p className={`text-[13px] font-medium ${outcome === "rejected" ? "text-muted-foreground line-through" : "text-foreground"}`}>{s.label}</p>
-                            {outcome === "accepted" && <span className="text-[10px] font-semibold uppercase tracking-wide text-ok bg-ok/12 rounded-full px-1.5 py-0.5">Geaccepteerd</span>}
-                            {outcome === "rejected" && <span className="text-[10px] font-semibold uppercase tracking-wide text-bad bg-bad/12 rounded-full px-1.5 py-0.5">Afgewezen</span>}
+                            <p className={`text-sm font-medium ${outcome === "rejected" ? "text-muted-foreground line-through" : "text-foreground"}`}>{s.label}</p>
+                            {outcome === "accepted" && <span className="text-2xs font-semibold uppercase tracking-wide text-ok bg-ok/12 rounded-full px-1.5 py-0.5">Geaccepteerd</span>}
+                            {outcome === "rejected" && <span className="text-2xs font-semibold uppercase tracking-wide text-bad bg-bad/12 rounded-full px-1.5 py-0.5">Afgewezen</span>}
                           </div>
                           {s.note && !outcome && <p className="text-xs text-muted-foreground mt-0.5">{s.note}</p>}
                         </div>
@@ -252,12 +252,12 @@ export default function ReturnDetail() {
 
               {ls.resolved && (
                 <div className="mt-3 flex items-center gap-2 rounded-xl bg-ok/10 border border-ok/20 px-4 py-2.5">
-                  <Check className="h-4 w-4 text-ok shrink-0" /><p className="text-[13px] font-medium text-foreground">Klant accepteerde stap {(ls.acceptedIdx as number) + 1} ({pct}%) — {pct < 100 ? <>slechts <span className="font-semibold">{eur(expectedPayout, ret.currency ?? "EUR")}</span> terug te betalen.</> : <>volledige terugbetaling van <span className="font-semibold">{eur(expectedPayout, ret.currency ?? "EUR")}</span>.</>}</p>
+                  <Check className="h-4 w-4 text-ok shrink-0" /><p className="text-sm font-medium text-foreground">Klant accepteerde stap {(ls.acceptedIdx as number) + 1} ({pct}%) — {pct < 100 ? <>slechts <span className="font-semibold">{eur(expectedPayout, ret.currency ?? "EUR")}</span> terug te betalen.</> : <>volledige terugbetaling van <span className="font-semibold">{eur(expectedPayout, ret.currency ?? "EUR")}</span>.</>}</p>
                 </div>
               )}
               {!ls.resolved && ls.currentIdx >= steps.length && (
                 <div className="mt-3 flex items-center gap-2 rounded-xl bg-bad/10 border border-bad/20 px-4 py-2.5">
-                  <Ban className="h-4 w-4 text-bad shrink-0" /><p className="text-[13px] font-medium text-foreground">Geen enkel aanbod geaccepteerd — volledige terugbetaling van <span className="font-semibold">{eur(expectedPayout, ret.currency ?? "EUR")}</span> verwerken.</p>
+                  <Ban className="h-4 w-4 text-bad shrink-0" /><p className="text-sm font-medium text-foreground">Geen enkel aanbod geaccepteerd — volledige terugbetaling van <span className="font-semibold">{eur(expectedPayout, ret.currency ?? "EUR")}</span> verwerken.</p>
                 </div>
               )}
               </>
@@ -270,20 +270,20 @@ export default function ReturnDetail() {
               <div className="flex items-start gap-2">
                 <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} placeholder="Wat heb je met de klant besproken of aangeboden?"
                   onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submitNote(); }}
-                  className="flex-1 rounded-xl border border-border bg-muted/40 px-3 py-2 text-[13px] outline-none focus:border-ring/50 focus:bg-card resize-none" />
-                <button onClick={submitNote} disabled={!note.trim()} className="h-9 px-3 rounded-lg bg-primary text-primary-foreground text-sm font-medium disabled:opacity-40 flex items-center gap-1.5"><Send className="h-3.5 w-3.5" /></button>
+                  className="flex-1 rounded-xl border border-border bg-muted/40 px-3 py-2 text-sm outline-none focus:border-ring/50 focus:bg-card resize-none" />
+                <button onClick={submitNote} disabled={!note.trim()} className="h-9 px-3 rounded-lg bg-primary text-primary-foreground text-sm font-medium disabled:opacity-40 flex items-center gap-1.5" aria-label="Versturen"><Send className="h-3.5 w-3.5" /></button>
               </div>
               <div className="mt-4 space-y-3">
                 {notes.length === 0 ? (
                   <p className="text-xs text-muted-foreground text-center py-3">Nog geen notities.</p>
                 ) : notes.map((n) => (
                   <div key={n.at} className="group flex gap-3">
-                    <span className="h-6 w-6 rounded-full bg-primary/10 text-primary grid place-items-center text-[9px] font-bold shrink-0 mt-0.5">{initials(n.byName || "?")}</span>
+                    <span className="h-6 w-6 rounded-full bg-primary/10 text-primary grid place-items-center text-2xs font-bold shrink-0 mt-0.5">{initials(n.byName || "?")}</span>
                     <div className="flex-1 min-w-0 pb-1">
-                      <p className="text-[13px] text-foreground whitespace-pre-wrap">{n.text}</p>
-                      <p className="text-[11px] text-muted-foreground mt-0.5"><span className="font-medium text-foreground/80">{n.byName || "Onbekend"}</span> · {relTime(n.at)}</p>
+                      <p className="text-sm text-foreground whitespace-pre-wrap">{n.text}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5"><span className="font-medium text-foreground/80">{n.byName || "Onbekend"}</span> · {relTime(n.at)}</p>
                     </div>
-                    <button onClick={() => removeNote(id, n.at)} className="opacity-0 group-hover:opacity-100 h-6 w-6 grid place-items-center rounded text-muted-foreground/50 hover:text-bad transition-opacity"><Trash2 className="h-3.5 w-3.5" /></button>
+                    <button onClick={() => removeNote(id, n.at)} className="opacity-0 group-hover:opacity-100 h-6 w-6 grid place-items-center rounded text-muted-foreground/50 hover:text-bad transition-opacity" aria-label="Verwijderen"><Trash2 className="h-3.5 w-3.5" /></button>
                   </div>
                 ))}
               </div>
@@ -291,7 +291,7 @@ export default function ReturnDetail() {
 
             {/* LOG — system audit trail, with author */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
-              <div className="flex items-center gap-2 mb-3"><ClipboardList className="h-4 w-4 text-muted-foreground" /><h2 className="text-sm font-semibold text-foreground">Log</h2><span className="text-[11px] text-muted-foreground">· wie deed wat</span></div>
+              <div className="flex items-center gap-2 mb-3"><ClipboardList className="h-4 w-4 text-muted-foreground" /><h2 className="text-sm font-semibold text-foreground">Log</h2><span className="text-xs text-muted-foreground">· wie deed wat</span></div>
               {log.length === 0 ? (
                 <p className="text-xs text-muted-foreground text-center py-3">Nog geen activiteit. Statuswijzigingen en stapbeslissingen komen hier automatisch in.</p>
               ) : (
@@ -305,8 +305,8 @@ export default function ReturnDetail() {
                         {i < log.length - 1 && <span className="w-px flex-1 bg-border my-1" />}
                       </div>
                       <div className="flex-1 min-w-0 pb-4">
-                        <p className="text-[13px] text-foreground">{l.text}</p>
-                        <p className="text-[11px] text-muted-foreground mt-0.5"><span className="font-medium text-foreground/80">{l.byName || "Onbekend"}</span> · {relTime(l.at)}</p>
+                        <p className="text-sm text-foreground">{l.text}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5"><span className="font-medium text-foreground/80">{l.byName || "Onbekend"}</span> · {relTime(l.at)}</p>
                       </div>
                     </div>
                   ))}
@@ -331,18 +331,18 @@ export default function ReturnDetail() {
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5 space-y-3">
               <h2 className="text-sm font-semibold text-foreground">Details</h2>
               {/* 1. reden */}
-              <Field label="Reden"><input value={ret.reason ?? ""} onChange={(e) => patch({ reason: e.target.value })} placeholder="Verkeerde maat, defect…" className="w-full bg-transparent text-[13px] text-foreground outline-none" /></Field>
+              <Field label="Reden"><input value={ret.reason ?? ""} onChange={(e) => patch({ reason: e.target.value })} placeholder="Verkeerde maat, defect…" className="w-full bg-transparent text-sm text-foreground outline-none" /></Field>
               {/* 2. bedrag */}
-              <Field label="Bedrag"><div className="flex items-center gap-1"><span className="text-muted-foreground text-[13px]">€</span><input type="number" value={ret.refund_amount ?? 0} onChange={(e) => patch({ refund_amount: parseFloat(e.target.value) || 0 })} className="w-full bg-transparent text-[13px] text-foreground outline-none tabular-nums" /></div></Field>
+              <Field label="Bedrag"><div className="flex items-center gap-1"><span className="text-muted-foreground text-sm">€</span><input type="number" value={ret.refund_amount ?? 0} onChange={(e) => patch({ refund_amount: parseFloat(e.target.value) || 0 })} className="w-full bg-transparent text-sm text-foreground outline-none tabular-nums" /></div></Field>
               {/* 3. totaal terugbetaald — only the accepted phase's share */}
               <Field label="Totaal terugbetaald">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-[13px] text-foreground tabular-nums font-semibold">{eur(ret.status === "refunded" ? (meta.refundedTotal ?? 0) : (decided ? expectedPayout : 0), ret.currency ?? "EUR")}</span>
+                  <span className="text-sm text-foreground tabular-nums font-semibold">{eur(ret.status === "refunded" ? (meta.refundedTotal ?? 0) : (decided ? expectedPayout : 0), ret.currency ?? "EUR")}</span>
                   {ret.status === "refunded"
-                    ? <span className="text-[10px] font-semibold text-ok bg-ok/12 rounded-full px-1.5 py-0.5 shrink-0">bevestigd · {meta.refundedPct ?? 100}%</span>
+                    ? <span className="text-2xs font-semibold text-ok bg-ok/12 rounded-full px-1.5 py-0.5 shrink-0">bevestigd · {meta.refundedPct ?? 100}%</span>
                     : decided
-                    ? <span className="text-[10px] font-semibold shrink-0" style={{ color: "hsl(var(--ember))" }}>te betalen · {pct}%</span>
-                    : <span className="text-[10px] text-muted-foreground shrink-0">nog niet bepaald</span>}
+                    ? <span className="text-2xs font-semibold shrink-0" style={{ color: "hsl(var(--ember))" }}>te betalen · {pct}%</span>
+                    : <span className="text-2xs text-muted-foreground shrink-0">nog niet bepaald</span>}
                 </div>
               </Field>
               {/* 4. aanmaakdatum + 5. datum afgerond */}
@@ -380,13 +380,13 @@ function StatusCard({ status, currency, refundedTotal, refundedPct, pendingPayou
     <motion.div variants={fadeUp} initial="hidden" animate="visible" className={`card-soft p-5 ${rejected ? "ring-1 ring-bad/40" : ""}`}>
       <div className="flex items-center justify-between mb-5">
         <h2 className={`text-sm font-semibold ${rejected ? "text-bad" : "text-foreground"}`}>Status</h2>
-        {!rejected && <button onClick={() => onSet("rejected")} className="text-[11px] font-medium text-muted-foreground hover:text-bad flex items-center gap-1"><Ban className="h-3.5 w-3.5" /> Afwijzen</button>}
+        {!rejected && <button onClick={() => onSet("rejected")} className="text-xs font-medium text-muted-foreground hover:text-bad flex items-center gap-1"><Ban className="h-3.5 w-3.5" /> Afwijzen</button>}
       </div>
 
       {rejected ? (
         <div className="flex items-center gap-2.5 rounded-xl bg-bad/10 border border-bad/20 px-4 py-3">
           <span className="h-8 w-8 rounded-full bg-bad grid place-items-center"><Ban className="h-4 w-4 text-white" /></span>
-          <div><p className="text-[13px] font-semibold text-bad">Afgewezen</p><p className="text-xs text-muted-foreground">Het retour is niet toegekend{resolvedAt ? ` · ${fmtDate(resolvedAt)}` : ""}.</p></div>
+          <div><p className="text-sm font-semibold text-bad">Afgewezen</p><p className="text-xs text-muted-foreground">Het retour is niet toegekend{resolvedAt ? ` · ${fmtDate(resolvedAt)}` : ""}.</p></div>
         </div>
       ) : (
         <>
@@ -398,10 +398,10 @@ function StatusCard({ status, currency, refundedTotal, refundedPct, pendingPayou
               return (
                 <div key={st} className="flex-1 flex flex-col items-center relative">
                   {i > 0 && <span className="absolute top-4 right-1/2 w-full h-0.5" style={{ background: i <= idx ? "hsl(var(--ok))" : "hsl(var(--border))" }} />}
-                  <button onClick={() => onSet(st)} className="relative z-10 h-8 w-8 rounded-full grid place-items-center transition-transform hover:scale-105" style={{ background: bg, color: fg }} title={`Zet status op ${FLOW_LABEL[st]}`}>
+                  <button onClick={() => onSet(st)} className="relative z-10 h-8 w-8 rounded-full grid place-items-center transition-transform hover:scale-105" style={{ background: bg, color: fg }} title={`Zet status op ${FLOW_LABEL[st]}`} aria-label="Bevestigen">
                     {done ? <Check className="h-4 w-4" /> : <span className="text-xs font-bold">{i + 1}</span>}
                   </button>
-                  <span className={`text-[11px] mt-1.5 font-medium ${cur ? "text-foreground" : "text-muted-foreground"}`}>{FLOW_LABEL[st]}</span>
+                  <span className={`text-xs mt-1.5 font-medium ${cur ? "text-foreground" : "text-muted-foreground"}`}>{FLOW_LABEL[st]}</span>
                 </div>
               );
             })}
@@ -412,12 +412,12 @@ function StatusCard({ status, currency, refundedTotal, refundedPct, pendingPayou
           {status === "refunded" ? (
             <div className="mt-5 flex items-center gap-2.5 rounded-xl bg-ok/10 border border-ok/20 px-4 py-3">
               <span className="h-8 w-8 rounded-full bg-ok grid place-items-center"><BadgeEuro className="h-4 w-4 text-white" /></span>
-              <div><p className="text-[13px] font-semibold text-foreground">Terugbetaald · {eur(refundedTotal, currency)}{refundedPct < 100 ? ` (${refundedPct}%)` : ""}</p><p className="text-xs text-muted-foreground">Afgerond op {fmtDate(resolvedAt)}.</p></div>
+              <div><p className="text-sm font-semibold text-foreground">Terugbetaald · {eur(refundedTotal, currency)}{refundedPct < 100 ? ` (${refundedPct}%)` : ""}</p><p className="text-xs text-muted-foreground">Afgerond op {fmtDate(resolvedAt)}.</p></div>
             </div>
           ) : showCTA && next ? (
             <div className="mt-5 flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/30 px-4 py-3">
               <p className="text-xs text-muted-foreground">{CTA[next].hint}</p>
-              <button onClick={() => onSet(next)} className="h-9 px-4 rounded-lg bg-primary text-primary-foreground text-[13px] font-medium flex items-center gap-1.5 shrink-0">
+              <button onClick={() => onSet(next)} className="h-9 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium flex items-center gap-1.5 shrink-0" aria-label="Volgende">
                 {(() => { const Icon = CTA[next].icon; return <Icon className="h-4 w-4" />; })()} {CTA[next].label} <ArrowRight className="h-3.5 w-3.5 opacity-70" />
               </button>
             </div>
@@ -431,7 +431,7 @@ function StatusCard({ status, currency, refundedTotal, refundedPct, pendingPayou
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="rounded-xl border border-border bg-muted/30 px-3 py-2">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">{label}</p>
+      <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">{label}</p>
       {children}
     </div>
   );

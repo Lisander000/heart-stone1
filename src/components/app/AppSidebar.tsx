@@ -143,14 +143,14 @@ export function AppSidebar() {
                 strokeWidth={2}
               />
               {badge > 0 && collapsed && (
-                <span className="absolute -top-2 -right-2 min-w-[14px] h-[14px] px-1 rounded-full grid place-items-center text-[9px] font-bold leading-none text-white ring-2 ring-sidebar shadow-sm tabular-nums" style={{ background: accent }}>
+                <span className="absolute -top-2 -right-2 min-w-[14px] h-[14px] px-1 rounded-full grid place-items-center text-2xs font-bold leading-none text-white ring-2 ring-sidebar shadow-sm tabular-nums" style={{ background: accent }}>
                   {badge > 9 ? "9+" : badge}
                 </span>
               )}
             </span>
-            <span className="text-[13px]">{item.title}</span>
+            <span className="text-sm">{item.title}</span>
             {badge > 0 && !collapsed && (
-              <span className="ml-auto min-w-[18px] h-[18px] px-1 rounded-full inline-flex items-center justify-center text-[10px] font-bold leading-none tabular-nums" style={active ? { background: "#fff", color: "hsl(var(--primary))" } : { background: accent, color: "#fff" }}>
+              <span className="ml-auto min-w-[18px] h-[18px] px-1 rounded-full inline-flex items-center justify-center text-2xs font-bold leading-none tabular-nums" style={active ? { background: "#fff", color: "hsl(var(--primary))" } : { background: accent, color: "#fff" }}>
                 {badge}
               </span>
             )}
@@ -195,7 +195,7 @@ export function AppSidebar() {
           if (!group.collapsible) {
             return (
               <SidebarGroup key={group.label} className="py-1">
-                <SidebarGroupLabel className="px-2.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/40">
+                <SidebarGroupLabel className="px-2.5 text-2xs font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/40">
                   {group.label}
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
@@ -216,7 +216,7 @@ export function AppSidebar() {
               >
                 <SidebarGroupLabel
                   asChild
-                  className="px-2.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/40"
+                  className="px-2.5 text-2xs font-semibold uppercase tracking-[0.12em] text-sidebar-foreground/40"
                 >
                   <CollapsibleTrigger className="flex w-full items-center rounded-md hover:text-sidebar-foreground/70 transition-colors duration-150">
                     <span className="flex-1 text-left">{group.label}</span>
@@ -252,21 +252,20 @@ export function AppSidebar() {
               className={`group/user flex items-center gap-2.5 w-full rounded-xl p-2
                 border border-transparent bg-sidebar-accent/50 hover:bg-sidebar-accent transition-colors duration-150
                 outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring text-left
-                ${collapsed ? "justify-center bg-transparent" : ""}`}
-            >
+                ${collapsed ? "justify-center bg-transparent" : ""}`}>
               <Avatar className="h-8 w-8 shrink-0 rounded-full ring-2 ring-card shadow-sm">
                 {avatarUrl && <AvatarImage src={avatarUrl} alt={fullName || email} />}
-                <AvatarFallback className="bg-primary text-primary-foreground text-[11px] font-bold">
+                <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
                   {initials}
                 </AvatarFallback>
               </Avatar>
               {!collapsed && (
                 <>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-semibold text-sidebar-foreground truncate leading-tight">
+                    <p className="text-sm font-semibold text-sidebar-foreground truncate leading-tight">
                       {fullName || email.split("@")[0]}
                     </p>
-                    <p className="text-[11px] text-muted-foreground truncate leading-tight flex items-center gap-1">
+                    <p className="text-xs text-muted-foreground truncate leading-tight flex items-center gap-1">
                       <span className="dot" style={{ background: "hsl(var(--ok))", width: 6, height: 6 }} /> Online
                     </p>
                   </div>
@@ -285,7 +284,7 @@ export function AppSidebar() {
               </Avatar>
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-foreground truncate">{fullName || email.split("@")[0]}</p>
-                <p className="text-[11px] text-muted-foreground truncate">{email}</p>
+                <p className="text-xs text-muted-foreground truncate">{email}</p>
               </div>
             </div>
             <DropdownMenuSeparator />

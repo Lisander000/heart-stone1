@@ -154,6 +154,76 @@
   .font-brand   { font-family: 'Fraunces', Georgia, serif; font-variation-settings: "SOFT" 50, "WONK" 1; }
 
   a, button, [role="button"] { @apply transition-colors duration-150; }
+
+  /*
+    Indrukfeedback.
+
+    Een knop hoort te reageren op het moment dat je hem indrukt, niet pas bij
+    loslaten — en niet alleen op hover, want hover bestaat niet op touch.
+
+    `scale` staat hier als losse eigenschap en niet als `transform: scale()`.
+    Dat is bewust: zo blijven bestaande transform-utilities (hover:translate-x,
+    hover:scale-105) gewoon werken in plaats van overschreven te worden.
+  */
+  button, [role="button"] {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, scale;
+    transition-duration: 150ms;
+  }
+
+  button:not(:disabled):not([aria-disabled="true"]):active,
+  [role="button"]:not([aria-disabled="true"]):active {
+    scale: 0.97;
+    transition-duration: 100ms;
+    transition-timing-function: ease-out;
+  }
+
+  /* Blok-achtige knoppen (volle breedte, kaartformaat) veren subtieler in:
+     dezelfde 3% leest op een groot vlak als wegzakken. */
+  .press-soft:not(:disabled):active { scale: 0.995; }
+
+  /* Ontsnappingsluik voor elementen die niet horen te bewegen. */
+  .press-none:active { scale: 1; }
+
+  @media (prefers-reduced-motion: reduce) {
+    button:active, [role="button"]:active, .press-soft:active { scale: 1; }
+  }
+}
+
+/* ── Toegankelijkheidsvoorkeuren ──────────────────────────────────────────
+   Framer-motion wordt afgehandeld door <MotionConfig reducedMotion="user">
+   in App.tsx. Deze regels vangen af wat daarbuiten valt: animate-pulse, de
+   indeterminate-loop uit tailwind.config.ts, Radix' animate-in/out en gewone
+   CSS-transities.
+   ───────────────────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  html { scroll-behavior: auto !important; }
+}
+
+/* Minder transparantie: glas wordt matglas. */
+@media (prefers-reduced-transparency: reduce) {
+  [class*="backdrop-blur"] {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+/* Hoog contrast: geen doorschijnende vlakken, duidelijke randen. */
+@media (prefers-contrast: more) {
+  [class*="backdrop-blur"] {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  :root { --border: 220 13% 40%; }
 }
 
 /* ── Utilities ───────────────────────────────────────────────────────────── */

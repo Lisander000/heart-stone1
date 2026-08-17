@@ -371,8 +371,7 @@ export default function Offers() {
             <button
               onClick={runAnalysis}
               disabled={analyzing || offers.length < 2 || selectedCompare.size < 2}
-              className="h-9 px-4 rounded-xl border border-border bg-card text-sm font-medium flex items-center gap-2 hover:bg-muted disabled:opacity-40 transition-all"
-            >
+              className="h-9 px-4 rounded-xl border border-border bg-card text-sm font-medium flex items-center gap-2 hover:bg-muted disabled:opacity-40 transition-all">
               {analyzing ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
               {analyzing ? "Analyseren…" : "Analyseer met AI"}
             </button>
@@ -408,7 +407,7 @@ export default function Offers() {
           <Tabs defaultValue="cards" className="w-full">
             {/* Price-point test folders */}
             <div className="flex items-center gap-2 flex-wrap mb-5">
-              <span className="text-[11px] uppercase tracking-widest text-muted-foreground mr-1">Mappen</span>
+              <span className="text-xs uppercase tracking-widest text-muted-foreground mr-1">Mappen</span>
               <button onClick={() => setActiveFolder(null)}
                 className={`h-8 px-3 rounded-full text-xs font-medium transition-all ${!activeFolder ? "bg-primary text-primary-foreground shadow-sm" : "bg-card border border-border text-muted-foreground hover:text-foreground"}`}>
                 Alle offers <span className="tabular-nums opacity-70">{offers.length}</span>
@@ -419,7 +418,7 @@ export default function Offers() {
                     {f.name} <span className="tabular-nums opacity-70">{f.offerIds.length}</span>
                   </button>
                   <button onClick={() => { saveFolders(folders.filter((x) => x.id !== f.id)); if (activeFolder === f.id) setActiveFolder(null); }}
-                    className="h-4 w-4 grid place-items-center rounded-full hover:bg-black/10" title="Map verwijderen"><X size={11} /></button>
+                    className="h-4 w-4 grid place-items-center rounded-full hover:bg-black/10" title="Map verwijderen" aria-label="Map verwijderen"><X size={11} /></button>
                 </span>
               ))}
               <button onClick={createFolder}
@@ -480,7 +479,7 @@ export default function Offers() {
                     <span>{o.name}</span>
                     {o.is_own && (
                       <span
-                        className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded"
+                        className="text-2xs uppercase tracking-wider px-1.5 py-0.5 rounded"
                         style={{ background: SUN, color: "hsl(var(--foreground))" }}
                       >
                         eigen
@@ -502,7 +501,7 @@ export default function Offers() {
                     </h3>
                   </div>
                   <p className="text-sm whitespace-pre-wrap leading-relaxed">{comparison.summary}</p>
-                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground mt-4">
+                  <p className="text-2xs uppercase tracking-widest text-muted-foreground mt-4">
                     Laatste analyse: {new Date(comparison.created_at).toLocaleString("nl-BE")}
                   </p>
                 </div>
@@ -588,7 +587,7 @@ function OfferCard({
                 {offer.name}
               </h3>
               {offer.is_own && (
-                <Badge style={{ background: SUN, color: "hsl(var(--foreground))" }} className="text-[10px] uppercase tracking-wider">
+                <Badge style={{ background: SUN, color: "hsl(var(--foreground))" }} className="text-2xs uppercase tracking-wider">
                   <Star size={10} className="mr-1" /> Eigen
                 </Badge>
               )}
@@ -607,7 +606,7 @@ function OfferCard({
         {pos && (
           <div className="flex items-center gap-2 flex-wrap">
             <span
-              className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full"
+              className="text-2xs uppercase tracking-wider px-2 py-0.5 rounded-full"
               style={{ background: pos.bg, color: pos.text }}
             >
               {pos.label}
@@ -618,7 +617,7 @@ function OfferCard({
               </span>
             )}
             {isStale && (
-              <span className="text-[10px] uppercase tracking-wider text-amber-700">
+              <span className="text-2xs uppercase tracking-wider text-amber-700">
                 verouderd
               </span>
             )}
@@ -631,7 +630,7 @@ function OfferCard({
 
         <div className="text-xs space-y-1.5 pt-2 border-t" style={{ borderColor: "hsl(var(--border))" }}>
           <div className="flex items-center gap-1.5 mb-0.5">
-            <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={sub ? { background: "hsl(var(--ok) / 0.15)", color: "hsl(var(--ok))" } : { background: "hsl(var(--muted))", color: "hsl(var(--muted-foreground))" }}>{sub ? "Abonnement" : "Single buy"}</span>
+            <span className="text-2xs uppercase tracking-wider px-1.5 py-0.5 rounded-full" style={sub ? { background: "hsl(var(--ok) / 0.15)", color: "hsl(var(--ok))" } : { background: "hsl(var(--muted))", color: "hsl(var(--muted-foreground))" }}>{sub ? "Abonnement" : "Single buy"}</span>
           </div>
           {dp > 0 ? (
             <div className="flex items-center justify-between"><span className="text-muted-foreground">Prijs / dag</span><span className="font-semibold" style={{ color: EMBER }}>{perDayFmt(dp, offer.currency)}</span></div>
@@ -655,7 +654,7 @@ function OfferCard({
               {pricing.bundleDiscount ? <div className="flex items-center justify-between text-muted-foreground"><span>Met bundelkorting ({pricing.bundleDiscount}%)</span><span className="tabular-nums">{perDayFmt(singleDayPriceBundle(pricing), offer.currency)}</span></div> : null}
             </>
           )}
-          <div className="text-[11px] text-muted-foreground pt-0.5">{pricing.gramsPerUnit != null ? `${pricing.gramsPerUnit} g/stuk` : "—"} · {pricing.perDay != null ? `${pricing.perDay}/dag` : "—"}</div>
+          <div className="text-xs text-muted-foreground pt-0.5">{pricing.gramsPerUnit != null ? `${pricing.gramsPerUnit} g/stuk` : "—"} · {pricing.perDay != null ? `${pricing.perDay}/dag` : "—"}</div>
         </div>
 
         <div className="mt-auto flex items-center gap-2 pt-3">
@@ -732,12 +731,12 @@ function CompareMatrix({
                 <div className="flex items-center gap-1.5">
                   {o.name}
                   {o.is_own && (
-                    <span className="text-[9px] uppercase tracking-wider px-1 rounded" style={{ background: SUN, color: "hsl(var(--foreground))" }}>
+                    <span className="text-2xs uppercase tracking-wider px-1 rounded" style={{ background: SUN, color: "hsl(var(--foreground))" }}>
                       eigen
                     </span>
                   )}
                 </div>
-                <div className="text-[10px] text-muted-foreground font-normal font-sans">
+                <div className="text-2xs text-muted-foreground font-normal font-sans">
                   {o.brand_name}
                 </div>
               </th>
@@ -892,7 +891,7 @@ function OfferDialog({
               <div className="flex gap-0.5 p-0.5 rounded-lg" style={{ background: "hsl(var(--muted))" }}>
                 {([["Single buy", "single"], ["Abonnement", "subscription"]] as const).map(([lbl, val]) => (
                   <button key={val} type="button" onClick={() => setP({ model: val })}
-                    className={`h-7 px-3 rounded-md text-[11px] font-semibold transition-colors ${model === val ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}>{lbl}</button>
+                    className={`h-7 px-3 rounded-md text-xs font-semibold transition-colors ${model === val ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}>{lbl}</button>
                 ))}
               </div>
             </div>
@@ -926,7 +925,7 @@ function OfferDialog({
                     <div key={t.key} className="space-y-1.5">
                       <Label>Prijs {t.label} ({cur})</Label>
                       <Input type="number" step="0.01" value={(pricing as any)[t.key] ?? ""} placeholder="prijs" onChange={numP(t.key)} />
-                      <p className="text-[11px] h-4" style={{ color: EMBER }}>{(pricing as any)[t.key] ? perDayFmt(tierDayPrice((pricing as any)[t.key], t.days), cur) : ""}</p>
+                      <p className="text-xs h-4" style={{ color: EMBER }}>{(pricing as any)[t.key] ? perDayFmt(tierDayPrice((pricing as any)[t.key], t.days), cur) : ""}</p>
                     </div>
                   ))}
                 </div>

@@ -142,7 +142,7 @@ export default function UgcDashboard() {
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-3 pt-3 border-t border-border/60">Elke balk toont het aantal creators in die stap · % van de volledige database.</p>
+          <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border/60">Elke balk toont het aantal creators in die stap · % van de volledige database.</p>
         </ChartCard>
         <DonutCard title="Collab-status" subtitle="Verdeling van de collabs" data={statusDonut} centerValue={String(approval.length)} centerLabel="collabs" empty="collabs" />
       </div>
@@ -195,14 +195,14 @@ export default function UgcDashboard() {
           <div className="space-y-1.5">
             {topCreators.map(({ r, t }, i) => (
               <div key={(r.id ?? r.name ?? i) + ""} className="flex items-center gap-3 rounded-xl border border-border bg-card px-3 py-2">
-                <span className="h-7 w-7 rounded-full grid place-items-center text-[10px] font-bold shrink-0" style={{ background: r.status === "top performer" ? "hsl(var(--info) / 0.14)" : "hsl(var(--ok) / 0.12)", color: r.status === "top performer" ? tone("info") : tone("ok") }}>{i + 1}</span>
+                <span className="h-7 w-7 rounded-full grid place-items-center text-2xs font-bold shrink-0" style={{ background: r.status === "top performer" ? "hsl(var(--info) / 0.14)" : "hsl(var(--ok) / 0.12)", color: r.status === "top performer" ? tone("info") : tone("ok") }}>{i + 1}</span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-medium text-foreground truncate">{norm(r.name) || "—"}</p>
-                  <p className="text-[11px] text-muted-foreground truncate">{[t && norm(t.size), t && norm(t.content_style), norm(r.tier)].filter(Boolean).join(" · ") || "—"}</p>
+                  <p className="text-sm font-medium text-foreground truncate">{norm(r.name) || "—"}</p>
+                  <p className="text-xs text-muted-foreground truncate">{[t && norm(t.size), t && norm(t.content_style), norm(r.tier)].filter(Boolean).join(" · ") || "—"}</p>
                 </div>
-                {norm(r.instagram) && <span className="text-[11px] text-muted-foreground inline-flex items-center gap-1 shrink-0"><Instagram className="h-3 w-3" />{norm(r.instagram)}</span>}
-                {norm(r.deliverable_type) && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full border capitalize shrink-0" style={{ background: "hsl(var(--info) / 0.1)", color: tone("info"), borderColor: "hsl(var(--info) / 0.35)" }}>{norm(r.deliverable_type)}</span>}
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0" style={r.status === "top performer" ? { background: "hsl(var(--info) / 0.14)", color: tone("info") } : { background: "hsl(var(--ok) / 0.12)", color: tone("ok") }}>{r.status === "top performer" ? "top" : "actief"}</span>
+                {norm(r.instagram) && <span className="text-xs text-muted-foreground inline-flex items-center gap-1 shrink-0"><Instagram className="h-3 w-3" />{norm(r.instagram)}</span>}
+                {norm(r.deliverable_type) && <span className="text-2xs font-semibold px-2 py-0.5 rounded-full border capitalize shrink-0" style={{ background: "hsl(var(--info) / 0.1)", color: tone("info"), borderColor: "hsl(var(--info) / 0.35)" }}>{norm(r.deliverable_type)}</span>}
+                <span className="text-2xs font-semibold px-2 py-0.5 rounded-full shrink-0" style={r.status === "top performer" ? { background: "hsl(var(--info) / 0.14)", color: tone("info") } : { background: "hsl(var(--ok) / 0.12)", color: tone("ok") }}>{r.status === "top performer" ? "top" : "actief"}</span>
               </div>
             ))}
           </div>
@@ -260,7 +260,7 @@ function DonutCard({ title, subtitle, data, centerValue, centerLabel, empty }: {
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 grid place-items-center pointer-events-none">
-              <div className="text-center"><p className="font-num text-2xl font-bold text-foreground leading-none tabular-nums">{centerValue}</p><p className="text-[10px] text-muted-foreground uppercase tracking-wide">{centerLabel}</p></div>
+              <div className="text-center"><p className="font-num text-2xl font-bold text-foreground leading-none tabular-nums">{centerValue}</p><p className="text-2xs text-muted-foreground uppercase tracking-wide">{centerLabel}</p></div>
             </div>
           </div>
           <div className="space-y-1.5 mt-3">

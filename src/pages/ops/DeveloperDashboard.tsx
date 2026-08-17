@@ -72,7 +72,7 @@ export default function DeveloperDashboard() {
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-ok" />
               <h2 className="text-sm font-semibold text-foreground">Super users</h2>
-              <span className="ml-auto text-[11px] font-medium text-muted-foreground tabular-nums">{supers.length}</span>
+              <span className="ml-auto text-xs font-medium text-muted-foreground tabular-nums">{supers.length}</span>
             </div>
             <p className="text-xs text-muted-foreground -mt-1.5">Super users kunnen beschermde instellingen aanpassen en dit dashboard openen.</p>
             <div className="space-y-1.5">
@@ -80,10 +80,10 @@ export default function DeveloperDashboard() {
                 const me = !!myEmail && e.toLowerCase() === myEmail.toLowerCase();
                 return (
                   <div key={e} className="flex items-center gap-2.5 rounded-xl border border-border bg-card px-2.5 py-2">
-                    <span className="h-7 w-7 rounded-full bg-ok/12 text-ok grid place-items-center text-[10px] font-bold shrink-0">{initials(e)}</span>
-                    <span className="text-[13px] text-foreground truncate">{e}</span>
-                    {me && <span className="text-[10px] font-semibold text-ok bg-ok/12 rounded-full px-1.5 py-0.5 shrink-0">jij</span>}
-                    <button onClick={() => removeSuper(e)} title="Super user verwijderen" className="ml-auto h-7 w-7 grid place-items-center rounded-lg text-muted-foreground/60 hover:!text-bad hover:bg-bad/8 transition-colors shrink-0"><Trash2 className="h-3.5 w-3.5" /></button>
+                    <span className="h-7 w-7 rounded-full bg-ok/12 text-ok grid place-items-center text-2xs font-bold shrink-0">{initials(e)}</span>
+                    <span className="text-sm text-foreground truncate">{e}</span>
+                    {me && <span className="text-2xs font-semibold text-ok bg-ok/12 rounded-full px-1.5 py-0.5 shrink-0">jij</span>}
+                    <button onClick={() => removeSuper(e)} title="Super user verwijderen" className="ml-auto h-7 w-7 grid place-items-center rounded-lg text-muted-foreground/60 hover:!text-bad hover:bg-bad/8 transition-colors shrink-0" aria-label="Super user verwijderen"><Trash2 className="h-3.5 w-3.5" /></button>
                   </div>
                 );
               })}
@@ -99,7 +99,7 @@ export default function DeveloperDashboard() {
             <div className="flex items-center gap-2">
               <UsersRound className="h-4 w-4 text-primary" />
               <h2 className="text-sm font-semibold text-foreground">Gebruiker toevoegen</h2>
-              <Link to="/team" className="ml-auto text-[11px] font-medium text-primary hover:underline inline-flex items-center gap-0.5">Volledig teambeheer <ArrowRight className="h-3 w-3" /></Link>
+              <Link to="/team" className="ml-auto text-xs font-medium text-primary hover:underline inline-flex items-center gap-0.5">Volledig teambeheer <ArrowRight className="h-3 w-3" /></Link>
             </div>
             <p className="text-xs text-muted-foreground -mt-1.5">Voeg een nieuw teamlid toe. Rollen aanpassen en verwijderen doe je op de Team-pagina.</p>
             <div className="space-y-2.5">
@@ -115,7 +115,7 @@ export default function DeveloperDashboard() {
                 <label className="text-xs font-medium text-muted-foreground">Rol</label>
                 <select value={role} onChange={(e) => setRole(e.target.value)} className={`${IN} capitalize`}>{ROLES.map((r) => <option key={r} value={r}>{r}</option>)}</select>
               </div>
-              <button onClick={addMember} disabled={adding || !nm.trim()} className="h-9 w-full px-4 rounded-full bg-primary text-primary-foreground text-sm font-medium disabled:opacity-40 flex items-center justify-center gap-1.5 shadow-sm hover:shadow-md transition-all"><Plus className="h-4 w-4" /> Teamlid toevoegen</button>
+              <button onClick={addMember} disabled={adding || !nm.trim()} className="press-soft h-9 w-full px-4 rounded-full bg-primary text-primary-foreground text-sm font-medium disabled:opacity-40 flex items-center justify-center gap-1.5 shadow-sm hover:shadow-md transition-all"><Plus className="h-4 w-4" /> Teamlid toevoegen</button>
             </div>
           </motion.div>
 

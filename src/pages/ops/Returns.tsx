@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { fadeUp, stagger } from "@/lib/motion";
 import { Plus, RefreshCw, Trash2, RotateCcw, Check, Settings2, X, ChevronRight } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ResponsiveDialog } from "@/components/ui/responsive-dialog";
 import { ConfirmDelete } from "@/components/ConfirmDelete";
 import { useIsSuperUser, SUPERUSER_BLOCK } from "@/lib/superuser";
 import { useAllStepPlans, saveSteps, useAllOutcomes, useAllOwners, useAllReturnMethods, ladderState, methodLabel, METHOD_GROUPS, type ReturnStep, type MethodGroup } from "@/lib/returnsSteps";
@@ -20,7 +21,7 @@ const statusTone = (s: string) => s === "refunded" ? "ok" : s === "rejected" ? "
 const eur = (v: number, c = "EUR") => new Intl.NumberFormat("nl-BE", { style: "currency", currency: c || "EUR" }).format(v || 0);
 const initials = (name: string) => name.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase()).join("") || "?";
 // shared status/phase pill — bordered "button" look, tone via a design token
-const pillCls = "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold";
+const pillCls = "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold";
 const pillStyle = (token: string) => ({ background: `hsl(var(--${token}) / 0.1)`, color: `hsl(var(--${token}))`, borderColor: `hsl(var(--${token}) / 0.35)`, boxShadow: `0 1px 1.5px hsl(var(--${token}) / 0.08)` });
 
 async function detect(table: string): Promise<"supabase" | "local"> {
@@ -110,10 +111,10 @@ export default function Returns() {
               ))}
             </div>
             {tab === "returns" && (<>
-              <button onClick={load} className="h-9 w-9 grid place-items-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground shadow-xs transition-colors"><RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} /></button>
+              <button onClick={load} className="h-9 w-9 grid place-items-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground shadow-xs transition-colors" aria-label="Vernieuwen"><RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} /></button>
               <button onClick={openPlan} title={iAmSuper ? "Stappenplan bewerken" : SUPERUSER_BLOCK}
                 className="h-9 px-3.5 rounded-full border border-border bg-card text-sm font-medium text-muted-foreground hover:text-foreground shadow-xs flex items-center gap-1.5 transition-colors">
-                <Settings2 className="h-3.5 w-3.5" /> Stappenplan {!iAmSuper && <span className="text-[10px] opacity-60">🔒</span>}
+                <Settings2 className="h-3.5 w-3.5" /> Stappenplan {!iAmSuper && <span className="text-2xs opacity-60">🔒</span>}
               </button>
               <button onClick={() => setAddOpen(true)} className="h-9 px-4 rounded-full bg-primary text-primary-foreground text-sm font-medium flex items-center gap-1.5 shadow-sm hover:shadow-md transition-all"><Plus className="h-4 w-4" /> Nieuw retour</button>
             </>)}
@@ -137,7 +138,7 @@ export default function Returns() {
           <div className="overflow-x-auto">
             <div className="w-max min-w-full">
               <div className="grid bg-muted border-b border-border" style={{ gridTemplateColumns: GRID }}>
-                {["Order", "Reden", "Status", "Fase", "Eigenaar", "Refund", ""].map((h, i) => <div key={i} className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{h}</div>)}
+                {["Order", "Reden", "Status", "Fase", "Eigenaar", "Refund", ""].map((h, i) => <div key={i} className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{h}</div>)}
               </div>
 
               {loading ? (
@@ -163,10 +164,10 @@ export default function Returns() {
                     return (
                       <motion.div key={r.id} variants={fadeUp} onClick={() => navigate(`/returns/${r.id}`)}
                         className="group grid items-center hover:bg-muted/40 transition-colors cursor-pointer" style={{ gridTemplateColumns: GRID }}>
-                        <div className="px-4 py-3 text-[13px] font-medium text-foreground break-words">{o?.order_number || "—"}</div>
-                        <div className="px-4 py-3 text-[13px] text-muted-foreground break-words">{r.reason || "—"}</div>
+                        <div className="px-4 py-3 text-sm font-medium text-foreground break-words">{o?.order_number || "—"}</div>
+                        <div className="px-4 py-3 text-sm text-muted-foreground break-words">{r.reason || "—"}</div>
                         <div className="px-4 py-3">
-                          <span className="inline-flex items-center gap-1.5 rounded-full border pl-2 pr-2.5 py-1 text-[11px] font-semibold capitalize" style={{ background: `hsl(var(--${tone}) / 0.1)`, color: c, borderColor: `hsl(var(--${tone}) / 0.35)`, boxShadow: `0 1px 1.5px hsl(var(--${tone}) / 0.08)` }}><span className="dot" style={{ background: c, width: 6, height: 6 }} />{r.status}</span>
+                          <span className="inline-flex items-center gap-1.5 rounded-full border pl-2 pr-2.5 py-1 text-xs font-semibold capitalize" style={{ background: `hsl(var(--${tone}) / 0.1)`, color: c, borderColor: `hsl(var(--${tone}) / 0.35)`, boxShadow: `0 1px 1.5px hsl(var(--${tone}) / 0.08)` }}><span className="dot" style={{ background: c, width: 6, height: 6 }} />{r.status}</span>
                         </div>
                         <div className="px-4 py-3 whitespace-nowrap">
                           {!g
@@ -180,18 +181,18 @@ export default function Returns() {
                         <div className="px-4 py-3 min-w-0">
                           {owner ? (
                             <span className="inline-flex items-center gap-1.5 min-w-0 max-w-full rounded-full border border-border bg-card pl-1 pr-2.5 py-0.5 shadow-[0_1px_1.5px_rgba(0,0,0,0.04)]" title={owner.email}>
-                              <span className="h-5 w-5 rounded-full bg-primary/10 text-primary grid place-items-center text-[9px] font-bold shrink-0">{initials(owner.name)}</span>
-                              <span className="text-[12px] font-medium text-foreground break-words">{owner.name}</span>
+                              <span className="h-5 w-5 rounded-full bg-primary/10 text-primary grid place-items-center text-2xs font-bold shrink-0">{initials(owner.name)}</span>
+                              <span className="text-xs font-medium text-foreground break-words">{owner.name}</span>
                             </span>
                           ) : needsPickup ? (
-                            <span className="inline-flex items-center gap-1.5 rounded-full border pl-2 pr-2.5 py-1 text-[11px] font-semibold" style={{ background: "hsl(var(--ember) / 0.1)", color: "hsl(var(--ember))", borderColor: "hsl(var(--ember) / 0.35)", boxShadow: "0 1px 1.5px hsl(var(--ember) / 0.08)" }}>
+                            <span className="inline-flex items-center gap-1.5 rounded-full border pl-2 pr-2.5 py-1 text-xs font-semibold" style={{ background: "hsl(var(--ember) / 0.1)", color: "hsl(var(--ember))", borderColor: "hsl(var(--ember) / 0.35)", boxShadow: "0 1px 1.5px hsl(var(--ember) / 0.08)" }}>
                               <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ background: "hsl(var(--ember))" }} /> Nog op te nemen
                             </span>
-                          ) : <span className="text-[12px] text-muted-foreground/50">—</span>}
+                          ) : <span className="text-xs text-muted-foreground/50">—</span>}
                         </div>
-                        <div className="px-4 py-3 text-[13px] text-foreground tabular-nums">{r.refund_amount ? eur(r.refund_amount, r.currency || "EUR") : "—"}</div>
+                        <div className="px-4 py-3 text-sm text-foreground tabular-nums">{r.refund_amount ? eur(r.refund_amount, r.currency || "EUR") : "—"}</div>
                         <div className="px-2 flex items-center justify-end gap-0.5">
-                          <button onClick={(e) => { e.stopPropagation(); setDeleteId(r.id); }} className="h-7 w-7 grid place-items-center rounded-lg text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-bad transition-colors"><Trash2 className="h-4 w-4" /></button>
+                          <button onClick={(e) => { e.stopPropagation(); setDeleteId(r.id); }} className="h-7 w-7 grid place-items-center rounded-lg text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-bad transition-colors" aria-label="Verwijderen"><Trash2 className="h-4 w-4" /></button>
                           <ChevronRight className="h-4 w-4 text-muted-foreground/30 group-hover:text-primary transition-colors" />
                         </div>
                       </motion.div>
@@ -219,9 +220,7 @@ function AddReturnDialog({ open, onOpenChange, orders, onAdd }: { open: boolean;
   useEffect(() => { if (open) { setOrderId(""); setReason(""); setStatus("requested"); setRefund(""); } }, [open]);
   const IN = "mt-1 h-9 w-full rounded-lg border border-border bg-card px-3 text-sm outline-none focus:border-ring/50";
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader><DialogTitle className="font-display text-lg">Nieuw retour</DialogTitle></DialogHeader>
+    <ResponsiveDialog open={open} onOpenChange={onOpenChange} title="Nieuw retour">
         <div className="space-y-3">
           <div><label className="text-xs font-medium text-muted-foreground">Order</label>
             <select value={orderId} onChange={(e) => setOrderId(e.target.value)} className={IN}>
@@ -239,8 +238,7 @@ function AddReturnDialog({ open, onOpenChange, orders, onAdd }: { open: boolean;
           <button onClick={() => onOpenChange(false)} className="h-9 px-4 rounded-full border border-border bg-card text-sm font-medium text-muted-foreground hover:text-foreground">Annuleer</button>
           <button onClick={() => onAdd({ order_id: orderId, reason, status, refund_amount: parseFloat(refund) || 0 })} className="h-9 px-4 rounded-full bg-primary text-primary-foreground text-sm font-medium flex items-center gap-1.5"><Plus className="h-4 w-4" /> Toevoegen</button>
         </div>
-      </DialogContent>
-    </Dialog>
+    </ResponsiveDialog>
   );
 }
 
@@ -265,7 +263,7 @@ function PlanDialog({ open, onOpenChange, plans, onSave }: { open: boolean; onOp
         <div className="flex gap-1 p-1 rounded-xl bg-muted">
           {METHOD_GROUPS.map((mg) => (
             <button key={mg.id} onClick={() => setGroup(mg.id)}
-              className={`flex-1 h-9 rounded-lg text-[13px] font-medium transition-colors ${group === mg.id ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
+              className={`flex-1 h-9 rounded-lg text-sm font-medium transition-colors ${group === mg.id ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
               {mg.label}
             </button>
           ))}
@@ -278,12 +276,12 @@ function PlanDialog({ open, onOpenChange, plans, onSave }: { open: boolean; onOp
                 <input value={s.label} onChange={(e) => set(i, { label: e.target.value })} className={IN} placeholder={`Stap ${i + 1} — bv. 10% korting`} />
                 <input value={s.note} onChange={(e) => set(i, { note: e.target.value })} className={`${IN} text-xs`} placeholder="Toelichting (optioneel)" />
               </div>
-              <button onClick={() => setDrafts((d) => ({ ...d, [group]: d[group].filter((_, j) => j !== i) }))} className="h-7 w-7 grid place-items-center rounded-lg text-muted-foreground/50 hover:text-bad shrink-0"><X className="h-4 w-4" /></button>
+              <button onClick={() => setDrafts((d) => ({ ...d, [group]: d[group].filter((_, j) => j !== i) }))} className="h-7 w-7 grid place-items-center rounded-lg text-muted-foreground/50 hover:text-bad shrink-0" aria-label="Sluiten"><X className="h-4 w-4" /></button>
             </div>
           ))}
-          <button onClick={() => setDrafts((d) => ({ ...d, [group]: [...d[group], { label: "", note: "" }] }))} className="w-full h-10 rounded-xl border-2 border-dashed border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:border-foreground/30 flex items-center justify-center gap-1.5"><Plus className="h-4 w-4" /> Stap toevoegen</button>
+          <button onClick={() => setDrafts((d) => ({ ...d, [group]: [...d[group], { label: "", note: "" }] }))} className="press-soft w-full h-10 rounded-xl border-2 border-dashed border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:border-foreground/30 flex items-center justify-center gap-1.5"><Plus className="h-4 w-4" /> Stap toevoegen</button>
         </div>
-        <p className="text-[11px] text-muted-foreground">Tip: het % in de staptitel (bv. "10% korting") bepaalt automatisch het terugbetaalde bedrag.</p>
+        <p className="text-xs text-muted-foreground">Tip: het % in de staptitel (bv. "10% korting") bepaalt automatisch het terugbetaalde bedrag.</p>
         <div className="flex justify-end gap-2 mt-1">
           <button onClick={() => onOpenChange(false)} className="h-9 px-4 rounded-full border border-border bg-card text-sm font-medium text-muted-foreground hover:text-foreground">Annuleer</button>
           <button onClick={saveAll} className="h-9 px-4 rounded-full bg-primary text-primary-foreground text-sm font-medium flex items-center gap-1.5"><Check className="h-4 w-4" /> Beide opslaan</button>

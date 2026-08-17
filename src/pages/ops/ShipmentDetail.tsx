@@ -179,9 +179,9 @@ export default function ShipmentDetail() {
             <ShieldCheck className="h-4 w-4" style={{ color: iAmOwner ? "hsl(var(--ok))" : otherOwns ? "hsl(var(--ember))" : "hsl(var(--muted-foreground))" }} />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Eigenaar van deze case</p>
+            <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">Eigenaar van deze case</p>
             {owner ? (
-              <p className="text-sm text-foreground truncate"><span className="font-semibold">{owner.name}</span>{iAmOwner && <span className="ml-1.5 text-[10px] font-semibold text-ok bg-ok/12 rounded-full px-1.5 py-0.5 align-middle">jij</span>}<span className="text-muted-foreground font-normal"> · {owner.email}</span></p>
+              <p className="text-sm text-foreground truncate"><span className="font-semibold">{owner.name}</span>{iAmOwner && <span className="ml-1.5 text-2xs font-semibold text-ok bg-ok/12 rounded-full px-1.5 py-0.5 align-middle">jij</span>}<span className="text-muted-foreground font-normal"> · {owner.email}</span></p>
             ) : <p className="text-sm text-muted-foreground">Nog niemand behandelt deze case — neem ze op zodat collega's weten dat jij bezig bent.</p>}
           </div>
           <div className="shrink-0">
@@ -212,23 +212,23 @@ export default function ShipmentDetail() {
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Tracking">
                   {ship.tracking_number ? (
-                    <a href={tUrl ?? "#"} target="_blank" rel="noreferrer" className="text-[13px] text-primary hover:underline inline-flex items-center gap-1 font-mono">{ship.tracking_number}<ExternalLink className="h-3 w-3" /></a>
-                  ) : <input value={ship.tracking_number ?? ""} onChange={(e) => patch({ tracking_number: e.target.value })} placeholder="Trackingnummer" className="w-full bg-transparent text-[13px] outline-none" />}
+                    <a href={tUrl ?? "#"} target="_blank" rel="noreferrer" className="text-sm text-primary hover:underline inline-flex items-center gap-1 font-mono">{ship.tracking_number}<ExternalLink className="h-3 w-3" /></a>
+                  ) : <input value={ship.tracking_number ?? ""} onChange={(e) => patch({ tracking_number: e.target.value })} placeholder="Trackingnummer" className="w-full bg-transparent text-sm outline-none" />}
                 </Field>
-                <Field label="Carrier"><input value={ship.carrier ?? ""} onChange={(e) => patch({ carrier: e.target.value })} placeholder="bpost, DPD…" className="w-full bg-transparent text-[13px] outline-none" /></Field>
+                <Field label="Carrier"><input value={ship.carrier ?? ""} onChange={(e) => patch({ carrier: e.target.value })} placeholder="bpost, DPD…" className="w-full bg-transparent text-sm outline-none" /></Field>
                 <ReadField label="Besteld op" hint="uit de order" value={fmtDate(order?.created_at)} />
                 <ReadField label="Verzonden op" hint="uit tracking" value={fmtDate(ship.shipped_at)} />
                 <ReadField label="Verwachte levering" hint="tracking-schatting" value={fmtDate(expectedDelivery)} />
-                <div className="rounded-xl border border-dashed border-border bg-muted/20 px-3 py-2 grid place-items-center"><p className="text-[11px] text-muted-foreground text-center">Nog niet geleverd<br />(daarom een issue)</p></div>
+                <div className="rounded-xl border border-dashed border-border bg-muted/20 px-3 py-2 grid place-items-center"><p className="text-xs text-muted-foreground text-center">Nog niet geleverd<br />(daarom een issue)</p></div>
               </div>
               {/* status selector below the data */}
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mt-4 mb-2">Trackingstatus</p>
+              <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground mt-4 mb-2">Trackingstatus</p>
               <div className="flex flex-wrap gap-1.5">
                 {SHIP_STATUSES.filter((s) => s.id !== "resolved").map((s) => {
                   const active = ship.status === s.id; const col = toneColor(s.tone);
                   return (
                     <button key={s.id} onClick={() => setStatus(s.id)} title={s.desc}
-                      className="h-8 px-2.5 rounded-lg text-[11px] font-medium border transition-colors"
+                      className="h-8 px-2.5 rounded-lg text-xs font-medium border transition-colors"
                       style={active ? { background: col, color: "#fff", borderColor: col } : { borderColor: "hsl(var(--border))", color: "hsl(var(--muted-foreground))" }}>
                       {s.label}
                     </button>
@@ -253,13 +253,13 @@ export default function ShipmentDetail() {
                       <span className="h-8 w-8 rounded-lg grid place-items-center shrink-0" style={{ background: active ? "hsl(var(--primary))" : s.spoed ? "hsl(var(--ember)/0.15)" : "hsl(var(--muted))", color: active ? "#fff" : s.spoed ? "hsl(var(--ember))" : "hsl(var(--muted-foreground))" }}><Icon className="h-4 w-4" /></span>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <p className="text-[13px] font-medium text-foreground">{s.label}</p>
-                          {s.spoed && <span className="text-[10px] font-bold uppercase tracking-wide rounded-full px-1.5 py-0.5 inline-flex items-center gap-0.5" style={{ background: "hsl(var(--ember)/0.15)", color: "hsl(var(--ember))" }}><Zap className="h-2.5 w-2.5" /> spoed</span>}
-                          {rec && <span className="text-[10px] font-semibold text-ok bg-ok/12 rounded-full px-1.5 py-0.5">aanbevolen voor abonnee</span>}
+                          <p className="text-sm font-medium text-foreground">{s.label}</p>
+                          {s.spoed && <span className="text-2xs font-bold uppercase tracking-wide rounded-full px-1.5 py-0.5 inline-flex items-center gap-0.5" style={{ background: "hsl(var(--ember)/0.15)", color: "hsl(var(--ember))" }}><Zap className="h-2.5 w-2.5" /> spoed</span>}
+                          {rec && <span className="text-2xs font-semibold text-ok bg-ok/12 rounded-full px-1.5 py-0.5">aanbevolen voor abonnee</span>}
                         </div>
                         <p className="text-xs text-muted-foreground mt-0.5">{s.desc}</p>
                       </div>
-                      <span className="text-[13px] font-semibold tabular-nums shrink-0" style={{ color: cost === 0 ? "hsl(var(--ok))" : "hsl(var(--foreground))" }}>{cost === 0 ? "gratis" : `± ${eur(cost, order?.currency ?? "EUR")}`}</span>
+                      <span className="text-sm font-semibold tabular-nums shrink-0" style={{ color: cost === 0 ? "hsl(var(--ok))" : "hsl(var(--foreground))" }}>{cost === 0 ? "gratis" : `± ${eur(cost, order?.currency ?? "EUR")}`}</span>
                     </button>
                   );
                 })}
@@ -267,7 +267,7 @@ export default function ShipmentDetail() {
               {meta.solution && !resolved && (
                 <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/30 px-4 py-3">
                   <p className="text-xs text-muted-foreground">{meta.solutionStartedAt ? <>In gang gezet · {relTime(meta.solutionStartedAt)}</> : `Gekozen: ${solutionMeta(meta.solution)?.label}`}</p>
-                  <button onClick={startSolution} disabled={!!meta.solutionStartedAt} className="h-9 px-4 rounded-lg bg-primary text-primary-foreground text-[13px] font-medium flex items-center gap-1.5 shrink-0 disabled:opacity-50">
+                  <button onClick={startSolution} disabled={!!meta.solutionStartedAt} className="h-9 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium flex items-center gap-1.5 shrink-0 disabled:opacity-50">
                     {meta.solutionStartedAt ? <><Check className="h-4 w-4" /> In gang gezet</> : <>Zet in gang <ArrowUpRight className="h-3.5 w-3.5" /></>}
                   </button>
                 </div>
@@ -281,20 +281,20 @@ export default function ShipmentDetail() {
               {chosen ? (
                 <div className="rounded-xl border border-primary/25 bg-primary/[0.04] p-3 mb-3">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-primary">Kant-en-klare mail · {chosen.label}</p>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-primary">Kant-en-klare mail · {chosen.label}</p>
                     <div className="flex items-center gap-1.5">
-                      <button onClick={() => useTemplate(chosen.email(tplCtx))} className="h-7 px-2 rounded-lg border border-border text-[11px] font-medium text-muted-foreground hover:text-foreground">In veld</button>
-                      <button onClick={() => copy(chosen.email(tplCtx))} className="h-7 px-2.5 rounded-lg bg-primary text-primary-foreground text-[11px] font-medium flex items-center gap-1"><Copy className="h-3 w-3" /> Kopieer</button>
+                      <button onClick={() => useTemplate(chosen.email(tplCtx))} className="h-7 px-2 rounded-lg border border-border text-xs font-medium text-muted-foreground hover:text-foreground">In veld</button>
+                      <button onClick={() => copy(chosen.email(tplCtx))} className="h-7 px-2.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium flex items-center gap-1"><Copy className="h-3 w-3" /> Kopieer</button>
                     </div>
                   </div>
-                  <p className="text-[12px] text-foreground/90 whitespace-pre-wrap leading-relaxed">{chosen.email(tplCtx)}</p>
+                  <p className="text-xs text-foreground/90 whitespace-pre-wrap leading-relaxed">{chosen.email(tplCtx)}</p>
                 </div>
               ) : <p className="text-xs text-muted-foreground mb-3">Kies een oplossing hierboven — de bijhorende, kant-en-klare mail verschijnt hier om te kopiëren.</p>}
               <div className="flex flex-wrap gap-1.5 mb-2">
-                <span className="text-[11px] text-muted-foreground self-center">Andere templates:</span>
-                {TEMPLATES.map((t) => <button key={t.id} onClick={() => useTemplate(t.body(tplCtx))} className="h-7 px-2.5 rounded-full border border-border text-[11px] font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors">{t.label}</button>)}
+                <span className="text-xs text-muted-foreground self-center">Andere templates:</span>
+                {TEMPLATES.map((t) => <button key={t.id} onClick={() => useTemplate(t.body(tplCtx))} className="h-7 px-2.5 rounded-full border border-border text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors">{t.label}</button>)}
               </div>
-              <textarea value={comm} onChange={(e) => setComm(e.target.value)} rows={3} placeholder="Bericht aan de klant… (of kies een template)" className="w-full rounded-xl border border-border bg-muted/40 px-3 py-2 text-[13px] outline-none focus:border-ring/50 focus:bg-card resize-none" />
+              <textarea value={comm} onChange={(e) => setComm(e.target.value)} rows={3} placeholder="Bericht aan de klant… (of kies een template)" className="w-full rounded-xl border border-border bg-muted/40 px-3 py-2 text-sm outline-none focus:border-ring/50 focus:bg-card resize-none" />
               <div className="flex items-center gap-2 mt-2">
                 <select value={commDir} onChange={(e) => setCommDir(e.target.value as CommDir)} className="h-8 rounded-lg border border-border bg-card px-2 text-xs outline-none"><option value="out">Naar klant</option><option value="in">Van klant</option></select>
                 <select value={commChannel} onChange={(e) => setCommChannel(e.target.value)} className="h-8 rounded-lg border border-border bg-card px-2 text-xs outline-none"><option value="email">E-mail</option><option value="chat">Chat</option><option value="phone">Telefoon</option></select>
@@ -305,8 +305,8 @@ export default function ShipmentDetail() {
                   <div key={c.at} className="flex gap-2.5">
                     <span className="h-6 w-6 rounded-full grid place-items-center shrink-0 mt-0.5" style={{ background: c.dir === "out" ? "hsl(var(--primary)/0.1)" : "hsl(var(--info)/0.12)" }}>{c.dir === "out" ? <ArrowUpRight className="h-3.5 w-3.5 text-primary" /> : <ArrowDownLeft className="h-3.5 w-3.5" style={{ color: "hsl(var(--info))" }} />}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[13px] text-foreground whitespace-pre-wrap">{c.text}</p>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">{c.dir === "out" ? "naar klant" : "van klant"} · {c.channel} · <span className="font-medium text-foreground/80">{c.byName || "Onbekend"}</span> · {relTime(c.at)}</p>
+                      <p className="text-sm text-foreground whitespace-pre-wrap">{c.text}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{c.dir === "out" ? "naar klant" : "van klant"} · {c.channel} · <span className="font-medium text-foreground/80">{c.byName || "Onbekend"}</span> · {relTime(c.at)}</p>
                     </div>
                   </div>
                 ))}
@@ -317,15 +317,15 @@ export default function ShipmentDetail() {
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
               <div className="flex items-center gap-2 mb-3"><MessageSquare className="h-4 w-4 text-muted-foreground" /><h2 className="text-sm font-semibold text-foreground">Interne notities</h2></div>
               <div className="flex items-start gap-2">
-                <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} placeholder="Interne opmerking (bv. carrier gebeld, herverzending toegezegd)…" onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submitNote(); }} className="flex-1 rounded-xl border border-border bg-muted/40 px-3 py-2 text-[13px] outline-none focus:border-ring/50 focus:bg-card resize-none" />
-                <button onClick={submitNote} disabled={!note.trim()} className="h-9 px-3 rounded-lg bg-primary text-primary-foreground text-sm font-medium disabled:opacity-40 flex items-center gap-1.5"><Send className="h-3.5 w-3.5" /></button>
+                <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} placeholder="Interne opmerking (bv. carrier gebeld, herverzending toegezegd)…" onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submitNote(); }} className="flex-1 rounded-xl border border-border bg-muted/40 px-3 py-2 text-sm outline-none focus:border-ring/50 focus:bg-card resize-none" />
+                <button onClick={submitNote} disabled={!note.trim()} className="h-9 px-3 rounded-lg bg-primary text-primary-foreground text-sm font-medium disabled:opacity-40 flex items-center gap-1.5" aria-label="Versturen"><Send className="h-3.5 w-3.5" /></button>
               </div>
               <div className="mt-4 space-y-3">
                 {notes.length === 0 ? <p className="text-xs text-muted-foreground text-center py-2">Nog geen notities.</p> : notes.map((n) => (
                   <div key={n.at} className="group flex gap-3">
-                    <span className="h-6 w-6 rounded-full bg-primary/10 text-primary grid place-items-center text-[9px] font-bold shrink-0 mt-0.5">{initials(n.byName)}</span>
-                    <div className="flex-1 min-w-0 pb-1"><p className="text-[13px] text-foreground whitespace-pre-wrap">{n.text}</p><p className="text-[11px] text-muted-foreground mt-0.5"><span className="font-medium text-foreground/80">{n.byName || "Onbekend"}</span> · {relTime(n.at)}</p></div>
-                    <button onClick={() => removeShipNote(id, n.at)} className="opacity-0 group-hover:opacity-100 h-6 w-6 grid place-items-center rounded text-muted-foreground/50 hover:text-bad transition-opacity"><Trash2 className="h-3.5 w-3.5" /></button>
+                    <span className="h-6 w-6 rounded-full bg-primary/10 text-primary grid place-items-center text-2xs font-bold shrink-0 mt-0.5">{initials(n.byName)}</span>
+                    <div className="flex-1 min-w-0 pb-1"><p className="text-sm text-foreground whitespace-pre-wrap">{n.text}</p><p className="text-xs text-muted-foreground mt-0.5"><span className="font-medium text-foreground/80">{n.byName || "Onbekend"}</span> · {relTime(n.at)}</p></div>
+                    <button onClick={() => removeShipNote(id, n.at)} className="opacity-0 group-hover:opacity-100 h-6 w-6 grid place-items-center rounded text-muted-foreground/50 hover:text-bad transition-opacity" aria-label="Verwijderen"><Trash2 className="h-3.5 w-3.5" /></button>
                   </div>
                 ))}
               </div>
@@ -333,12 +333,12 @@ export default function ShipmentDetail() {
 
             {/* Log — audit trail */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
-              <div className="flex items-center gap-2 mb-3"><ClipboardList className="h-4 w-4 text-muted-foreground" /><h2 className="text-sm font-semibold text-foreground">Log</h2><span className="text-[11px] text-muted-foreground">· wie deed wat</span></div>
+              <div className="flex items-center gap-2 mb-3"><ClipboardList className="h-4 w-4 text-muted-foreground" /><h2 className="text-sm font-semibold text-foreground">Log</h2><span className="text-xs text-muted-foreground">· wie deed wat</span></div>
               {log.length === 0 ? <p className="text-xs text-muted-foreground text-center py-2">Nog geen activiteit.</p> : (
                 <div className="space-y-0">{log.map((l, i) => (
                   <div key={l.at} className="flex gap-3">
                     <div className="flex flex-col items-center"><span className="h-6 w-6 rounded-full grid place-items-center shrink-0" style={{ background: "hsl(var(--muted))" }}><LogIcon kind={l.kind} /></span>{i < log.length - 1 && <span className="w-px flex-1 bg-border my-1" />}</div>
-                    <div className="flex-1 min-w-0 pb-4"><p className="text-[13px] text-foreground">{l.text}</p><p className="text-[11px] text-muted-foreground mt-0.5"><span className="font-medium text-foreground/80">{l.byName || "Onbekend"}</span> · {relTime(l.at)}</p></div>
+                    <div className="flex-1 min-w-0 pb-4"><p className="text-sm text-foreground">{l.text}</p><p className="text-xs text-muted-foreground mt-0.5"><span className="font-medium text-foreground/80">{l.byName || "Onbekend"}</span> · {relTime(l.at)}</p></div>
                   </div>
                 ))}</div>
               )}
@@ -366,48 +366,48 @@ export default function ShipmentDetail() {
                   <div className="flex gap-0.5 p-0.5 rounded-lg bg-muted">
                     {([["Nee", false], ["Ja", true]] as const).map(([lbl, val]) => {
                       const active = meta.isSubscription === val;
-                      return <button key={lbl} onClick={() => setMetaField({ isSubscription: val })} className={`h-6 px-3 rounded-md text-[11px] font-semibold transition-colors ${active ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}>{lbl}</button>;
+                      return <button key={lbl} onClick={() => setMetaField({ isSubscription: val })} className={`h-6 px-3 rounded-md text-xs font-semibold transition-colors ${active ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}>{lbl}</button>;
                     })}
                   </div>
                 </div>
-                {meta.isSubscription === undefined && <p className="text-[10px] mt-1" style={{ color: "hsl(var(--ember))" }}>Duid aan — dit bepaalt hoe royaal je oplost.</p>}
+                {meta.isSubscription === undefined && <p className="text-2xs mt-1" style={{ color: "hsl(var(--ember))" }}>Duid aan — dit bepaalt hoe royaal je oplost.</p>}
               </div>
               {meta.isSubscription && (
-                <Field label="Zoveelste levering"><div className="flex items-center gap-1"><span className="text-muted-foreground text-[13px]">#</span><input type="number" value={meta.deliveryNumber ?? ""} onChange={(e) => setMetaField({ deliveryNumber: parseInt(e.target.value) || 0 })} placeholder="bv. 3" className="w-full bg-transparent text-[13px] outline-none tabular-nums" /></div></Field>
+                <Field label="Zoveelste levering"><div className="flex items-center gap-1"><span className="text-muted-foreground text-sm">#</span><input type="number" value={meta.deliveryNumber ?? ""} onChange={(e) => setMetaField({ deliveryNumber: parseInt(e.target.value) || 0 })} placeholder="bv. 3" className="w-full bg-transparent text-sm outline-none tabular-nums" /></div></Field>
               )}
               {/* shipping address — straight from the order */}
               <Field label="Verzendadres · uit order">
-                {addr ? <p className="text-[13px] text-foreground whitespace-pre-wrap flex items-start gap-1.5"><MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />{addr}</p>
-                  : <div><textarea value={meta.shippingAddress ?? ""} onChange={(e) => setMetaField({ shippingAddress: e.target.value })} rows={2} placeholder="Niet in de order — vul handmatig in en verifieer" className="w-full bg-transparent text-[13px] outline-none resize-none" /><p className="text-[10px]" style={{ color: "hsl(var(--ember))" }}>Geen adres in de order gevonden.</p></div>}
+                {addr ? <p className="text-sm text-foreground whitespace-pre-wrap flex items-start gap-1.5"><MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />{addr}</p>
+                  : <div><textarea value={meta.shippingAddress ?? ""} onChange={(e) => setMetaField({ shippingAddress: e.target.value })} rows={2} placeholder="Niet in de order — vul handmatig in en verifieer" className="w-full bg-transparent text-sm outline-none resize-none" /><p className="text-2xs" style={{ color: "hsl(var(--ember))" }}>Geen adres in de order gevonden.</p></div>}
               </Field>
               {/* customer history — looked up automatically across our systems */}
               <div className="rounded-xl border border-border bg-muted/30 px-3 py-2">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Klantgeschiedenis</span>
-                  <button onClick={() => order && lookupHistory(order)} disabled={!order} className="text-[10px] text-primary hover:underline inline-flex items-center gap-0.5 disabled:opacity-50">{history.loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Search className="h-3 w-3" />} opnieuw opzoeken</button>
+                  <span className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">Klantgeschiedenis</span>
+                  <button onClick={() => order && lookupHistory(order)} disabled={!order} className="text-2xs text-primary hover:underline inline-flex items-center gap-0.5 disabled:opacity-50">{history.loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Search className="h-3 w-3" />} opnieuw opzoeken</button>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <div><p className="text-[10px] text-muted-foreground">Eerdere issues</p><p className="font-num text-lg font-bold tabular-nums leading-none mt-0.5" style={{ color: history.priorIssues >= 2 ? "hsl(var(--ember))" : "hsl(var(--foreground))" }}>{history.done ? history.priorIssues : "—"}</p></div>
-                  <div><p className="text-[10px] text-muted-foreground">Klant sinds</p><p className="text-[13px] font-medium text-foreground mt-1">{history.customerSince ? fmtDate(history.customerSince) : history.done ? "nieuw" : "—"}</p></div>
+                  <div><p className="text-2xs text-muted-foreground">Eerdere issues</p><p className="font-num text-lg font-bold tabular-nums leading-none mt-0.5" style={{ color: history.priorIssues >= 2 ? "hsl(var(--ember))" : "hsl(var(--foreground))" }}>{history.done ? history.priorIssues : "—"}</p></div>
+                  <div><p className="text-2xs text-muted-foreground">Klant sinds</p><p className="text-sm font-medium text-foreground mt-1">{history.customerSince ? fmtDate(history.customerSince) : history.done ? "nieuw" : "—"}</p></div>
                 </div>
-                <p className="text-[10px] text-muted-foreground mt-1.5">Automatisch opgezocht in onze systemen (orders, returns, shipments, tickets).</p>
+                <p className="text-2xs text-muted-foreground mt-1.5">Automatisch opgezocht in onze systemen (orders, returns, shipments, tickets).</p>
               </div>
-              {history.priorIssues >= 2 && <p className="text-[11px]" style={{ color: "hsl(var(--ember))" }}><AlertTriangle className="h-3 w-3 inline mr-1" />Meerdere eerdere issues — behandel extra zorgvuldig.</p>}
+              {history.priorIssues >= 2 && <p className="text-xs" style={{ color: "hsl(var(--ember))" }}><AlertTriangle className="h-3 w-3 inline mr-1" />Meerdere eerdere issues — behandel extra zorgvuldig.</p>}
             </motion.div>
 
             {/* SECTIE 3 — Fase & SLA detail */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5 space-y-3">
               <SectionHead n={3} title="Fase & urgentie" />
               <div className="rounded-xl px-3 py-2.5" style={{ background: `hsl(var(--${phase.tone}) / 0.07)` }}>
-                <div className="flex items-center justify-between"><span className="text-[13px] font-semibold" style={{ color: toneColor(phase.tone) }}>{phase.level > 0 ? `Fase ${phase.level}` : "Op schema"}</span><span className="text-xs text-muted-foreground">{phase.label}</span></div>
-                <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1"><Clock className="h-3 w-3" /> SLA: <span className="font-medium text-foreground">{phase.sla}</span></p>
+                <div className="flex items-center justify-between"><span className="text-sm font-semibold" style={{ color: toneColor(phase.tone) }}>{phase.level > 0 ? `Fase ${phase.level}` : "Op schema"}</span><span className="text-xs text-muted-foreground">{phase.label}</span></div>
+                <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1"><Clock className="h-3 w-3" /> SLA: <span className="font-medium text-foreground">{phase.sla}</span></p>
               </div>
               <div className="flex items-center justify-between text-xs"><span className="text-muted-foreground">Dagen te laat</span><span className="font-medium text-foreground tabular-nums">{phase.daysLate}</span></div>
               <div className="flex items-center justify-between rounded-xl border border-border bg-muted/30 px-3 py-2">
                 <span className="text-xs text-muted-foreground">Chargeback gedreigd</span>
-                <button onClick={() => setMetaField({ chargebackThreat: !meta.chargebackThreat })} className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={meta.chargebackThreat ? { background: "hsl(var(--bad)/0.14)", color: "hsl(var(--bad))" } : { background: "hsl(var(--muted))", color: "hsl(var(--muted-foreground))" }}>{meta.chargebackThreat ? "Ja → fase 3" : "Nee"}</button>
+                <button onClick={() => setMetaField({ chargebackThreat: !meta.chargebackThreat })} className="text-xs font-semibold px-2 py-0.5 rounded-full" style={meta.chargebackThreat ? { background: "hsl(var(--bad)/0.14)", color: "hsl(var(--bad))" } : { background: "hsl(var(--muted))", color: "hsl(var(--muted-foreground))" }}>{meta.chargebackThreat ? "Ja → fase 3" : "Nee"}</button>
               </div>
-              <p className="text-[11px] text-muted-foreground">De fase wordt automatisch bepaald door de dagen vertraging óf het statustype — de ernstigste telt.</p>
+              <p className="text-xs text-muted-foreground">De fase wordt automatisch bepaald door de dagen vertraging óf het statustype — de ernstigste telt.</p>
             </motion.div>
 
             {/* SECTIE 6 — Resolutie & afsluiting */}
@@ -415,8 +415,8 @@ export default function ShipmentDetail() {
               <SectionHead n={6} title="Resolutie & afsluiting" />
               {resolved ? (
                 <div className="rounded-xl bg-ok/10 border border-ok/20 px-3 py-3">
-                  <div className="flex items-center gap-2"><span className="h-7 w-7 rounded-full bg-ok grid place-items-center"><Check className="h-4 w-4 text-white" /></span><div><p className="text-[13px] font-semibold text-foreground">Opgelost</p><p className="text-xs text-muted-foreground">{meta.outcome || "—"} · {fmtDate(meta.resolvedAt)}</p></div></div>
-                  <button onClick={reopen} className="mt-2 text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1"><RotateCcw className="h-3 w-3" /> Heropenen</button>
+                  <div className="flex items-center gap-2"><span className="h-7 w-7 rounded-full bg-ok grid place-items-center"><Check className="h-4 w-4 text-white" /></span><div><p className="text-sm font-semibold text-foreground">Opgelost</p><p className="text-xs text-muted-foreground">{meta.outcome || "—"} · {fmtDate(meta.resolvedAt)}</p></div></div>
+                  <button onClick={reopen} className="mt-2 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"><RotateCcw className="h-3 w-3" /> Heropenen</button>
                 </div>
               ) : (
                 <>
@@ -426,10 +426,10 @@ export default function ShipmentDetail() {
                       const suggested = started && chosen?.outcome === o;
                       return (
                         <button key={o} onClick={() => resolve(o)}
-                          className={`h-9 px-3 rounded-lg border text-[13px] font-medium text-left flex items-center gap-2 transition-colors ${suggested ? "" : "border-border text-foreground hover:border-ok/50 hover:bg-ok/[0.04]"}`}
+                          className={`h-9 px-3 rounded-lg border text-sm font-medium text-left flex items-center gap-2 transition-colors ${suggested ? "" : "border-border text-foreground hover:border-ok/50 hover:bg-ok/[0.04]"}`}
                           style={suggested ? { borderColor: "hsl(var(--ok))", background: "hsl(var(--ok)/0.1)", color: "hsl(var(--ok))" } : undefined}>
                           {suggested ? <Check className="h-3.5 w-3.5" /> : <Circle className="h-3.5 w-3.5 text-muted-foreground/50" />} {o}
-                          {suggested && <span className="ml-auto text-[10px] font-semibold uppercase tracking-wide">uit actie</span>}
+                          {suggested && <span className="ml-auto text-2xs font-semibold uppercase tracking-wide">uit actie</span>}
                         </button>
                       );
                     })}
@@ -447,7 +447,7 @@ export default function ShipmentDetail() {
 function SectionHead({ n, title }: { n: number; title: string }) {
   return (
     <div className="flex items-center gap-2 mb-4">
-      <span className="h-6 w-6 rounded-lg grid place-items-center text-[11px] font-bold shrink-0" style={{ background: "hsl(var(--primary)/0.1)", color: "hsl(var(--primary))" }}>{n}</span>
+      <span className="h-6 w-6 rounded-lg grid place-items-center text-xs font-bold shrink-0" style={{ background: "hsl(var(--primary)/0.1)", color: "hsl(var(--primary))" }}>{n}</span>
       <h2 className="text-sm font-semibold text-foreground">{title}</h2>
     </div>
   );
@@ -455,7 +455,7 @@ function SectionHead({ n, title }: { n: number; title: string }) {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="rounded-xl border border-border bg-muted/30 px-3 py-2">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">{label}</p>
+      <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">{label}</p>
       {children}
     </div>
   );
@@ -463,8 +463,8 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function ReadField({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
     <div className="rounded-xl border border-border bg-muted/30 px-3 py-2">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">{label}{hint && <span className="font-normal normal-case tracking-normal opacity-70"> · {hint}</span>}</p>
-      <p className="text-[13px] text-foreground">{value}</p>
+      <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">{label}{hint && <span className="font-normal normal-case tracking-normal opacity-70"> · {hint}</span>}</p>
+      <p className="text-sm text-foreground">{value}</p>
     </div>
   );
 }

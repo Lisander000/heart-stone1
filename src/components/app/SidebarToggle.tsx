@@ -36,9 +36,9 @@ export function SidebarToggle() {
       </motion.button>
 
       {/* tooltip */}
-      <div className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 -translate-x-1/2 translate-y-1 whitespace-nowrap rounded-lg bg-foreground px-2 py-1 text-[11px] font-medium text-background opacity-0 shadow-md transition-all duration-150 group-hover/tog:translate-y-0 group-hover/tog:opacity-100">
+      <div className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 -translate-x-1/2 translate-y-1 whitespace-nowrap rounded-lg bg-foreground px-2 py-1 text-xs font-medium text-background opacity-0 shadow-md transition-all duration-150 group-hover/tog:translate-y-0 group-hover/tog:opacity-100">
         {collapsed ? "Uitklappen" : "Inklappen"}
-        <kbd className="ml-1 rounded bg-background/20 px-1 py-px text-[10px]">⌘B</kbd>
+        <kbd className="ml-1 rounded bg-background/20 px-1 py-px text-2xs">⌘B</kbd>
       </div>
     </div>
   );

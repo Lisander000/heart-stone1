@@ -13,6 +13,12 @@ export default {
       },
     },
     extend: {
+      fontSize: {
+        // Kleinste stap in de schaal. In rem zodat hij meeschaalt met de
+        // tekstgrootte-instelling van de gebruiker, met iets positieve tracking
+        // omdat kleine letters anders dichtslibben.
+        "2xs": ["0.625rem", { lineHeight: "0.875rem", letterSpacing: "0.02em" }],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

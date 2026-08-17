@@ -101,7 +101,7 @@ function ListManager({ open, onOpenChange, title, hint, items, onSave }: {
           {items.map((it) => (
             <div key={it} className="flex items-center justify-between gap-2 rounded-lg border border-border bg-card px-3 py-2">
               <span className="text-sm text-foreground">{it}</span>
-              <button onClick={() => onSave(items.filter((x) => x !== it))} className="text-muted-foreground hover:text-bad"><X className="h-3.5 w-3.5" /></button>
+              <button onClick={() => onSave(items.filter((x) => x !== it))} className="text-muted-foreground hover:text-bad" aria-label="Sluiten"><X className="h-3.5 w-3.5" /></button>
             </div>
           ))}
           {items.length === 0 && <p className="text-xs text-muted-foreground text-center py-3">Nog niets ingesteld.</p>}
@@ -162,7 +162,7 @@ function CreatorsStudio({ onBack }: { onBack?: () => void }) {
         {/* header */}
         <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4 }} className="flex items-center gap-2.5">
           {onBack && (
-            <button onClick={onBack} title="Terug naar keuze" className="h-9 w-9 grid place-items-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground shadow-xs transition-colors shrink-0"><ArrowLeft className="h-4 w-4" /></button>
+            <button onClick={onBack} title="Terug naar keuze" className="h-9 w-9 grid place-items-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground shadow-xs transition-colors shrink-0" aria-label="Terug naar keuze"><ArrowLeft className="h-4 w-4" /></button>
           )}
           <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--grape)/0.12)" }}><Users2 className="h-5 w-5" style={{ color: "hsl(var(--grape))" }} /></span>
           <div>
@@ -255,7 +255,7 @@ export default function UgcStudio() {
       <div className="min-h-screen">
         <div className="max-w-2xl mx-auto px-6 py-7 space-y-5">
           <div className="flex items-center gap-2.5">
-            <button onClick={() => setMode(null)} title="Terug naar keuze" className="h-9 w-9 grid place-items-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground shadow-xs transition-colors shrink-0"><ArrowLeft className="h-4 w-4" /></button>
+            <button onClick={() => setMode(null)} title="Terug naar keuze" className="h-9 w-9 grid place-items-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground shadow-xs transition-colors shrink-0" aria-label="Terug naar keuze"><ArrowLeft className="h-4 w-4" /></button>
             <span className="h-10 w-10 rounded-2xl grid place-items-center shrink-0" style={{ background: "hsl(var(--grape)/0.12)" }}><Clapperboard className="h-5 w-5" style={{ color: "hsl(var(--grape))" }} /></span>
             <div>
               <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground mb-1">Creative · UGC</p>
@@ -294,12 +294,12 @@ export default function UgcStudio() {
         <p className="text-sm text-muted-foreground">Waarmee wil je werken?</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {choices.map((c) => (
-            <button key={c.id} onClick={() => setMode(c.id)} className="card-soft card-lift p-7 text-left hover:shadow-md transition-all">
+            <button key={c.id} onClick={() => setMode(c.id)} className="press-soft card-soft card-lift p-7 text-left hover:shadow-md transition-all">
               <div className="flex items-center justify-between mb-4">
                 <div className="h-12 w-12 rounded-2xl grid place-items-center" style={{ background: "hsl(var(--grape)/0.1)" }}>
                   <c.icon className="h-6 w-6" style={{ color: "hsl(var(--grape))" }} />
                 </div>
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground bg-muted rounded-full px-2.5 py-1">{c.tag}</span>
+                <span className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground bg-muted rounded-full px-2.5 py-1">{c.tag}</span>
               </div>
               <p className="font-semibold text-foreground text-lg leading-tight">{c.title}</p>
               <p className="text-sm text-muted-foreground mt-1.5">{c.blurb}</p>

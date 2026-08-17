@@ -58,7 +58,7 @@ export function NotificationBell() {
           className="relative grid h-9 w-9 place-items-center rounded-lg border border-border text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors">
           {unread > 0 ? <BellRing className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
           {unread > 0 && (
-            <span className="absolute -top-1 -right-1 h-4 min-w-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-semibold flex items-center justify-center tabular-nums">
+            <span className="absolute -top-1 -right-1 h-4 min-w-4 px-1 rounded-full bg-primary text-primary-foreground text-2xs font-semibold flex items-center justify-center tabular-nums">
               {unread > 9 ? "9+" : unread}
             </span>
           )}
@@ -68,16 +68,16 @@ export function NotificationBell() {
         <div className="flex items-center justify-between border-b border-border px-3 py-2.5">
           <p className="text-sm font-semibold">Openstaande meldingen</p>
           {unread > 0
-            ? <button onClick={() => markAllRead(uid, open.map((n) => n.id))} className="text-[11px] font-medium text-muted-foreground hover:text-primary flex items-center gap-1"><CheckCheck className="h-3.5 w-3.5" /> Alles gelezen</button>
-            : <span className="text-[11px] text-muted-foreground">alles bij</span>}
+            ? <button onClick={() => markAllRead(uid, open.map((n) => n.id))} className="text-xs font-medium text-muted-foreground hover:text-primary flex items-center gap-1"><CheckCheck className="h-3.5 w-3.5" /> Alles gelezen</button>
+            : <span className="text-xs text-muted-foreground">alles bij</span>}
         </div>
 
         {perm !== "granted" && perm !== "unsupported" && (
           <button onClick={enable}
-            className="w-full flex items-center gap-2 border-b border-border bg-primary/[0.04] px-3 py-2.5 text-left hover:bg-primary/[0.08] transition-colors">
+            className="press-soft w-full flex items-center gap-2 border-b border-border bg-primary/[0.04] px-3 py-2.5 text-left hover:bg-primary/[0.08] transition-colors">
             <BellRing className="h-4 w-4 text-primary shrink-0" />
             <span className="text-xs text-foreground flex-1">Zet push-meldingen aan om alerts ook buiten het scherm te krijgen.</span>
-            <span className="text-[11px] font-semibold text-primary shrink-0">Aanzetten</span>
+            <span className="text-xs font-semibold text-primary shrink-0">Aanzetten</span>
           </button>
         )}
 
@@ -100,8 +100,8 @@ export function NotificationBell() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
                       <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-                      <p className="text-[13px] font-medium text-foreground truncate">{n.title}</p>
-                      <span className="text-[10px] text-muted-foreground ml-auto shrink-0">{rel(n.created_at)}</span>
+                      <p className="text-sm font-medium text-foreground truncate">{n.title}</p>
+                      <span className="text-2xs text-muted-foreground ml-auto shrink-0">{rel(n.created_at)}</span>
                     </div>
                     {n.body && <p className="text-xs text-muted-foreground truncate mt-0.5">{n.body}</p>}
                   </div>
