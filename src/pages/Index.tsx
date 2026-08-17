@@ -1198,11 +1198,11 @@ export default function DataBank({ initialView = "brands" }: { initialView?: Vie
                   return (
                     <div key={brand.id} className="bg-card border border-border rounded-lg p-4 hover:border-primary/50 transition-colors group">
                       <div className="flex items-start justify-between mb-2">
-                        <button onClick={() => setSelectedBrand(brand.id)} className="text-left flex-1">
+                        <button onClick={() => setSelectedBrand(brand.id)} className="press-soft text-left flex-1">
                           <h3 className="font-medium text-foreground hover:text-foreground/80">{brand.name}</h3>
                           {brand.url && <p className="text-xs text-muted-foreground truncate">{brand.url}</p>}
                         </button>
-                        <button onClick={() => askDelete(() => deleteBrand(brand.id), "Brand verwijderen?", "Deze brand én al zijn entries worden permanent verwijderd. Deze actie kan niet ongedaan gemaakt worden.")} disabled={deletingId === brand.id} className="text-muted-foreground/70 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-100">
+                        <button onClick={() => askDelete(() => deleteBrand(brand.id), "Brand verwijderen?", "Deze brand én al zijn entries worden permanent verwijderd. Deze actie kan niet ongedaan gemaakt worden.")} disabled={deletingId === brand.id} className="text-muted-foreground/70 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-100" aria-label="Verwijderen">
                           {deletingId === brand.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
                         </button>
                       </div>
@@ -1347,17 +1347,17 @@ export default function DataBank({ initialView = "brands" }: { initialView?: Vie
                     return (
                       <div key={c.id} className="bg-card border border-border rounded-lg p-4 hover:border-primary/50 transition-colors group" style={accent ? { borderLeft: `3px solid ${accent}` } : undefined}>
                         <div className="flex items-start justify-between mb-2">
-                          <button onClick={() => setSelectedCollection(c.id)} className="text-left flex-1">
+                          <button onClick={() => setSelectedCollection(c.id)} className="press-soft text-left flex-1">
                             <h3 className="font-medium text-foreground hover:text-foreground/80 flex items-center gap-1.5">
                               <FolderOpen size={14} className="text-muted-foreground" />
                               {c.name}
                             </h3>
                           </button>
                           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onClick={() => renameCollection(c.id)} className="text-muted-foreground/70 hover:text-foreground" title="Rename">
+                            <button onClick={() => renameCollection(c.id)} className="text-muted-foreground/70 hover:text-foreground" title="Rename" aria-label="Rename">
                               <Pencil size={14} />
                             </button>
-                            <button onClick={() => askDelete(() => deleteCollection(c.id), "Collectie verwijderen?", "Deze collectie én al zijn entries worden permanent verwijderd. Deze actie kan niet ongedaan gemaakt worden.")} disabled={deletingId === c.id} className="text-muted-foreground/70 hover:text-red-500 disabled:opacity-100">
+                            <button onClick={() => askDelete(() => deleteCollection(c.id), "Collectie verwijderen?", "Deze collectie én al zijn entries worden permanent verwijderd. Deze actie kan niet ongedaan gemaakt worden.")} disabled={deletingId === c.id} className="text-muted-foreground/70 hover:text-red-500 disabled:opacity-100" aria-label="Verwijderen">
                               {deletingId === c.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
                             </button>
                           </div>
@@ -1543,7 +1543,7 @@ function BrandDetail(props: any) {
         <div className="bg-card border border-border rounded-lg p-4 mb-4">
           <div className="flex items-center justify-between mb-3">
             <h4 className="font-display text-base font-semibold text-foreground flex items-center gap-2"><Layers size={14} />Batch import</h4>
-            <button onClick={() => { setShowBatchImport(false); resetBatch(); }} className="text-muted-foreground/70 hover:text-foreground/80"><X size={16} /></button>
+            <button onClick={() => { setShowBatchImport(false); resetBatch(); }} className="text-muted-foreground/70 hover:text-foreground/80" aria-label="Sluiten"><X size={16} /></button>
           </div>
           <p className="text-xs text-muted-foreground mb-3">Paste multiple entries at once. The AI will analyze each one separately and save them all.</p>
           <div className="grid grid-cols-2 gap-2 mb-3">
@@ -1567,7 +1567,7 @@ function BrandDetail(props: any) {
             <label className="text-xs text-muted-foreground mb-1 block">Paste your entries</label>
             <textarea value={batchText} onChange={(e) => { setBatchText(e.target.value); if (detectedChunks.length) setDetectedChunks([]); }} rows={10} className="w-full px-2 py-1.5 border border-border rounded-md text-sm focus:outline-none focus:border-primary resize-none font-mono" disabled={batchProcessing || detecting} />
             <p className="text-xs text-muted-foreground/70 mt-1">Maximum 50 entries per batch. Click "Detect entries" to preview the split before AI extraction.</p>
-            <p className="text-[11px] text-muted-foreground/80 mt-1 italic">Batch import is text-only. For visual entries, add them one at a time.</p>
+            <p className="text-xs text-muted-foreground/80 mt-1 italic">Batch import is text-only. For visual entries, add them one at a time.</p>
           </div>
           {detectError && (
             <div className="bg-orange-50 border border-orange-200 rounded-md p-3 mb-3">
@@ -1663,8 +1663,7 @@ function BrandDetail(props: any) {
                 <button
                   onClick={processBatch}
                   disabled={batchProcessing || detecting || detectedChunks.length === 0}
-                  className="bg-primary text-white text-sm px-3 py-1.5 rounded-md hover:bg-primary/90 disabled:bg-muted disabled:cursor-not-allowed flex items-center gap-1.5"
-                >
+                  className="bg-primary text-white text-sm px-3 py-1.5 rounded-md hover:bg-primary/90 disabled:bg-muted disabled:cursor-not-allowed flex items-center gap-1.5">
                   {batchProcessing ? (
                     <>
                       <Loader2 size={12} className="animate-spin" />
@@ -1733,7 +1732,7 @@ function BrandDetail(props: any) {
               <label className="text-xs text-muted-foreground block">Raw text</label>
               <div className="flex items-center gap-2">
                 {newEntry.imageFile && (
-                  <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                  <span className="text-2xs text-muted-foreground flex items-center gap-1">
                     <ImageIcon size={11} className="text-primary" />
                     Image will be analyzed alongside text
                   </span>
@@ -1759,7 +1758,7 @@ function BrandDetail(props: any) {
             />
             {newEntry.rawText.trim() && (
               <div className="mt-1.5 flex items-center gap-2 flex-wrap">
-                <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
                   <Languages size={11} />
                   {newEntry.detectedLanguage === "en"
                     ? "Detected: English — no translation needed"
@@ -1768,7 +1767,7 @@ function BrandDetail(props: any) {
                 <select
                   value={newEntry.detectedLanguage}
                   onChange={(e) => setNewEntry({ ...newEntry, detectedLanguage: e.target.value, languageOverridden: true })}
-                  className="text-[11px] px-1.5 py-0.5 border border-border rounded bg-card text-muted-foreground focus:outline-none focus:border-primary"
+                  className="text-xs px-1.5 py-0.5 border border-border rounded bg-card text-muted-foreground focus:outline-none focus:border-primary"
                 >
                   {SUPPORTED_LANGUAGES.map((l) => (
                     <option key={l.code} value={l.code}>{l.name}</option>
@@ -1792,14 +1791,14 @@ function BrandDetail(props: any) {
           ))}
           {(newEntry.visualStyle || (newEntry.visualElements && newEntry.visualElements.length > 0)) && (
             <div className="mb-3 p-3 rounded-md bg-muted/40 border border-border">
-              <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-1.5 flex items-center gap-1">
+              <p className="text-2xs uppercase tracking-[0.15em] text-muted-foreground mb-1.5 flex items-center gap-1">
                 <ImageIcon size={11} /> Visual analysis
               </p>
               {newEntry.visualStyle && <p className="text-xs text-foreground/80 leading-relaxed mb-1.5">{newEntry.visualStyle}</p>}
               {newEntry.visualElements && newEntry.visualElements.length > 0 && (
                 <div className="flex flex-wrap gap-1">
                   {newEntry.visualElements.map((el, i) => (
-                    <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-card text-muted-foreground border border-border">{el}</span>
+                    <span key={i} className="text-2xs px-1.5 py-0.5 rounded bg-card text-muted-foreground border border-border">{el}</span>
                   ))}
                 </div>
               )}
@@ -1871,7 +1870,7 @@ function EntryCard({ entry, containerLabel, containerKind, sourceInfo, expanded,
   return (
     <div className="bg-card border border-border rounded-lg overflow-hidden group">
       {entry.imageUrl && (
-        <button type="button" onClick={() => setLightbox(true)} className="block w-full bg-muted/30">
+        <button type="button" onClick={() => setLightbox(true)} className="press-soft block w-full bg-muted/30">
           <img src={entry.imageUrl} alt="Entry visual" className="w-full object-cover" style={{ maxHeight: 200 }} loading="lazy" />
         </button>
       )}
@@ -1888,7 +1887,7 @@ function EntryCard({ entry, containerLabel, containerKind, sourceInfo, expanded,
             <span className={`text-xs px-2 py-0.5 rounded-md ${sentimentColors[entry.sentiment] ?? sentimentColors.neutral}`}>{entry.sentiment}</span>
             {entry.rating && <span className="text-xs text-muted-foreground">{entry.rating}</span>}
             {isNonEnglish && (
-              <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-accent/10 text-accent border border-accent/30 font-medium" title={languageName(langCode)}>
+              <span className="text-2xs uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-accent/10 text-accent border border-accent/30 font-medium" title={languageName(langCode)}>
                 {langCode}
               </span>
             )}
@@ -1899,7 +1898,7 @@ function EntryCard({ entry, containerLabel, containerKind, sourceInfo, expanded,
               <span className="text-xs px-2 py-0.5 rounded-md bg-stone-100 text-foreground/70 border border-stone-200">{entry.productCategory}</span>
             )}
           </div>
-          <button onClick={onDelete} disabled={deleting} className="text-muted-foreground/70 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-100">
+          <button onClick={onDelete} disabled={deleting} className="text-muted-foreground/70 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-100" aria-label="Verwijderen">
             {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
           </button>
         </div>
@@ -1907,9 +1906,8 @@ function EntryCard({ entry, containerLabel, containerKind, sourceInfo, expanded,
         {hasTranslation && (
           <button
             onClick={() => setShowOriginal((v) => !v)}
-            className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1 mb-2"
-            title={showOriginal ? "Show English translation" : "Show original"}
-          >
+            className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 mb-2"
+            title={showOriginal ? "Show English translation" : "Show original"}>
             <Languages size={11} />
             {showOriginal ? `Show English translation` : `Show original (${languageName(langCode)})`}
           </button>
@@ -1968,7 +1966,7 @@ function EntryCard({ entry, containerLabel, containerKind, sourceInfo, expanded,
               <p className="text-muted-foreground mb-1 flex items-center gap-1"><ImageIcon size={11} />Visual elements</p>
               <div className="flex flex-wrap gap-1">
                 {elementsList.map((el, i) => (
-                  <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 text-foreground/70 border border-stone-200">{el}</span>
+                  <span key={i} className="text-2xs px-1.5 py-0.5 rounded bg-stone-100 text-foreground/70 border border-stone-200">{el}</span>
                 ))}
               </div>
             </div>
@@ -1978,7 +1976,7 @@ function EntryCard({ entry, containerLabel, containerKind, sourceInfo, expanded,
       )}
       {lightbox && entry.imageUrl && (
         <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-6" onClick={() => setLightbox(false)}>
-          <button className="absolute top-4 right-4 text-white/90 hover:text-white" onClick={(e) => { e.stopPropagation(); setLightbox(false); }}>
+          <button className="absolute top-4 right-4 text-white/90 hover:text-white" onClick={(e) => { e.stopPropagation(); setLightbox(false); }} aria-label="Sluiten">
             <X size={24} />
           </button>
           <img src={entry.imageUrl} alt="Entry visual full size" className="max-w-full max-h-full object-contain rounded" onClick={(e) => e.stopPropagation()} />
@@ -2032,24 +2030,24 @@ function TranslationReviewPanel({ entry, langCode, onReExtract, onUpdateTranslat
         <h4 className="text-xs font-semibold text-foreground/80 flex items-center gap-1.5">
           <Languages size={12} />Translation review
         </h4>
-        <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-accent/10 text-accent border border-accent/30 font-medium">
+        <span className="text-2xs uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-accent/10 text-accent border border-accent/30 font-medium">
           {langCode} → EN
         </span>
       </div>
       {suspiciouslyShort && (
-        <div className="mb-3 text-[11px] text-orange-700 bg-orange-50 border border-orange-200 rounded-md px-2 py-1">
+        <div className="mb-3 text-xs text-orange-700 bg-orange-50 border border-orange-200 rounded-md px-2 py-1">
           Translation looks much shorter than the original — consider re-running extraction.
         </div>
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
         <div>
-          <p className="text-[11px] text-muted-foreground mb-1">Original ({languageName(langCode)})</p>
+          <p className="text-xs text-muted-foreground mb-1">Original ({languageName(langCode)})</p>
           <div className="text-xs text-foreground/80 bg-card border border-border rounded-md p-2 whitespace-pre-wrap max-h-72 overflow-y-auto leading-relaxed">
             {entry.rawText}
           </div>
         </div>
         <div>
-          <p className="text-[11px] text-muted-foreground mb-1">English translation <span className="text-muted-foreground/70">— editable</span></p>
+          <p className="text-xs text-muted-foreground mb-1">English translation <span className="text-muted-foreground/70">— editable</span></p>
           <textarea
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
@@ -2078,13 +2076,12 @@ function TranslationReviewPanel({ entry, langCode, onReExtract, onUpdateTranslat
         <button
           onClick={handleReExtract}
           disabled={reExtracting}
-          className="text-xs bg-card border border-border text-foreground/80 px-3 py-1.5 rounded-md hover:border-primary/50 disabled:opacity-50 flex items-center gap-1.5 ml-auto"
-        >
+          className="text-xs bg-card border border-border text-foreground/80 px-3 py-1.5 rounded-md hover:border-primary/50 disabled:opacity-50 flex items-center gap-1.5 ml-auto">
           {reExtracting ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
           {reExtracting ? "Re-running…" : "Re-run extraction"}
         </button>
       </div>
-      <p className="text-[10px] text-muted-foreground/70 mt-2">
+      <p className="text-2xs text-muted-foreground/70 mt-2">
         Re-running extraction overwrites translation, customer phrases, and all extracted fields for this entry.
       </p>
     </div>
@@ -2136,7 +2133,7 @@ function ImageUploader({ newEntry, setNewEntry }: { newEntry: typeof emptyEntry;
       {newEntry.imagePreviewUrl ? (
         <div className="relative inline-block">
           <img src={newEntry.imagePreviewUrl} alt="Preview" className="rounded border border-border" style={{ maxHeight: 240 }} />
-          <button type="button" onClick={clearImage} className="absolute -top-2 -right-2 bg-card border border-border rounded-full p-1 shadow hover:bg-muted">
+          <button type="button" onClick={clearImage} className="absolute -top-2 -right-2 bg-card border border-border rounded-full p-1 shadow hover:bg-muted" aria-label="Sluiten">
             <X size={12} />
           </button>
         </div>
@@ -2149,7 +2146,7 @@ function ImageUploader({ newEntry, setNewEntry }: { newEntry: typeof emptyEntry;
         >
           <Upload size={16} className="text-muted-foreground" />
           <p className="text-xs text-muted-foreground">Drag and drop or <span className="text-primary">click to upload</span></p>
-          <p className="text-[10px] text-muted-foreground/70">JPEG, PNG, WebP, GIF · max 10MB</p>
+          <p className="text-2xs text-muted-foreground/70">JPEG, PNG, WebP, GIF · max 10MB</p>
           <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={(e) => handleFile(e.target.files?.[0])} />
         </label>
       )}
@@ -2230,8 +2227,7 @@ function SynthesisView({
           <button
             onClick={generateSynthesis}
             disabled={synthesisLoading || scopedCount === 0}
-            className="bg-primary text-white text-sm px-3 py-1.5 rounded-md hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground flex items-center gap-1.5"
-          >
+            className="bg-primary text-white text-sm px-3 py-1.5 rounded-md hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground flex items-center gap-1.5">
             {synthesisLoading ? <><Loader2 size={12} className="animate-spin" /> Synthesizing…</> : <><Sparkles size={12} /> {synthesis ? "Regenerate" : "Generate synthesis"}</>}
           </button>
         </div>
@@ -2251,7 +2247,7 @@ function SynthesisView({
       {synthesis && (
         <>
           <div className="bg-card border border-border rounded-lg p-5">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-2">Executive summary</p>
+            <p className="text-2xs uppercase tracking-[0.2em] text-muted-foreground mb-2">Executive summary</p>
             <p className="font-display italic text-lg text-foreground/90 leading-snug">{synthesis.summary}</p>
           </div>
 
@@ -2261,8 +2257,8 @@ function SynthesisView({
                 <div key={i} className="border-l-2 border-primary/40 pl-3 py-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h4 className="font-display text-sm font-semibold text-foreground">{c.theme}</h4>
-                    <span className="text-[10px] text-muted-foreground">×{c.frequency}</span>
-                    {c.intensity && <span className={`text-[10px] px-1.5 py-0.5 rounded border ${intensityColor[c.intensity] ?? intensityColor.low}`}>{c.intensity}</span>}
+                    <span className="text-2xs text-muted-foreground">×{c.frequency}</span>
+                    {c.intensity && <span className={`text-2xs px-1.5 py-0.5 rounded border ${intensityColor[c.intensity] ?? intensityColor.low}`}>{c.intensity}</span>}
                   </div>
                   <p className="text-sm text-foreground/80 mt-1">{c.description}</p>
                   {Array.isArray(c.exampleQuotes) && c.exampleQuotes.length > 0 && (
@@ -2283,7 +2279,7 @@ function SynthesisView({
                 <div key={i} className="border-l-2 border-accent/40 pl-3 py-1">
                   <div className="flex items-center gap-2">
                     <h4 className="font-display text-sm font-semibold text-foreground">{c.theme}</h4>
-                    <span className="text-[10px] text-muted-foreground">×{c.frequency}</span>
+                    <span className="text-2xs text-muted-foreground">×{c.frequency}</span>
                   </div>
                   <p className="text-sm text-foreground/80 mt-1">{c.description}</p>
                   {Array.isArray(c.examples) && c.examples.length > 0 && (
@@ -2347,7 +2343,7 @@ function SynthesisView({
                 <div key={i} className="border-l-2 border-border pl-3 py-1">
                   <div className="flex items-center gap-2">
                     <h4 className="font-display text-sm font-semibold text-foreground">{o.objection}</h4>
-                    <span className="text-[10px] text-muted-foreground">×{o.frequency}</span>
+                    <span className="text-2xs text-muted-foreground">×{o.frequency}</span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1"><span className="text-foreground/70 font-medium">How to address:</span> {o.howToAddress}</p>
                 </div>
@@ -2366,7 +2362,7 @@ function SynthesisView({
                   <div key={i} className="border-l-2 border-accent/40 pl-3 py-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h4 className="font-display text-sm font-semibold text-foreground">{p.pattern}</h4>
-                      <span className="text-[10px] text-muted-foreground">×{p.frequency}</span>
+                      <span className="text-2xs text-muted-foreground">×{p.frequency}</span>
                     </div>
                     <p className="text-sm text-foreground/80 mt-1">{p.description}</p>
                     {thumbs.length > 0 && (
@@ -2384,7 +2380,7 @@ function SynthesisView({
 
           {synthesis.strategicRecommendations && (
             <div className="bg-primary/5 border border-primary/20 rounded-lg p-5">
-              <p className="text-[10px] uppercase tracking-[0.2em] text-primary mb-2">Strategic recommendations</p>
+              <p className="text-2xs uppercase tracking-[0.2em] text-primary mb-2">Strategic recommendations</p>
               <p className="font-display text-base text-foreground leading-relaxed">{synthesis.strategicRecommendations}</p>
             </div>
           )}
@@ -2413,9 +2409,9 @@ function CustomerLanguagePattern({ pattern }: { pattern: any }) {
     <div className="border-l-2 border-border pl-3 py-1">
       <div className="flex items-center gap-2 flex-wrap">
         <p className="font-display italic text-sm text-foreground">"{pattern.phrase}"</p>
-        <span className="text-[10px] text-muted-foreground">×{pattern.frequency}</span>
+        <span className="text-2xs text-muted-foreground">×{pattern.frequency}</span>
         {originals.length > 0 && (
-          <button onClick={() => setOpen((v) => !v)} className="text-[10px] text-primary hover:underline flex items-center gap-1">
+          <button onClick={() => setOpen((v) => !v)} className="text-2xs text-primary hover:underline flex items-center gap-1">
             <Languages size={10} />
             {open ? "Hide" : "Show"} originals ({originals.length})
           </button>
@@ -2426,7 +2422,7 @@ function CustomerLanguagePattern({ pattern }: { pattern: any }) {
         <ul className="mt-1.5 space-y-0.5">
           {originals.map((o, i) => (
             <li key={i} className="text-xs text-muted-foreground">
-              <span className="text-[10px] uppercase tracking-wider px-1 py-0.5 rounded bg-stone-100 text-foreground/70 mr-1.5">{o.language}</span>
+              <span className="text-2xs uppercase tracking-wider px-1 py-0.5 rounded bg-stone-100 text-foreground/70 mr-1.5">{o.language}</span>
               <span className="italic">"{o.phrase}"</span>
             </li>
           ))}

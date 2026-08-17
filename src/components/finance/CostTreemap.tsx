@@ -45,7 +45,7 @@ export function CostTreemap({ data }: { data: { name: string; value: number }[] 
           </div>
         ))}
       </div>
-      <p className="text-[11px] text-muted-foreground mt-3 text-center">Totale kosten (P&amp;L actual): <span className="font-medium text-foreground tabular-nums">{eurC(total)}</span></p>
+      <p className="text-xs text-muted-foreground mt-3 text-center">Totale kosten (P&amp;L actual): <span className="font-medium text-foreground tabular-nums">{eurC(total)}</span></p>
     </div>
   );
 }

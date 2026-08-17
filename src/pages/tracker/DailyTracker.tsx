@@ -264,11 +264,11 @@ export default function DailyTracker() {
           <div className="overflow-x-auto">
             <div className="w-max min-w-full">
               <div className="grid bg-muted border-b border-border sticky top-0 z-20" style={{ gridTemplateColumns: gridCols }}>
-                <div className="px-3 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground sticky left-0 bg-muted z-10 border-r border-border">DATUM</div>
-                <div className="px-1 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/50 text-center">WK</div>
+                <div className="px-3 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground sticky left-0 bg-muted z-10 border-r border-border">DATUM</div>
+                <div className="px-1 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground/50 text-center">WK</div>
                 {COLS.map((c) => (
                   <div key={c.key as string}
-                    className={`px-3 py-3 text-[11px] font-semibold uppercase tracking-wider text-right ${c.kind === "calc" ? "text-primary/80" : "text-muted-foreground"}`}>
+                    className={`px-3 py-3 text-xs font-semibold uppercase tracking-wider text-right ${c.kind === "calc" ? "text-primary/80" : "text-muted-foreground"}`}>
                     {c.label}
                   </div>
                 ))}
@@ -294,14 +294,14 @@ export default function DailyTracker() {
                 return (
                   <div key={d.id} className="group grid border-b border-border/50 hover:bg-muted/40 transition-colors"
                     style={{ gridTemplateColumns: gridCols }}>
-                    <div className="px-3 py-2 text-[13px] font-medium text-foreground flex items-center sticky left-0 bg-card group-hover:bg-muted z-10 border-r border-border/60 tabular-nums">
+                    <div className="px-3 py-2 text-sm font-medium text-foreground flex items-center sticky left-0 bg-card group-hover:bg-muted z-10 border-r border-border/60 tabular-nums">
                       {fmtDate(d.date)}
                     </div>
-                    <div className="px-1 py-2 text-[11px] text-muted-foreground/50 flex items-center justify-center tabular-nums">{c.week}</div>
+                    <div className="px-1 py-2 text-xs text-muted-foreground/50 flex items-center justify-center tabular-nums">{c.week}</div>
                     {COLS.map((col) => col.kind === "input" ? (
                       <Cell key={col.key} value={d[col.key] as number} fmt={col.fmt} onCommit={(v) => setCell(d.id, col.key, v)} />
                     ) : (
-                      <div key={col.key} className={`px-3 py-2 text-[12px] text-right flex items-center justify-end tabular-nums font-medium ${col.tone ? col.tone(d, c) : "text-muted-foreground"}`}>
+                      <div key={col.key} className={`px-3 py-2 text-xs text-right flex items-center justify-end tabular-nums font-medium ${col.tone ? col.tone(d, c) : "text-muted-foreground"}`}>
                         {col.get(d, c)}
                       </div>
                     ))}
@@ -352,7 +352,7 @@ function Cell({ value, fmt, onCommit }: { value: number; fmt: "int" | "eur" | "p
       onChange={(e) => setDraft(e.target.value)}
       onBlur={() => { setFoc(false); let n = parseFloat(draft.replace(",", ".")) || 0; if (fmt === "pct") n = n / 100; onCommit(n); }}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") (e.target as HTMLInputElement).blur(); }}
-      className="px-3 py-2 text-[12px] text-right w-full bg-transparent outline-none focus:bg-card focus:ring-2 focus:ring-inset focus:ring-primary/40 rounded-2xl text-foreground tabular-nums placeholder:text-muted-foreground/30 transition-colors"
+      className="px-3 py-2 text-xs text-right w-full bg-transparent outline-none focus:bg-card focus:ring-2 focus:ring-inset focus:ring-primary/40 rounded-2xl text-foreground tabular-nums placeholder:text-muted-foreground/30 transition-colors"
     />
   );
 }

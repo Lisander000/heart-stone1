@@ -121,9 +121,9 @@ export default function TicketDetail() {
             <ShieldCheck className="h-4 w-4" style={{ color: iAmOwner ? "hsl(var(--ok))" : otherOwns ? "hsl(var(--ember))" : "hsl(var(--muted-foreground))" }} />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Eigenaar van dit ticket</p>
+            <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">Eigenaar van dit ticket</p>
             {owner ? (
-              <p className="text-sm text-foreground truncate"><span className="font-semibold">{owner.name}</span>{iAmOwner && <span className="ml-1.5 text-[10px] font-semibold text-ok bg-ok/12 rounded-full px-1.5 py-0.5 align-middle">jij</span>}<span className="text-muted-foreground font-normal"> · {owner.email}</span></p>
+              <p className="text-sm text-foreground truncate"><span className="font-semibold">{owner.name}</span>{iAmOwner && <span className="ml-1.5 text-2xs font-semibold text-ok bg-ok/12 rounded-full px-1.5 py-0.5 align-middle">jij</span>}<span className="text-muted-foreground font-normal"> · {owner.email}</span></p>
             ) : <p className="text-sm text-muted-foreground">Nog niemand behandelt dit ticket — neem het op zodat collega's weten dat jij bezig bent.</p>}
           </div>
           <div className="shrink-0">
@@ -149,7 +149,7 @@ export default function TicketDetail() {
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
               <div className="flex items-center justify-between mb-5">
                 <h2 className="text-sm font-semibold text-foreground">Status &amp; prioriteit</h2>
-                <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full border" style={{ background: `hsl(var(--${bannerTone}) / 0.1)`, color: toneColor(bannerTone), borderColor: `hsl(var(--${bannerTone}) / 0.35)` }}>{STATUS_LABEL[ticket.status] ?? ticket.status}</span>
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full border" style={{ background: `hsl(var(--${bannerTone}) / 0.1)`, color: toneColor(bannerTone), borderColor: `hsl(var(--${bannerTone}) / 0.35)` }}>{STATUS_LABEL[ticket.status] ?? ticket.status}</span>
               </div>
               {/* status stepper */}
               <div className="flex items-start mb-5">
@@ -160,8 +160,8 @@ export default function TicketDetail() {
                   return (
                     <div key={st} className="flex-1 flex flex-col items-center relative">
                       {i > 0 && <span className="absolute top-4 right-1/2 w-full h-0.5" style={{ background: i <= sIdx ? "hsl(var(--ok))" : "hsl(var(--border))" }} />}
-                      <button onClick={() => setStatus(st as TicketStatus)} className="relative z-10 h-8 w-8 rounded-full grid place-items-center transition-transform hover:scale-105" style={{ background: bg, color: fg }} title={`Zet op ${STATUS_LABEL[st]}`}>{done ? <Check className="h-4 w-4" /> : <span className="text-xs font-bold">{i + 1}</span>}</button>
-                      <span className={`text-[11px] mt-1.5 text-center leading-tight ${curNode ? "text-foreground font-semibold" : "text-muted-foreground"}`}>{STATUS_LABEL[st]}</span>
+                      <button onClick={() => setStatus(st as TicketStatus)} className="relative z-10 h-8 w-8 rounded-full grid place-items-center transition-transform hover:scale-105" style={{ background: bg, color: fg }} title={`Zet op ${STATUS_LABEL[st]}`} aria-label="Bevestigen">{done ? <Check className="h-4 w-4" /> : <span className="text-xs font-bold">{i + 1}</span>}</button>
+                      <span className={`text-xs mt-1.5 text-center leading-tight ${curNode ? "text-foreground font-semibold" : "text-muted-foreground"}`}>{STATUS_LABEL[st]}</span>
                     </div>
                   );
                 })}
@@ -169,21 +169,21 @@ export default function TicketDetail() {
               {/* priority + SLA */}
               <div className="flex items-end justify-between flex-wrap gap-3 pb-4 border-b" style={{ borderColor: "hsl(var(--border))" }}>
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Prioriteit</p>
+                  <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Prioriteit</p>
                   <div className="flex flex-wrap gap-1.5">
-                    {PRIORITIES.map((pr) => { const active = (ticket.priority || "normal") === pr.id; const col = toneColor(pr.tone); return <button key={pr.id} onClick={() => setPriority(pr.id)} className="h-7 px-2.5 rounded-lg text-[11px] font-medium border transition-colors" style={active ? { background: col, color: "#fff", borderColor: col } : { borderColor: "hsl(var(--border))", color: "hsl(var(--muted-foreground))" }}>{pr.label}</button>; })}
+                    {PRIORITIES.map((pr) => { const active = (ticket.priority || "normal") === pr.id; const col = toneColor(pr.tone); return <button key={pr.id} onClick={() => setPriority(pr.id)} className="h-7 px-2.5 rounded-lg text-xs font-medium border transition-colors" style={active ? { background: col, color: "#fff", borderColor: col } : { borderColor: "hsl(var(--border))", color: "hsl(var(--muted-foreground))" }}>{pr.label}</button>; })}
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-[11px] text-muted-foreground flex items-center gap-1 justify-end"><Clock className="h-3 w-3" /> Wachttijd: <span className="font-medium text-foreground">{fmtWaited(urg.waited)}</span></p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">{urg.sla}</p>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1 justify-end"><Clock className="h-3 w-3" /> Wachttijd: <span className="font-medium text-foreground">{fmtWaited(urg.waited)}</span></p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{urg.sla}</p>
                 </div>
               </div>
               {/* customer message — grouped in with status & priority */}
               <div className="mt-4">
-                <div className="flex items-center gap-2 mb-2"><Mail className="h-4 w-4 text-muted-foreground" /><p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Bericht van de klant</p></div>
-                <p className="text-[13px] font-medium text-foreground mb-1">{ticket.subject || "—"}</p>
-                <div className="rounded-xl border border-border bg-muted/30 px-3 py-2.5 text-[13px] text-foreground/90 whitespace-pre-wrap leading-relaxed min-h-[60px]">{ticket.body || "Geen berichtinhoud."}</div>
+                <div className="flex items-center gap-2 mb-2"><Mail className="h-4 w-4 text-muted-foreground" /><p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">Bericht van de klant</p></div>
+                <p className="text-sm font-medium text-foreground mb-1">{ticket.subject || "—"}</p>
+                <div className="rounded-xl border border-border bg-muted/30 px-3 py-2.5 text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed min-h-[60px]">{ticket.body || "Geen berichtinhoud."}</div>
               </div>
             </motion.div>
 
@@ -192,24 +192,24 @@ export default function TicketDetail() {
               <div className="flex items-center gap-2"><Check className="h-4 w-4 text-muted-foreground" /><h2 className="text-sm font-semibold text-foreground">Resolutie &amp; afsluiting</h2></div>
               {resolved ? (
                 <div className="rounded-xl bg-ok/10 border border-ok/20 px-3 py-3">
-                  <div className="flex items-center gap-2"><span className="h-7 w-7 rounded-full bg-ok grid place-items-center"><Check className="h-4 w-4 text-white" /></span><div><p className="text-[13px] font-semibold text-foreground">{STATUS_LABEL[ticket.status] ?? "Opgelost"}</p><p className="text-xs text-muted-foreground">{meta.outcome || "—"} · {fmtDate(meta.resolvedAt)}</p></div></div>
-                  {meta.reply && <div className="mt-2.5 pt-2.5 border-t border-ok/20"><p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Aan de klant gemeld</p><p className="text-[13px] text-foreground/90 whitespace-pre-wrap leading-relaxed">{meta.reply}</p></div>}
-                  {handledMs > 0 && <p className="text-[11px] text-muted-foreground mt-2.5 pt-2.5 border-t border-ok/20">Afhandeltijd <span className="font-semibold text-foreground">{fmtDur(handledMs)}</span> · van opname tot opgelost</p>}
-                  <button onClick={reopen} className="mt-2.5 text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1"><RotateCcw className="h-3 w-3" /> Heropenen</button>
+                  <div className="flex items-center gap-2"><span className="h-7 w-7 rounded-full bg-ok grid place-items-center"><Check className="h-4 w-4 text-white" /></span><div><p className="text-sm font-semibold text-foreground">{STATUS_LABEL[ticket.status] ?? "Opgelost"}</p><p className="text-xs text-muted-foreground">{meta.outcome || "—"} · {fmtDate(meta.resolvedAt)}</p></div></div>
+                  {meta.reply && <div className="mt-2.5 pt-2.5 border-t border-ok/20"><p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Aan de klant gemeld</p><p className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed">{meta.reply}</p></div>}
+                  {handledMs > 0 && <p className="text-xs text-muted-foreground mt-2.5 pt-2.5 border-t border-ok/20">Afhandeltijd <span className="font-semibold text-foreground">{fmtDur(handledMs)}</span> · van opname tot opgelost</p>}
+                  <button onClick={reopen} className="mt-2.5 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"><RotateCcw className="h-3 w-3" /> Heropenen</button>
                 </div>
               ) : (
                 <>
                   {/* wat laat je de klant weten */}
                   <div>
-                    <div className="flex items-center gap-2 mb-2"><MessageSquare className="h-4 w-4 text-muted-foreground" /><p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Antwoord aan de klant</p></div>
-                    <textarea value={reply} onChange={(e) => setReply(e.target.value)} rows={3} placeholder="Wat heb je laten weten aan de klant? - optioneel" className="w-full rounded-xl border border-border bg-muted/40 px-3 py-2 text-[13px] outline-none focus:border-ring/50 focus:bg-card resize-none" />
+                    <div className="flex items-center gap-2 mb-2"><MessageSquare className="h-4 w-4 text-muted-foreground" /><p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">Antwoord aan de klant</p></div>
+                    <textarea value={reply} onChange={(e) => setReply(e.target.value)} rows={3} placeholder="Wat heb je laten weten aan de klant? - optioneel" className="w-full rounded-xl border border-border bg-muted/40 px-3 py-2 text-sm outline-none focus:border-ring/50 focus:bg-card resize-none" />
                   </div>
                   {/* kies de uitkomst om af te sluiten */}
                   <div className="pt-3 border-t" style={{ borderColor: "hsl(var(--border))" }}>
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Sluit af met de uitkomst</p>
+                    <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Sluit af met de uitkomst</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                       {RESOLUTIONS.map((o) => (
-                        <button key={o} onClick={() => resolve(o)} className="h-9 px-3 rounded-lg border border-border text-[13px] font-medium text-foreground hover:border-ok/50 hover:bg-ok/[0.04] text-left flex items-center gap-2 transition-colors"><Check className="h-3.5 w-3.5 text-ok shrink-0" /> {o}</button>
+                        <button key={o} onClick={() => resolve(o)} className="h-9 px-3 rounded-lg border border-border text-sm font-medium text-foreground hover:border-ok/50 hover:bg-ok/[0.04] text-left flex items-center gap-2 transition-colors" aria-label="Bevestigen"><Check className="h-3.5 w-3.5 text-ok shrink-0" /> {o}</button>
                       ))}
                     </div>
                   </div>
@@ -221,15 +221,15 @@ export default function TicketDetail() {
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
               <div className="flex items-center gap-2 mb-3"><ClipboardList className="h-4 w-4 text-muted-foreground" /><h2 className="text-sm font-semibold text-foreground">Interne notities</h2></div>
               <div className="flex items-start gap-2">
-                <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} placeholder="Interne opmerking…" onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submitNote(); }} className="flex-1 rounded-xl border border-border bg-muted/40 px-3 py-2 text-[13px] outline-none focus:border-ring/50 focus:bg-card resize-none" />
-                <button onClick={submitNote} disabled={!note.trim()} className="h-9 px-3 rounded-lg bg-primary text-primary-foreground text-sm font-medium disabled:opacity-40 flex items-center gap-1.5"><Send className="h-3.5 w-3.5" /></button>
+                <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} placeholder="Interne opmerking…" onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submitNote(); }} className="flex-1 rounded-xl border border-border bg-muted/40 px-3 py-2 text-sm outline-none focus:border-ring/50 focus:bg-card resize-none" />
+                <button onClick={submitNote} disabled={!note.trim()} className="h-9 px-3 rounded-lg bg-primary text-primary-foreground text-sm font-medium disabled:opacity-40 flex items-center gap-1.5" aria-label="Versturen"><Send className="h-3.5 w-3.5" /></button>
               </div>
               <div className="mt-4 space-y-3">
                 {notes.length === 0 ? <p className="text-xs text-muted-foreground text-center py-2">Nog geen notities.</p> : notes.map((n) => (
                   <div key={n.at} className="group flex gap-3">
-                    <span className="h-6 w-6 rounded-full bg-primary/10 text-primary grid place-items-center text-[9px] font-bold shrink-0 mt-0.5">{initials(n.byName)}</span>
-                    <div className="flex-1 min-w-0 pb-1"><p className="text-[13px] text-foreground whitespace-pre-wrap">{n.text}</p><p className="text-[11px] text-muted-foreground mt-0.5"><span className="font-medium text-foreground/80">{n.byName || "Onbekend"}</span> · {relTime(n.at)}</p></div>
-                    <button onClick={() => removeTicketNote(id, n.at)} className="opacity-0 group-hover:opacity-100 h-6 w-6 grid place-items-center rounded text-muted-foreground/50 hover:text-bad transition-opacity"><Trash2 className="h-3.5 w-3.5" /></button>
+                    <span className="h-6 w-6 rounded-full bg-primary/10 text-primary grid place-items-center text-2xs font-bold shrink-0 mt-0.5">{initials(n.byName)}</span>
+                    <div className="flex-1 min-w-0 pb-1"><p className="text-sm text-foreground whitespace-pre-wrap">{n.text}</p><p className="text-xs text-muted-foreground mt-0.5"><span className="font-medium text-foreground/80">{n.byName || "Onbekend"}</span> · {relTime(n.at)}</p></div>
+                    <button onClick={() => removeTicketNote(id, n.at)} className="opacity-0 group-hover:opacity-100 h-6 w-6 grid place-items-center rounded text-muted-foreground/50 hover:text-bad transition-opacity" aria-label="Verwijderen"><Trash2 className="h-3.5 w-3.5" /></button>
                   </div>
                 ))}
               </div>
@@ -242,7 +242,7 @@ export default function TicketDetail() {
                 <div className="space-y-0">{log.map((l, i) => (
                   <div key={l.at} className="flex gap-3">
                     <div className="flex flex-col items-center"><span className="h-6 w-6 rounded-full grid place-items-center shrink-0" style={{ background: "hsl(var(--muted))" }}><LogIcon kind={l.kind} /></span>{i < log.length - 1 && <span className="w-px flex-1 bg-border my-1" />}</div>
-                    <div className="flex-1 min-w-0 pb-4"><p className="text-[13px] text-foreground">{l.text}</p><p className="text-[11px] text-muted-foreground mt-0.5"><span className="font-medium text-foreground/80">{l.byName || "Onbekend"}</span> · {relTime(l.at)}</p></div>
+                    <div className="flex-1 min-w-0 pb-4"><p className="text-sm text-foreground">{l.text}</p><p className="text-xs text-muted-foreground mt-0.5"><span className="font-medium text-foreground/80">{l.byName || "Onbekend"}</span> · {relTime(l.at)}</p></div>
                   </div>
                 ))}</div>
               )}
@@ -254,7 +254,7 @@ export default function TicketDetail() {
             {/* Ticket & klant */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5 space-y-3">
               <h2 className="text-sm font-semibold text-foreground">Ticket & klant</h2>
-              <div className="rounded-xl border border-border bg-muted/30 px-3 py-2 flex items-center gap-2"><User className="h-3.5 w-3.5 text-muted-foreground shrink-0" /><span className="text-[13px] text-foreground truncate">{ticket.customer_email || "—"}</span></div>
+              <div className="rounded-xl border border-border bg-muted/30 px-3 py-2 flex items-center gap-2"><User className="h-3.5 w-3.5 text-muted-foreground shrink-0" /><span className="text-sm text-foreground truncate">{ticket.customer_email || "—"}</span></div>
               <div className="flex items-center justify-between text-xs"><span className="text-muted-foreground">Kanaal</span><span className="text-foreground capitalize">{ticket.channel || "—"}</span></div>
               <div className="flex items-center justify-between text-xs"><span className="text-muted-foreground">Aangemaakt</span><span className="text-foreground">{fmtDate(ticket.created_at)}</span></div>
               {takenAt && <div className="flex items-center justify-between text-xs"><span className="text-muted-foreground">Opgenomen</span><span className="text-foreground">{fmtDate(takenAt)}</span></div>}

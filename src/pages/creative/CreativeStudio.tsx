@@ -175,7 +175,7 @@ export default function CreativeStudio() {
             {icps.map((ic) => (
               <div key={ic} className="flex items-center justify-between gap-2 rounded-lg border border-border bg-card px-3 py-2">
                 <span className="text-sm text-foreground">{ic}</span>
-                <button onClick={() => saveIcps(icps.filter((x) => x !== ic))} className="text-muted-foreground hover:text-bad"><X className="h-3.5 w-3.5" /></button>
+                <button onClick={() => saveIcps(icps.filter((x) => x !== ic))} className="text-muted-foreground hover:text-bad" aria-label="Sluiten"><X className="h-3.5 w-3.5" /></button>
               </div>
             ))}
             {icps.length === 0 && <p className="text-xs text-muted-foreground text-center py-3">Nog geen ICP's.</p>}

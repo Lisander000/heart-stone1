@@ -112,7 +112,7 @@ export default function ReturnsDashboard({ embedded = false }: { embedded?: bool
 
         {/* period filter */}
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-[11px] uppercase tracking-widest text-muted-foreground mr-1 flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" /> Periode</span>
+          <span className="text-xs uppercase tracking-widest text-muted-foreground mr-1 flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" /> Periode</span>
           {PERIODS.map((p) => (
             <button key={p.id} onClick={() => { setPeriod(p.id); setCustomDate(""); }}
               className={`h-8 px-3 rounded-full text-xs font-medium transition-all ${period === p.id ? "bg-primary text-primary-foreground shadow-sm" : "bg-card border border-border text-muted-foreground hover:text-foreground shadow-xs"}`}>
@@ -218,12 +218,12 @@ export default function ReturnsDashboard({ embedded = false }: { embedded?: bool
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
                 {stepStats.map((s, i) => (
                   <div key={i} className="rounded-xl border border-border bg-card p-3">
-                    <p className="text-[11px] text-muted-foreground truncate" title={s.label}>{s.name} · {s.label}</p>
+                    <p className="text-xs text-muted-foreground truncate" title={s.label}>{s.name} · {s.label}</p>
                     <div className="flex items-baseline gap-1.5 mt-1">
                       <p className="font-num text-xl font-bold text-foreground tabular-nums leading-none">{s.rate}%</p>
-                      <p className="text-[11px] text-muted-foreground">geaccepteerd</p>
+                      <p className="text-xs text-muted-foreground">geaccepteerd</p>
                     </div>
-                    <p className="text-[11px] text-muted-foreground tabular-nums mt-0.5">{s.accepted} van {s.accepted + s.rejected} aangeboden</p>
+                    <p className="text-xs text-muted-foreground tabular-nums mt-0.5">{s.accepted} van {s.accepted + s.rejected} aangeboden</p>
                   </div>
                 ))}
               </div>
@@ -271,7 +271,7 @@ function DonutCard({ title, subtitle, data, centerValue, centerLabel }: { title:
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 grid place-items-center pointer-events-none">
-              <div className="text-center"><p className="font-num text-2xl font-bold text-foreground leading-none tabular-nums">{centerValue}</p><p className="text-[10px] text-muted-foreground uppercase tracking-wide">{centerLabel}</p></div>
+              <div className="text-center"><p className="font-num text-2xl font-bold text-foreground leading-none tabular-nums">{centerValue}</p><p className="text-2xs text-muted-foreground uppercase tracking-wide">{centerLabel}</p></div>
             </div>
           </div>
           <div className="space-y-1.5 mt-3">

@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
+import { MotionConfig } from "framer-motion";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -44,7 +45,11 @@ import UgcStudio from "./pages/creative/UgcStudio.tsx";
 
 const queryClient = new QueryClient();
 
+// reducedMotion="user" volgt de systeeminstelling: verplaatsing en schaal worden
+// uitgeschakeld, opacity- en kleurovergangen blijven staan. Dekt in één keer alle
+// framer-motion animaties in de app (WCAG 2.2.2).
 const App = () => (
+  <MotionConfig reducedMotion="user">
   <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -103,6 +108,7 @@ const App = () => (
       </TooltipProvider>
     </QueryClientProvider>
   </ThemeProvider>
+  </MotionConfig>
 );
 
 export default App;

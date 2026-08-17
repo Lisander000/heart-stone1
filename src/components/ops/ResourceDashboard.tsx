@@ -143,7 +143,7 @@ export function ResourceDashboard(cfg: DashConfig) {
     <div className="space-y-5">
       {/* period filter + refresh */}
       <div className="flex items-center gap-1.5 flex-wrap">
-        <span className="text-[11px] uppercase tracking-widest text-muted-foreground mr-1 flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" /> Periode</span>
+        <span className="text-xs uppercase tracking-widest text-muted-foreground mr-1 flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" /> Periode</span>
         {PERIODS.map((p) => (
           <button key={p.id} onClick={() => { setPeriod(p.id); setCustomDate(""); }}
             className={`h-8 px-3 rounded-full text-xs font-medium transition-all ${period === p.id ? "bg-primary text-primary-foreground shadow-sm" : "bg-card border border-border text-muted-foreground hover:text-foreground shadow-xs"}`}>
@@ -210,7 +210,7 @@ export function ResourceDashboard(cfg: DashConfig) {
                 <StatTile label="Snelst" value={fmtDur(resolution.min)} tone="ok" />
                 <StatTile label="Traagst" value={fmtDur(resolution.max)} tone="bad" />
               </div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Verdeling van de afhandeltijd</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Verdeling van de afhandeltijd</p>
               <div className="h-48">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={resolution.buckets} margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
@@ -246,7 +246,7 @@ function Empty({ label }: { label: string }) {
 function StatTile({ label, value, tone }: { label: string; value: string; tone: string }) {
   return (
     <div className="rounded-xl border border-border bg-muted/30 p-3">
-      <div className="flex items-center gap-1.5"><span className="rounded-full shrink-0" style={{ background: `hsl(var(--${tone}))`, width: 7, height: 7 }} /><p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{label}</p></div>
+      <div className="flex items-center gap-1.5"><span className="rounded-full shrink-0" style={{ background: `hsl(var(--${tone}))`, width: 7, height: 7 }} /><p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</p></div>
       <p className="font-num text-xl font-bold tabular-nums text-foreground leading-none mt-1.5">{value}</p>
     </div>
   );
@@ -266,7 +266,7 @@ function DonutCard({ title, subtitle, data, centerValue, centerLabel, label }: {
                 <Tooltip contentStyle={tooltipStyle} formatter={(v: any, n: any) => [v, n]} />
               </PieChart>
             </ResponsiveContainer>
-            <div className="absolute inset-0 grid place-items-center pointer-events-none"><div className="text-center"><p className="font-num text-xl font-bold tabular-nums text-foreground leading-none">{centerValue}</p><p className="text-[10px] text-muted-foreground">{centerLabel}</p></div></div>
+            <div className="absolute inset-0 grid place-items-center pointer-events-none"><div className="text-center"><p className="font-num text-xl font-bold tabular-nums text-foreground leading-none">{centerValue}</p><p className="text-2xs text-muted-foreground">{centerLabel}</p></div></div>
           </div>
           <div className="mt-3 space-y-1.5">
             {data.slice(0, 5).map((d) => (

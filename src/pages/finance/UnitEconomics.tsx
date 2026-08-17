@@ -189,7 +189,7 @@ export default function UnitEconomics() {
                 </button>
               ))}
             </div>
-            <button onClick={() => setI(DEFAULTS)} title="Terug naar standaardwaarden" className="h-9 w-9 grid place-items-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground shadow-xs transition-colors"><RotateCcw className="h-4 w-4" /></button>
+            <button onClick={() => setI(DEFAULTS)} title="Terug naar standaardwaarden" className="h-9 w-9 grid place-items-center rounded-full border border-border bg-card text-muted-foreground hover:text-foreground shadow-xs transition-colors" aria-label="Terug naar standaardwaarden"><RotateCcw className="h-4 w-4" /></button>
           </div>
         </div>
 
@@ -198,7 +198,7 @@ export default function UnitEconomics() {
           <div className="space-y-4">
             <Section icon={Receipt} title="Product & prijs" accent="ok">
               <label className="block sm:col-span-2">
-                <span className="text-[11px] font-medium text-muted-foreground">Naam</span>
+                <span className="text-xs font-medium text-muted-foreground">Naam</span>
                 <input value={i.name} onChange={(e) => set("name", e.target.value)}
                   className="mt-1 w-full h-9 px-2.5 rounded-lg border border-border bg-card text-sm text-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/15" />
               </label>
@@ -212,8 +212,8 @@ export default function UnitEconomics() {
               )}
               <Field label="Btw" value={i.vatPct} onChange={(v) => set("vatPct", v)} unit="%" step={1} />
               <div className="sm:col-span-2 flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
-                <span className="text-[11px] text-muted-foreground">Prijs excl. btw</span>
-                <span className="text-[13px] font-semibold text-foreground tabular-nums">{eur(o.priceExVat)}</span>
+                <span className="text-xs text-muted-foreground">Prijs excl. btw</span>
+                <span className="text-sm font-semibold text-foreground tabular-nums">{eur(o.priceExVat)}</span>
               </div>
             </Section>
 
@@ -249,7 +249,7 @@ export default function UnitEconomics() {
 
             {/* ── PER ORDER ── */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
-              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-4">Per {perOrderLabel}</h3>
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Per {perOrderLabel}</h3>
               <div className="flex items-end justify-between gap-3 pb-4 mb-4 border-b border-border/60">
                 <div>
                   <p className="text-xs text-muted-foreground flex items-center gap-1">Contributiemarge <Tip text="Wat er per order overblijft na álle variabele kosten (COGS, fulfillment, fees, retouren). Dít betaalt je marketing en vaste kosten." /></p>
@@ -263,7 +263,7 @@ export default function UnitEconomics() {
                 <StatBox label="Prijs excl. btw" value={eur(o.priceExVat)} />
                 <StatBox label="Break-even ROAS" value={Number.isFinite(m.breakEvenRoas) ? `${numS(m.breakEvenRoas, 2)}×` : "—"} info="De minimale ROAS (omzet ÷ ad spend) om quitte te spelen = 1 ÷ contributiemarge%." />
               </div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Waar gaat elke euro naartoe?</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Waar gaat elke euro naartoe?</p>
               <div className="flex h-3.5 w-full rounded-full overflow-hidden bg-muted">
                 {segs.map((s) => (
                   <div key={s.label} title={`${s.label}: ${eur(s.value)}`} style={{ width: `${(s.value / segTotal) * 100}%`, background: `hsl(var(--${s.v}))` }} />
@@ -284,7 +284,7 @@ export default function UnitEconomics() {
 
             {/* ── PER KLANT ── */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5">
-              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-4">Per klant · levenslang</h3>
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Per klant · levenslang</h3>
               <div className="grid grid-cols-2 gap-4 pb-4 mb-4 border-b border-border/60">
                 <div>
                   <p className="text-xs text-muted-foreground flex items-center gap-1">Winst per klant <Tip text="LTV minus CAC — de netto winst die één nieuwe klant je uiteindelijk oplevert." /></p>
@@ -308,7 +308,7 @@ export default function UnitEconomics() {
                   <StatBox label="Terugverdientijd" value={Number.isFinite(m.paybackOrders) ? `${numS(m.paybackOrders, 1)} orders` : "—"} sub="tot CAC terugverdiend" />
                 )}
               </div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">LTV vs. CAC</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">LTV vs. CAC</p>
               <MiniBar label="LTV" value={m.ltv} max={ltvCacMax} color="hsl(var(--info))" />
               <MiniBar label="CAC" value={i.cac} max={ltvCacMax} color="hsl(var(--muted-foreground))" />
             </motion.div>
@@ -317,29 +317,29 @@ export default function UnitEconomics() {
 
         {/* ══════════════ NETTO MARGE · volledige breedte ══════════════ */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="card-soft p-5">
-          <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-4">Netto marge · met vs. zonder ad spend</h3>
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Netto marge · met vs. zonder ad spend</h3>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <div className="rounded-xl p-4" style={{ background: "hsl(var(--ok) / 0.06)" }}>
-              <p className="text-[11px] font-semibold text-foreground flex items-center gap-1">Zónder ad spend <Tip text="Contributiemarge: wat je per order overhoudt vóór marketing/acquisitie. Dít is de bekende marge (bv. 57%)." /></p>
-              <p className="text-[10px] text-muted-foreground mb-2">contributiemarge / {perOrderLabel}</p>
+              <p className="text-xs font-semibold text-foreground flex items-center gap-1">Zónder ad spend <Tip text="Contributiemarge: wat je per order overhoudt vóór marketing/acquisitie. Dít is de bekende marge (bv. 57%)." /></p>
+              <p className="text-2xs text-muted-foreground mb-2">contributiemarge / {perOrderLabel}</p>
               <p className="font-num text-2xl font-bold tabular-nums leading-none" style={{ color: "hsl(var(--ok))" }}>{pctS(o.cmPct)}</p>
               <p className="text-xs text-muted-foreground mt-1">{eur(o.cm)} / {perOrderLabel}</p>
             </div>
             <div className="rounded-xl p-4" style={{ background: `hsl(var(--${ins.netPerCustomer >= 0 ? "info" : "bad"}) / 0.06)` }}>
-              <p className="text-[11px] font-semibold text-foreground flex items-center gap-1">Mét ad spend <Tip text="Netto marge ná aftrek van de acquisitiekost (CAC), over de hele klant. Dít houd je écht over." /></p>
-              <p className="text-[10px] text-muted-foreground mb-2">na CAC · over de hele klant</p>
+              <p className="text-xs font-semibold text-foreground flex items-center gap-1">Mét ad spend <Tip text="Netto marge ná aftrek van de acquisitiekost (CAC), over de hele klant. Dít houd je écht over." /></p>
+              <p className="text-2xs text-muted-foreground mb-2">na CAC · over de hele klant</p>
               <p className="font-num text-2xl font-bold tabular-nums leading-none" style={{ color: `hsl(var(--${ins.netPerCustomer >= 0 ? "info" : "bad"}))` }}>{pctS(ins.netPerCustomerPct)}</p>
               <p className="text-xs text-muted-foreground mt-1">{eur(ins.netPerCustomer)} / klant</p>
             </div>
             <div className="rounded-xl p-4 bg-muted/40">
-              <p className="text-[11px] font-semibold text-foreground flex items-center gap-1">Netto / 1e sale <Tip text="Contributiemarge van de eerste aankoop mín de volledige CAC — wat een nieuwe klant je meteen netto oplevert." /></p>
-              <p className="text-[10px] text-muted-foreground mb-2">na CAC</p>
+              <p className="text-xs font-semibold text-foreground flex items-center gap-1">Netto / 1e sale <Tip text="Contributiemarge van de eerste aankoop mín de volledige CAC — wat een nieuwe klant je meteen netto oplevert." /></p>
+              <p className="text-2xs text-muted-foreground mb-2">na CAC</p>
               <p className="font-num text-2xl font-bold tabular-nums leading-none text-foreground">{eur(ins.netFirstSale)}</p>
               <p className="text-xs text-muted-foreground mt-1">{pctS(ins.netFirstSalePct)} van de omzet</p>
             </div>
             <div className="rounded-xl p-4 bg-muted/40">
-              <p className="text-[11px] font-semibold text-foreground">Netto / klant</p>
-              <p className="text-[10px] text-muted-foreground mb-2">LTV − CAC</p>
+              <p className="text-xs font-semibold text-foreground">Netto / klant</p>
+              <p className="text-2xs text-muted-foreground mb-2">LTV − CAC</p>
               <p className="font-num text-2xl font-bold tabular-nums leading-none text-foreground">{eur(ins.netPerCustomer)}</p>
               <p className="text-xs text-muted-foreground mt-1">over de hele klant</p>
             </div>
@@ -364,7 +364,7 @@ export default function UnitEconomics() {
             {/* Hefbomen */}
             <div className="card-soft p-5">
               <div className="flex items-center gap-2 mb-1"><Gauge className="h-4 w-4 text-muted-foreground" /><h3 className="text-sm font-semibold text-foreground">Grootste hefbomen</h3></div>
-              <p className="text-[11px] text-muted-foreground mb-3">10% verbetering per knop → extra marge / {perOrderLabel}</p>
+              <p className="text-xs text-muted-foreground mb-3">10% verbetering per knop → extra marge / {perOrderLabel}</p>
               <div className="space-y-2">
                 {ins.levers.slice(0, 5).map((l) => (
                   <div key={l.label} className="flex items-center gap-2.5">
@@ -396,16 +396,16 @@ export default function UnitEconomics() {
           {/* Eenmalig vs abonnement */}
           <div className="card-soft p-5">
             <div className="flex items-center gap-2 mb-1"><ArrowLeftRight className="h-4 w-4 text-muted-foreground" /><h3 className="text-sm font-semibold text-foreground">Eenmalig vs. abonnement</h3></div>
-            <p className="text-[11px] text-muted-foreground mb-4">zelfde product · beide modellen naast elkaar</p>
+            <p className="text-xs text-muted-foreground mb-4">zelfde product · beide modellen naast elkaar</p>
             <div className="grid grid-cols-2 gap-3">
               {([["Eenmalig", ins.singleLtv, ins.singleRatio, ins.singleRatio >= ins.subRatio], ["Abonnement", ins.subLtv, ins.subRatio, ins.subRatio > ins.singleRatio]] as const).map(([title, ltv, ratio, win]) => (
                 <div key={title} className="rounded-xl p-4 border" style={win ? { borderColor: "hsl(var(--ok) / 0.4)", background: "hsl(var(--ok) / 0.05)" } : { borderColor: "hsl(var(--border))", background: "hsl(var(--muted) / 0.3)" }}>
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-semibold text-foreground">{title}</p>
-                    {win && <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: "hsl(var(--ok))" }}>beter</span>}
+                    {win && <span className="text-2xs font-bold uppercase tracking-wide" style={{ color: "hsl(var(--ok))" }}>beter</span>}
                   </div>
                   <p className="text-2xl font-num font-bold tabular-nums mt-2" style={{ color: `hsl(var(--${ratio >= 3 ? "ok" : ratio >= 1.5 ? "warn" : "bad"}))` }}>{Number.isFinite(ratio) ? `${numS(ratio, 1)}×` : "∞"}</p>
-                  <p className="text-[11px] text-muted-foreground">LTV:CAC · LTV {eur(ltv)}</p>
+                  <p className="text-xs text-muted-foreground">LTV:CAC · LTV {eur(ltv)}</p>
                 </div>
               ))}
             </div>
@@ -422,7 +422,7 @@ function Tip({ text }: { text: string }) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <button type="button" tabIndex={-1} className="inline-grid place-items-center text-muted-foreground/45 hover:text-muted-foreground align-middle"><HelpCircle className="h-3.5 w-3.5" /></button>
+        <button type="button" tabIndex={-1} className="inline-grid place-items-center text-muted-foreground/45 hover:text-muted-foreground align-middle" aria-label="Uitleg"><HelpCircle className="h-3.5 w-3.5" /></button>
       </TooltipTrigger>
       <TooltipContent className="max-w-[230px] text-xs leading-relaxed">{text}</TooltipContent>
     </Tooltip>
@@ -445,7 +445,7 @@ function Field({ label, value, onChange, unit, step = 0.01, info }: { label: str
   const isEuro = unit === "€";
   return (
     <label className="block">
-      <span className="text-[11px] font-medium text-muted-foreground flex items-center gap-1">{label}{info && <Tip text={info} />}</span>
+      <span className="text-xs font-medium text-muted-foreground flex items-center gap-1">{label}{info && <Tip text={info} />}</span>
       <div className="mt-1 relative">
         {isEuro && <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">€</span>}
         <input type="number" step={step} inputMode="decimal" value={Number.isFinite(value) ? value : ""} onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
@@ -459,9 +459,9 @@ function Field({ label, value, onChange, unit, step = 0.01, info }: { label: str
 function StatBox({ label, value, sub, info }: { label: string; value: string; sub?: string; info?: string }) {
   return (
     <div className="rounded-xl bg-muted/40 px-3 py-2.5">
-      <p className="text-[11px] text-muted-foreground flex items-center gap-1">{label}{info && <Tip text={info} />}</p>
-      <p className="text-[15px] font-semibold text-foreground tabular-nums mt-0.5 leading-tight">{value}</p>
-      {sub && <p className="text-[10px] text-muted-foreground mt-0.5">{sub}</p>}
+      <p className="text-xs text-muted-foreground flex items-center gap-1">{label}{info && <Tip text={info} />}</p>
+      <p className="text-base font-semibold text-foreground tabular-nums mt-0.5 leading-tight">{value}</p>
+      {sub && <p className="text-2xs text-muted-foreground mt-0.5">{sub}</p>}
     </div>
   );
 }
@@ -470,7 +470,7 @@ function MiniBar({ label, value, max, color }: { label: string; value: number; m
   const w = Number.isFinite(value) ? Math.max(2, (value / max) * 100) : 100;
   return (
     <div className="flex items-center gap-2.5 py-1">
-      <span className="text-[11px] font-medium text-muted-foreground w-8 shrink-0">{label}</span>
+      <span className="text-xs font-medium text-muted-foreground w-8 shrink-0">{label}</span>
       <div className="flex-1 h-6 rounded-md bg-muted overflow-hidden">
         <div className="h-full rounded-md transition-all duration-300" style={{ width: `${w}%`, background: color }} />
       </div>

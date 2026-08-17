@@ -15,7 +15,7 @@ function GooodboysWordmark() {
       >
         Gooodboys
       </span>
-      <span className="text-[9px] text-primary/50 tracking-[0.32em] uppercase font-medium mt-1">
+      <span className="text-2xs text-primary/50 tracking-[0.32em] uppercase font-medium mt-1">
         Three O's Goood
       </span>
     </div>
@@ -285,15 +285,14 @@ export default function Auth() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full h-11 mt-1 rounded-xl bg-primary text-primary-foreground text-sm font-medium flex items-center justify-center gap-2 hover:bg-primary/90 active:scale-[0.98] disabled:opacity-50 transition-all duration-150 shadow-sm"
-                  >
+                    className="press-soft w-full h-11 mt-1 rounded-xl bg-primary text-primary-foreground text-sm font-medium flex items-center justify-center gap-2 hover:bg-primary/90 active:scale-[0.98] disabled:opacity-50 transition-all duration-150 shadow-sm">
                     {loading
                       ? <Loader2 className="h-4 w-4 animate-spin" />
                       : <>Inloggen <ArrowRight className="h-4 w-4" /></>}
                   </button>
                 </form>
                 <StepDots current={1} />
-                <p className="text-[11px] text-muted-foreground/60 text-center mt-3">
+                <p className="text-xs text-muted-foreground/60 text-center mt-3">
                   Stap 1 van 2
                 </p>
               </>
@@ -316,12 +315,12 @@ export default function Auth() {
                     className="w-full h-11 px-4 rounded-xl border border-border text-sm bg-background/60 placeholder:text-muted-foreground/60 outline-none transition-all duration-200 focus:bg-card focus:border-primary focus:shadow-[0_0_0_3px_hsl(var(--primary)/0.12)]" />
                   {errorMsg && <p className="text-xs text-red-500 pl-1 animate-fade-in">{errorMsg}</p>}
                   <button type="submit" disabled={loading}
-                    className="w-full h-11 mt-1 rounded-xl bg-primary text-primary-foreground text-sm font-medium flex items-center justify-center gap-2 hover:bg-primary/90 active:scale-[0.98] disabled:opacity-50 transition-all duration-150 shadow-sm">
+                    className="press-soft w-full h-11 mt-1 rounded-xl bg-primary text-primary-foreground text-sm font-medium flex items-center justify-center gap-2 hover:bg-primary/90 active:scale-[0.98] disabled:opacity-50 transition-all duration-150 shadow-sm">
                     {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Wachtwoord instellen <ArrowRight className="h-4 w-4" /></>}
                   </button>
                 </form>
                 <StepDots current={1} />
-                <p className="text-[11px] text-muted-foreground/60 text-center mt-3">Eerste keer inloggen · Stap 1 van 2</p>
+                <p className="text-xs text-muted-foreground/60 text-center mt-3">Eerste keer inloggen · Stap 1 van 2</p>
               </>
             )}
 
@@ -351,7 +350,7 @@ export default function Auth() {
                     <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground text-center list-none flex items-center justify-center gap-1">
                       <span className="border-b border-dashed border-muted-foreground/40">Handmatige sleutel</span>
                     </summary>
-                    <code className="block text-[11px] bg-muted px-3 py-2 rounded-lg mt-2 tracking-widest break-all text-center font-mono text-muted-foreground">
+                    <code className="block text-xs bg-muted px-3 py-2 rounded-lg mt-2 tracking-widest break-all text-center font-mono text-muted-foreground">
                       {totpSecret}
                     </code>
                   </details>
@@ -378,13 +377,12 @@ export default function Auth() {
                   <button
                     type="submit"
                     disabled={loading || otpCode.length < 6}
-                    className="w-full h-11 rounded-xl bg-primary text-primary-foreground text-sm font-medium flex items-center justify-center gap-2 hover:bg-primary/90 active:scale-[0.98] disabled:opacity-40 transition-all duration-150 shadow-sm"
-                  >
+                    className="press-soft w-full h-11 rounded-xl bg-primary text-primary-foreground text-sm font-medium flex items-center justify-center gap-2 hover:bg-primary/90 active:scale-[0.98] disabled:opacity-40 transition-all duration-150 shadow-sm">
                     {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Bevestigen & inloggen <ArrowRight className="h-4 w-4" /></>}
                   </button>
                 </form>
                 <StepDots current={2} />
-                <p className="text-[11px] text-muted-foreground/60 text-center mt-3">Stap 2 van 2 · Eenmalige instelling</p>
+                <p className="text-xs text-muted-foreground/60 text-center mt-3">Stap 2 van 2 · Eenmalige instelling</p>
               </>
             )}
 
@@ -419,27 +417,26 @@ export default function Auth() {
                   <button
                     type="submit"
                     disabled={loading || otpCode.length < 6}
-                    className="w-full h-11 rounded-xl bg-primary text-primary-foreground text-sm font-medium flex items-center justify-center gap-2 hover:bg-primary/90 active:scale-[0.98] disabled:opacity-40 transition-all duration-150 shadow-sm"
-                  >
+                    className="press-soft w-full h-11 rounded-xl bg-primary text-primary-foreground text-sm font-medium flex items-center justify-center gap-2 hover:bg-primary/90 active:scale-[0.98] disabled:opacity-40 transition-all duration-150 shadow-sm">
                     {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Inloggen <ArrowRight className="h-4 w-4" /></>}
                   </button>
                 </form>
                 <button
                   type="button"
                   onClick={() => setShowRecoverHelp((v) => !v)}
-                  className="w-full text-center text-xs text-muted-foreground/80 hover:text-foreground mt-4 transition-colors"
+                  className="press-soft w-full text-center text-xs text-muted-foreground/80 hover:text-foreground mt-4 transition-colors"
                 >
                   <span className="underline underline-offset-2">Authenticator kwijt?</span>
                 </button>
                 {showRecoverHelp && (
-                  <div className="mt-2 rounded-xl border border-border bg-muted/50 px-3 py-2.5 text-[11px] leading-relaxed text-muted-foreground animate-fade-in">
+                  <div className="mt-2 rounded-xl border border-border bg-muted/50 px-3 py-2.5 text-xs leading-relaxed text-muted-foreground animate-fade-in">
                     Om veiligheidsredenen kan je je authenticator niet zelf herstellen. Vraag een super user om je te resetten via de Team-pagina — contacteer{" "}
                     <a href={`mailto:${SUPPORT_CONTACT}`} className="font-medium text-foreground underline underline-offset-2">{SUPPORT_CONTACT}</a>.
                     Daarna stel je bij je volgende login een nieuwe authenticator in.
                   </div>
                 )}
                 <StepDots current={2} />
-                <p className="text-[11px] text-muted-foreground/60 text-center mt-3">Stap 2 van 2</p>
+                <p className="text-xs text-muted-foreground/60 text-center mt-3">Stap 2 van 2</p>
               </>
             )}
 

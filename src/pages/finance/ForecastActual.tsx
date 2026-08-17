@@ -188,7 +188,7 @@ function PLRow({ row, fc, ac, cF, cA, onEdit }: {
   if (row.kind === "section") {
     return (
       <div className="grid border-b border-border/60" style={{ gridTemplateColumns: GRID, background: "hsl(var(--ember) / 0.10)" }}>
-        <div className="px-4 py-2.5 text-[13px] font-bold text-foreground">{row.label}</div>
+        <div className="px-4 py-2.5 text-sm font-bold text-foreground">{row.label}</div>
         {row.inputKey ? (
           <>
             <EditCell value={fc[row.inputKey] ?? 0} fmt="pct" bold onCommit={(v) => onEdit("f", row.inputKey!, v)} />
@@ -217,7 +217,7 @@ function PLRow({ row, fc, ac, cF, cA, onEdit }: {
 
   return (
     <div className={`grid ${border}`} style={{ gridTemplateColumns: GRID, ...rowStyle }}>
-      <div className={`px-4 py-2.5 text-[13px] ${textCls}`}>{row.label}</div>
+      <div className={`px-4 py-2.5 text-sm ${textCls}`}>{row.label}</div>
       {row.kind === "input" ? (
         <>
           <EditCell value={fc[row.key] ?? 0} fmt={row.fmt} orange={role === "orange"} onCommit={(v) => onEdit("f", row.key, v)} />
@@ -225,8 +225,8 @@ function PLRow({ row, fc, ac, cF, cA, onEdit }: {
         </>
       ) : (
         <>
-          <div className={`px-4 py-2.5 text-[13px] text-right tabular-nums ${textCls}`}>{fmtVal(fV, row.fmt)}</div>
-          <div className={`px-4 py-2.5 text-[13px] text-right tabular-nums ${textCls}`}>{fmtVal(aV, row.fmt)}</div>
+          <div className={`px-4 py-2.5 text-sm text-right tabular-nums ${textCls}`}>{fmtVal(fV, row.fmt)}</div>
+          <div className={`px-4 py-2.5 text-sm text-right tabular-nums ${textCls}`}>{fmtVal(aV, row.fmt)}</div>
         </>
       )}
     </div>
@@ -252,7 +252,7 @@ function EditCell({ value, fmt, onCommit, orange, bold }: {
       onChange={(e) => setDraft(e.target.value)}
       onBlur={() => { setFoc(false); let x = parseFloat(draft.replace(",", ".")) || 0; if (fmt === "pct") x = x / 100; onCommit(x); }}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") (e.target as HTMLInputElement).blur(); }}
-      className={`px-4 py-2.5 text-[13px] text-right w-full bg-transparent outline-none rounded-2xl tabular-nums transition-colors focus:bg-card focus:ring-2 focus:ring-inset focus:ring-primary/40 ${bold ? "font-bold" : ""} ${txt}`}
+      className={`px-4 py-2.5 text-sm text-right w-full bg-transparent outline-none rounded-2xl tabular-nums transition-colors focus:bg-card focus:ring-2 focus:ring-inset focus:ring-primary/40 ${bold ? "font-bold" : ""} ${txt}`}
     />
   );
 }

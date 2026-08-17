@@ -127,25 +127,25 @@ export default function UnfulfilledDetail() {
               </div>
               {/* read-only synced status */}
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Status</p>
+                <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Status</p>
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-xl border border-border bg-muted/30 px-3 py-2"><p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Betaalstatus</p><StatusBadge value={order.status} tone={sbTone(payTone(order.status))} /></div>
-                  <div className="rounded-xl border border-border bg-muted/30 px-3 py-2"><p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Fulfilment</p><StatusBadge value={order.fulfillment_status ?? "—"} tone={sbTone(fulfilTone(order.fulfillment_status))} /></div>
+                  <div className="rounded-xl border border-border bg-muted/30 px-3 py-2"><p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Betaalstatus</p><StatusBadge value={order.status} tone={sbTone(payTone(order.status))} /></div>
+                  <div className="rounded-xl border border-border bg-muted/30 px-3 py-2"><p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Fulfilment</p><StatusBadge value={order.fulfillment_status ?? "—"} tone={sbTone(fulfilTone(order.fulfillment_status))} /></div>
                 </div>
               </div>
               {/* shipping address — from the order */}
               <Field label="Verzendadres · uit de order">
-                {addr ? <p className="text-[13px] text-foreground whitespace-pre-wrap flex items-start gap-1.5"><MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />{addr}</p> : <p className="text-[13px] text-muted-foreground flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 shrink-0" /> Geen adres in de order gevonden.</p>}
+                {addr ? <p className="text-sm text-foreground whitespace-pre-wrap flex items-start gap-1.5"><MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />{addr}</p> : <p className="text-sm text-muted-foreground flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 shrink-0" /> Geen adres in de order gevonden.</p>}
               </Field>
               {/* shipments for this order — creating one is how you fulfil */}
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Verzendingen voor deze order</p>
+                <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">Verzendingen voor deze order</p>
                 {shipments.length === 0 ? <div className="py-6 text-center text-xs text-muted-foreground rounded-xl border border-dashed border-border">Nog geen verzending — maak er een aan om deze order te verzenden.</div> : (
                   <div className="rounded-xl border border-border overflow-hidden divide-y divide-border">
                     {shipments.map((s) => (
-                      <button key={s.id} onClick={() => navigate(`/shipments/${s.id}`)} className="group w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted/40 transition-colors">
+                      <button key={s.id} onClick={() => navigate(`/shipments/${s.id}`)} className="press-soft group w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted/40 transition-colors">
                         <span className="h-8 w-8 rounded-lg grid place-items-center shrink-0" style={{ background: "hsl(var(--ember)/0.12)" }}><Truck className="h-4 w-4" style={{ color: "hsl(var(--ember))" }} /></span>
-                        <div className="flex-1 min-w-0"><p className="text-[13px] font-medium text-foreground truncate">{s.carrier || "Shipment"}</p><p className="text-xs text-muted-foreground truncate">{s.tracking_number || "geen tracking"} · {fmtDate(s.shipped_at)}</p></div>
+                        <div className="flex-1 min-w-0"><p className="text-sm font-medium text-foreground truncate">{s.carrier || "Shipment"}</p><p className="text-xs text-muted-foreground truncate">{s.tracking_number || "geen tracking"} · {fmtDate(s.shipped_at)}</p></div>
                         <StatusBadge value={s.status} tone={["delivered", "resolved"].includes(s.status) ? "success" : ["lost", "failed", "returned_to_sender", "delivered_disputed"].includes(s.status) ? "danger" : "warn"} />
                         <ChevronRight className="h-4 w-4 text-muted-foreground/30 shrink-0 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
                       </button>
@@ -156,7 +156,7 @@ export default function UnfulfilledDetail() {
               </div>
               {/* tracking */}
               <Field label="Tracking nummer">
-                <input value={order.tracking_number ?? ""} onChange={(e) => patch({ tracking_number: e.target.value })} placeholder="Trackingnummer" className="w-full bg-transparent text-[13px] outline-none" />
+                <input value={order.tracking_number ?? ""} onChange={(e) => patch({ tracking_number: e.target.value })} placeholder="Trackingnummer" className="w-full bg-transparent text-sm outline-none" />
               </Field>
             </motion.div>
 
@@ -166,7 +166,7 @@ export default function UnfulfilledDetail() {
                 <h2 className="text-sm font-semibold text-foreground">Interne notitie</h2>
                 {notesDirty && <button onClick={saveNotes} className="h-8 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-medium flex items-center gap-1.5"><Save className="h-3.5 w-3.5" /> Opslaan</button>}
               </div>
-              <textarea value={notes} onChange={(e) => { setNotes(e.target.value); setNotesDirty(true); }} rows={3} placeholder="Interne notitie over deze verzending…" className="w-full rounded-xl border border-border bg-muted/40 px-3 py-2 text-[13px] outline-none focus:border-ring/50 focus:bg-card resize-none" />
+              <textarea value={notes} onChange={(e) => { setNotes(e.target.value); setNotesDirty(true); }} rows={3} placeholder="Interne notitie over deze verzending…" className="w-full rounded-xl border border-border bg-muted/40 px-3 py-2 text-sm outline-none focus:border-ring/50 focus:bg-card resize-none" />
             </motion.div>
           </div>
 
@@ -175,8 +175,8 @@ export default function UnfulfilledDetail() {
             {/* Klant */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" className="card-soft p-5 space-y-3">
               <h2 className="text-sm font-semibold text-foreground">Klant</h2>
-              <div className="rounded-xl border border-border bg-muted/30 px-3 py-2 flex items-center gap-2"><User className="h-3.5 w-3.5 text-muted-foreground shrink-0" /><span className="text-[13px] text-foreground truncate">{order.customer_name || "—"}</span></div>
-              <div className="rounded-xl border border-border bg-muted/30 px-3 py-2 flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-muted-foreground shrink-0" /><span className="text-[13px] text-foreground truncate">{order.customer_email || "—"}</span></div>
+              <div className="rounded-xl border border-border bg-muted/30 px-3 py-2 flex items-center gap-2"><User className="h-3.5 w-3.5 text-muted-foreground shrink-0" /><span className="text-sm text-foreground truncate">{order.customer_name || "—"}</span></div>
+              <div className="rounded-xl border border-border bg-muted/30 px-3 py-2 flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-muted-foreground shrink-0" /><span className="text-sm text-foreground truncate">{order.customer_email || "—"}</span></div>
               <div className="flex items-center justify-between text-xs"><span className="text-muted-foreground">Besteld op</span><span className="text-foreground">{fmtDate(order.created_at)}</span></div>
               <div className="flex items-center justify-between text-xs"><span className="text-muted-foreground">Orderbedrag</span><span className="text-foreground font-semibold tabular-nums">{eur(Number(order.total ?? 0), cur)}</span></div>
             </motion.div>
@@ -187,10 +187,10 @@ export default function UnfulfilledDetail() {
               <div className="flex items-center justify-between text-xs"><span className="text-muted-foreground flex items-center gap-2"><Clock className="h-3.5 w-3.5" /> Dagen onvervuld</span><span className="font-semibold tabular-nums" style={{ color: toneColor(tone) }}>{days}</span></div>
               <div className="flex items-center justify-between text-xs"><span className="text-muted-foreground flex items-center gap-2"><Truck className="h-3.5 w-3.5" /> Shipments</span><span className="text-foreground font-semibold tabular-nums">{shipments.length}</span></div>
               <Link to={`/orders/${id}`} className="mt-1 flex items-center justify-between gap-2 rounded-xl border border-border bg-card px-3 py-2.5 hover:border-primary/30 transition-colors">
-                <span className="text-[13px] font-medium text-foreground">Volledige order openen</span>
+                <span className="text-sm font-medium text-foreground">Volledige order openen</span>
                 <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
               </Link>
-              <p className="text-[10px] text-muted-foreground">Returns, tickets en finance van deze order vind je op de orderpagina.</p>
+              <p className="text-2xs text-muted-foreground">Returns, tickets en finance van deze order vind je op de orderpagina.</p>
             </motion.div>
           </div>
         </div>
@@ -203,7 +203,7 @@ export default function UnfulfilledDetail() {
 function Metric({ label, value, tone }: { label: string; value: string; tone: string }) {
   return (
     <div className="rounded-xl border border-border bg-muted/30 p-3">
-      <div className="flex items-center gap-1.5"><span className="rounded-full shrink-0" style={{ background: toneColor(tone), width: 7, height: 7 }} /><p className="text-[11px] text-muted-foreground truncate">{label}</p></div>
+      <div className="flex items-center gap-1.5"><span className="rounded-full shrink-0" style={{ background: toneColor(tone), width: 7, height: 7 }} /><p className="text-xs text-muted-foreground truncate">{label}</p></div>
       <p className="font-num text-lg font-bold tabular-nums text-foreground leading-none mt-1.5">{value}</p>
     </div>
   );
@@ -211,7 +211,7 @@ function Metric({ label, value, tone }: { label: string; value: string; tone: st
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="rounded-xl border border-border bg-muted/30 px-3 py-2">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">{label}</p>
+      <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">{label}</p>
       {children}
     </div>
   );

@@ -105,12 +105,12 @@ export default function AppShell() {
             {/* Search pill */}
             <button
               onClick={() => setOpen(true)}
-              aria-label="Command palette"
+              aria-label="Zoek — command palette"
               className="ml-auto hidden h-10 w-72 items-center gap-2.5 rounded-full border border-border bg-card px-4 text-left text-sm text-muted-foreground shadow-xs transition-all hover:shadow-sm hover:border-ring/40 md:flex"
             >
               <Search className="h-4 w-4 shrink-0" />
               <span className="flex-1">Zoek…</span>
-              <kbd className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium">⌘K</kbd>
+              <kbd className="rounded-md border border-border bg-muted px-1.5 py-0.5 text-2xs font-medium">⌘K</kbd>
             </button>
             <button
               onClick={() => setOpen(true)}

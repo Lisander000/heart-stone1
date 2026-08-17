@@ -171,7 +171,7 @@ export default function Team() {
           <div className="overflow-x-auto">
             <div className="min-w-full">
               <div className="grid bg-muted border-b border-border" style={{ gridTemplateColumns: GRID }}>
-                {["Naam", "E-mail", "Rol", "Status", "Toegang", ""].map((h, i) => <div key={i} className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{h}</div>)}
+                {["Naam", "E-mail", "Rol", "Status", "Toegang", ""].map((h, i) => <div key={i} className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{h}</div>)}
               </div>
               {loading ? (
                 Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-14 shimmer m-px" />)
@@ -186,15 +186,15 @@ export default function Team() {
                     return (
                       <motion.div key={m.id} variants={fadeUp} className="group grid items-center hover:bg-muted/40 transition-colors" style={{ gridTemplateColumns: GRID }}>
                         <div className="px-4 py-3 flex items-center gap-1.5 min-w-0">
-                          <span className="text-[13px] font-medium text-foreground truncate">{isMe && me.name ? me.name : (m.name || "—")}</span>
-                          {isMe && <span className="text-[10px] font-semibold text-primary/70 shrink-0">(jij)</span>}
+                          <span className="text-sm font-medium text-foreground truncate">{isMe && me.name ? me.name : (m.name || "—")}</span>
+                          {isMe && <span className="text-2xs font-semibold text-primary/70 shrink-0">(jij)</span>}
                           <button onClick={() => toggleSuper(m.email)} disabled={!iAmSuper}
                             title={su ? (iAmSuper ? "Super user — klik om te verwijderen" : "Super user") : iAmSuper ? "Maak super user" : ""}
-                            className={`shrink-0 transition-colors disabled:cursor-default ${su ? "text-ok" : iAmSuper ? "text-transparent group-hover:text-muted-foreground/40 hover:!text-ok cursor-pointer" : "hidden"}`}>
+                            className={`shrink-0 transition-colors disabled:cursor-default ${su ? "text-ok" : iAmSuper ? "text-transparent group-hover:text-muted-foreground/40 hover:!text-ok cursor-pointer" : "hidden"}`} aria-label="Markeren">
                             <Star className={`h-3.5 w-3.5 ${su ? "fill-current" : ""}`} />
                           </button>
                         </div>
-                        <div className="px-4 py-3 text-[13px] text-muted-foreground break-words">{m.email || "—"}</div>
+                        <div className="px-4 py-3 text-sm text-muted-foreground break-words">{m.email || "—"}</div>
                         <div className="px-4 py-3">
                           {editingId === m.id ? (
                             <input
@@ -203,10 +203,10 @@ export default function Team() {
                               onFocus={(e) => e.currentTarget.select()}
                               onBlur={(e) => { if (skipSave.current) { skipSave.current = false; setEditingId(null); } else saveRole(m.id, e.currentTarget.value); }}
                               onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); e.currentTarget.blur(); } else if (e.key === "Escape") { e.preventDefault(); skipSave.current = true; e.currentTarget.blur(); } }}
-                              className="h-7 w-full max-w-[150px] px-2 rounded-lg border border-primary/40 bg-card text-[12px] text-foreground outline-none focus:ring-2 focus:ring-primary/25"
+                              className="h-7 w-full max-w-[150px] px-2 rounded-lg border border-primary/40 bg-card text-xs text-foreground outline-none focus:ring-2 focus:ring-primary/25"
                             />
                           ) : (
-                            <button type="button" onClick={() => { if (!iAmSuper) { setBlockOpen(true); return; } setEditingId(m.id); }} title={iAmSuper ? "Klik om de rol te wijzigen" : "Alleen super users kunnen dit aanpassen"} className="group/role inline-flex items-center gap-1 rounded-full hover:ring-2 hover:ring-primary/20 transition cursor-text">
+                            <button type="button" onClick={() => { if (!iAmSuper) { setBlockOpen(true); return; } setEditingId(m.id); }} title={iAmSuper ? "Klik om de rol te wijzigen" : "Alleen super users kunnen dit aanpassen"} className="group/role inline-flex items-center gap-1 rounded-full hover:ring-2 hover:ring-primary/20 transition cursor-text" aria-label="Bewerken">
                               <Pill value={m.role} tone={roleTone(m.role)} />
                               <Pencil className="h-3 w-3 text-muted-foreground/0 group-hover/role:text-muted-foreground/60 transition-colors shrink-0" />
                             </button>
@@ -215,11 +215,11 @@ export default function Team() {
                         <div className="px-4 py-3"><Pill value={shownStatus} tone={statusTone(shownStatus)} /></div>
                         <div className="px-4 py-3">
                           {su ? (
-                            <span className="text-[11px] text-muted-foreground">Alle categorieën</span>
+                            <span className="text-xs text-muted-foreground">Alle categorieën</span>
                           ) : (
                             <button onClick={() => setAccessMember(m)} disabled={!iAmSuper || !m.email}
                               title={!m.email ? "Voeg eerst een e-mail toe" : iAmSuper ? "Toegang bewerken" : SUPERUSER_BLOCK}
-                              className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full text-[11px] font-medium bg-muted text-muted-foreground hover:text-foreground disabled:opacity-50 transition-colors">
+                              className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full text-xs font-medium bg-muted text-muted-foreground hover:text-foreground disabled:opacity-50 transition-colors">
                               <SlidersHorizontal className="h-3.5 w-3.5 shrink-0" /> {(accessMap[(m.email || "").toLowerCase()] ?? DEFAULT_CATEGORIES).length}/{CATEGORIES.length} categorieën
                             </button>
                           )}
@@ -255,7 +255,7 @@ export default function Team() {
             <div className="mx-auto h-12 w-12 rounded-2xl grid place-items-center bg-primary/10"><Shield className="h-6 w-6 text-primary" /></div>
             <DialogHeader><DialogTitle className="font-display text-lg text-center">Alleen voor super users</DialogTitle></DialogHeader>
             <p className="text-sm text-muted-foreground leading-relaxed">Je kan zelf geen teamleden toevoegen of aanpassen. Ga naar je directe leidinggevende om dit te laten regelen.</p>
-            <button onClick={() => setBlockOpen(false)} className="w-full h-10 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">Begrepen</button>
+            <button onClick={() => setBlockOpen(false)} className="press-soft w-full h-10 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">Begrepen</button>
           </div>
         </DialogContent>
       </Dialog>
@@ -266,7 +266,7 @@ export default function Team() {
 function Pill({ value, tone }: { value: string; tone: string }) {
   const v = toneVar(tone);
   const c = `hsl(var(--${v}))`;
-  return <span className="inline-flex items-center gap-1.5 rounded-full border pl-2 pr-2.5 py-1 text-[11px] font-semibold capitalize" style={{ background: `hsl(var(--${v}) / 0.1)`, color: c, borderColor: `hsl(var(--${v}) / 0.35)`, boxShadow: `0 1px 1.5px hsl(var(--${v}) / 0.08)` }}><span className="dot" style={{ background: c, width: 6, height: 6 }} />{value}</span>;
+  return <span className="inline-flex items-center gap-1.5 rounded-full border pl-2 pr-2.5 py-1 text-xs font-semibold capitalize" style={{ background: `hsl(var(--${v}) / 0.1)`, color: c, borderColor: `hsl(var(--${v}) / 0.35)`, boxShadow: `0 1px 1.5px hsl(var(--${v}) / 0.08)` }}><span className="dot" style={{ background: c, width: 6, height: 6 }} />{value}</span>;
 }
 
 function AccessDialog({ member, onClose, canEdit }: { member: Member | null; onClose: () => void; canEdit: boolean }) {
@@ -289,7 +289,7 @@ function AccessDialog({ member, onClose, canEdit }: { member: Member | null; onC
         {!member.email ? (
           <p className="text-sm text-muted-foreground">Dit teamlid heeft nog geen e-mail — voeg er een toe om de toegang per categorie te bepalen.</p>
         ) : su ? (
-          <div className="flex items-start gap-2.5 rounded-xl border border-ok/20 bg-ok/[0.06] px-3 py-2.5"><Star className="h-4 w-4 text-ok shrink-0 mt-0.5" /><p className="text-[13px] text-foreground">Dit is een <span className="font-semibold">super user</span> — die ziet altijd alle categorieën, inclusief Development.</p></div>
+          <div className="flex items-start gap-2.5 rounded-xl border border-ok/20 bg-ok/[0.06] px-3 py-2.5"><Star className="h-4 w-4 text-ok shrink-0 mt-0.5" /><p className="text-sm text-foreground">Dit is een <span className="font-semibold">super user</span> — die ziet altijd alle categorieën, inclusief Development.</p></div>
         ) : (
           <>
             <p className="text-xs text-muted-foreground">Vink de categorieën aan die {member.name || "deze gebruiker"} in de app ziet. De rest verdwijnt uit hun navigatie.</p>
@@ -298,7 +298,7 @@ function AccessDialog({ member, onClose, canEdit }: { member: Member | null; onC
                 const on = sel.includes(c);
                 return (
                   <button key={c} type="button" onClick={() => canEdit && toggle(c)} disabled={!canEdit}
-                    className="flex items-center gap-2.5 h-11 px-3 rounded-xl border text-[13px] font-medium transition-colors disabled:opacity-70"
+                    className="flex items-center gap-2.5 h-11 px-3 rounded-xl border text-sm font-medium transition-colors disabled:opacity-70"
                     style={on ? { borderColor: "hsl(var(--primary) / 0.5)", background: "hsl(var(--primary) / 0.06)", color: "hsl(var(--foreground))" } : { borderColor: "hsl(var(--border))", color: "hsl(var(--muted-foreground))" }}>
                     <span className="h-4 w-4 rounded-md grid place-items-center border shrink-0" style={on ? { background: "hsl(var(--primary))", borderColor: "hsl(var(--primary))" } : { borderColor: "hsl(var(--border))" }}>{on && <Check className="h-3 w-3 text-white" />}</span>
                     {c}
@@ -334,7 +334,7 @@ function AddMemberDialog({ open, onOpenChange, onAdd }: { open: boolean; onOpenC
             <div className="flex-1"><label className="text-xs font-medium text-muted-foreground">Status</label><select value={status} onChange={(e) => setStatus(e.target.value)} className={`${IN} capitalize`}>{STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
           </div>
         </div>
-        <p className="text-[11px] text-muted-foreground mt-2 leading-relaxed">Met een e-mailadres krijgt de persoon een uitnodigingsmail om in te loggen en zelf een vast wachtwoord in te stellen.</p>
+        <p className="text-xs text-muted-foreground mt-2 leading-relaxed">Met een e-mailadres krijgt de persoon een uitnodigingsmail om in te loggen en zelf een vast wachtwoord in te stellen.</p>
         <div className="flex justify-end gap-2 mt-2">
           <button onClick={() => onOpenChange(false)} className="h-9 px-4 rounded-full border border-border bg-card text-sm font-medium text-muted-foreground hover:text-foreground">Annuleer</button>
           <button disabled={!name.trim()} onClick={() => onAdd({ name, email, role, status })} className="h-9 px-4 rounded-full bg-primary text-primary-foreground text-sm font-medium disabled:opacity-40 flex items-center gap-1.5"><Plus className="h-4 w-4" /> Toevoegen</button>

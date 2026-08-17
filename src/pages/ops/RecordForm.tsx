@@ -134,7 +134,7 @@ export default function RecordForm() {
             <ArrowLeft className="h-3.5 w-3.5" /> Terug
           </Link>
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground mb-1.5">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground mb-1.5">
               {cfg.labelPlural}
             </p>
             <h1 className="font-display text-[1.75rem] leading-tight font-semibold tracking-tight text-foreground leading-none">
@@ -198,8 +198,7 @@ export default function RecordForm() {
             <button
               type="submit"
               disabled={saving}
-              className="h-9 px-5 rounded-xl bg-primary text-primary-foreground text-sm font-medium flex items-center gap-2 hover:bg-primary/90 active:scale-[0.98] disabled:opacity-50 transition-all shadow-sm"
-            >
+              className="h-9 px-5 rounded-xl bg-primary text-primary-foreground text-sm font-medium flex items-center gap-2 hover:bg-primary/90 active:scale-[0.98] disabled:opacity-50 transition-all shadow-sm">
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
               {isEdit ? "Opslaan" : `${cfg.label} aanmaken`}
             </button>
@@ -248,7 +247,7 @@ function FieldControl({ field: f, value, onChange }: { field: OpsField; value: a
         />
       )}
 
-      {f.help && <p className="text-[11px] text-muted-foreground">{f.help}</p>}
+      {f.help && <p className="text-xs text-muted-foreground">{f.help}</p>}
     </div>
   );
 }

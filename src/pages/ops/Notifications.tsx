@@ -292,13 +292,13 @@ function NotifCard({ n, state, onStatus, onComment, onDelete }: {
           <div className="flex items-center gap-2 flex-wrap">
             <p className="font-semibold text-foreground leading-tight">{n.title}</p>
             {n.system && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-grape/10 text-grape px-2 py-0.5 text-[10px] font-medium"
+              <span className="inline-flex items-center gap-1 rounded-full bg-grape/10 text-grape px-2 py-0.5 text-2xs font-medium"
                 style={{ background: "hsl(var(--info)/0.12)", color: "hsl(var(--info))" }}>
                 <Sparkles className="h-3 w-3" /> Systeem
               </span>
             )}
             {state.status !== "unread" && (
-              <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium capitalize"
+              <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-2xs font-medium capitalize"
                 style={{ background: `hsl(var(--${toneVar(STATUS_META.find((s) => s.id === state.status)!.tone)})/0.14)`,
                          color: `hsl(var(--${toneVar(STATUS_META.find((s) => s.id === state.status)!.tone)}))` }}>
                 {STATUS_META.find((s) => s.id === state.status)!.label}
@@ -307,11 +307,11 @@ function NotifCard({ n, state, onStatus, onComment, onDelete }: {
           </div>
           {n.body && <p className="text-sm text-muted-foreground mt-1 leading-relaxed whitespace-pre-wrap">{n.body}</p>}
           <div className="flex items-center gap-3 mt-1.5">
-            <span className="text-[11px] text-muted-foreground">{fmtDate(n.created_at)} · {k.label}</span>
+            <span className="text-xs text-muted-foreground">{fmtDate(n.created_at)} · {k.label}</span>
             {n.link && (
               n.link.startsWith("/")
-                ? <Link to={n.link} className="text-[11px] text-info font-medium hover:underline flex items-center gap-1"><ExternalLink className="h-3 w-3" /> Open</Link>
-                : <a href={n.link} target="_blank" rel="noreferrer" className="text-[11px] text-info font-medium hover:underline flex items-center gap-1"><ExternalLink className="h-3 w-3" /> Open</a>
+                ? <Link to={n.link} className="text-xs text-info font-medium hover:underline flex items-center gap-1"><ExternalLink className="h-3 w-3" /> Open</Link>
+                : <a href={n.link} target="_blank" rel="noreferrer" className="text-xs text-info font-medium hover:underline flex items-center gap-1"><ExternalLink className="h-3 w-3" /> Open</a>
             )}
           </div>
         </div>
@@ -323,13 +323,13 @@ function NotifCard({ n, state, onStatus, onComment, onDelete }: {
       {/* private controls */}
       <div className="mt-4 pt-3 border-t border-border/60 space-y-3">
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-[11px] font-medium text-muted-foreground mr-1">Status</span>
+          <span className="text-xs font-medium text-muted-foreground mr-1">Status</span>
           {STATUS_META.map((s) => {
             const on = state.status === s.id;
             const c = `hsl(var(--${toneVar(s.tone)}))`;
             return (
               <button key={s.id} onClick={() => onStatus(s.id)}
-                className={`h-7 px-2.5 rounded-full text-[11px] font-medium transition-all flex items-center gap-1.5 border ${on ? "shadow-xs" : "border-border bg-card text-muted-foreground hover:text-foreground"}`}
+                className={`h-7 px-2.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5 border ${on ? "shadow-xs" : "border-border bg-card text-muted-foreground hover:text-foreground"}`}
                 style={on ? { background: `${c}18`, color: c, borderColor: `${c}55` } : undefined}>
                 <span className="dot" style={{ background: c, width: 6, height: 6 }} /> {s.label}
               </button>
@@ -341,7 +341,7 @@ function NotifCard({ n, state, onStatus, onComment, onDelete }: {
           onChange={(e) => onComment(e.target.value)}
           placeholder="Jouw notitie (privé) — alleen jij ziet dit…"
           rows={2}
-          className="w-full rounded-xl border border-border bg-muted/40 px-3 py-2 text-[13px] text-foreground outline-none focus:border-ring/50 focus:bg-card resize-none transition-colors"
+          className="w-full rounded-xl border border-border bg-muted/40 px-3 py-2 text-sm text-foreground outline-none focus:border-ring/50 focus:bg-card resize-none transition-colors"
         />
       </div>
     </motion.div>

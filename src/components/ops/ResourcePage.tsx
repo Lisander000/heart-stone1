@@ -283,7 +283,7 @@ export function ResourcePage({ title, table, fields, columns, emptyText, extraFi
             )}
             {tab === "list" && (<>
               <button onClick={load} disabled={loading}
-                className="h-9 w-9 rounded-full border border-border bg-card grid place-items-center text-muted-foreground shadow-xs hover:text-foreground transition-colors disabled:opacity-40">
+                className="h-9 w-9 rounded-full border border-border bg-card grid place-items-center text-muted-foreground shadow-xs hover:text-foreground transition-colors disabled:opacity-40" aria-label="Vernieuwen">
                 <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
               </button>
               {newButton}
@@ -334,7 +334,7 @@ export function ResourcePage({ title, table, fields, columns, emptyText, extraFi
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={`Zoek in ${title.toLowerCase()}…`}
               className="h-9 w-full rounded-full border border-border bg-card pl-9 pr-8 text-sm shadow-xs outline-none transition-all placeholder:text-muted-foreground/60 focus:shadow-sm focus:border-ring/40" />
-            {search && <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"><X className="h-3.5 w-3.5" /></button>}
+            {search && <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" aria-label="Sluiten"><X className="h-3.5 w-3.5" /></button>}
           </div>
         </div>
 
@@ -342,14 +342,14 @@ export function ResourcePage({ title, table, fields, columns, emptyText, extraFi
         <div className="card-soft overflow-hidden">
           {/* Column headers — sortable */}
           <div className="grid bg-muted border-b border-border" style={{ gridTemplateColumns: gridCols }}>
-            <div className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/40">#</div>
+            <div className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground/40">#</div>
             {columns.map((c) => {
               const active = sortKey === c.key;
               return (
                 <button
                   key={c.key}
                   onClick={() => toggleSort(c.key)}
-                  className={`group/sort flex items-center gap-1 px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-left transition-colors hover:text-foreground ${active ? "text-primary" : "text-muted-foreground"} ${c.className ?? ""}`}
+                  className={`group/sort flex items-center gap-1 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-left transition-colors hover:text-foreground ${active ? "text-primary" : "text-muted-foreground"} ${c.className ?? ""}`}
                 >
                   <span className="truncate">{c.label}</span>
                   {active ? (
@@ -402,7 +402,7 @@ export function ResourcePage({ title, table, fields, columns, emptyText, extraFi
                     {String(idx + 1).padStart(2, "0")}
                   </div>
                   {columns.map((c) => (
-                    <div key={c.key} className={`px-4 py-3.5 text-[13px] text-foreground flex items-center min-w-0 ${c.className ?? ""}`}>
+                    <div key={c.key} className={`px-4 py-3.5 text-sm text-foreground flex items-center min-w-0 ${c.className ?? ""}`}>
                       <span className="truncate">
                         {c.render ? c.render(row[c.key], row) : (row[c.key] ?? <span className="text-muted-foreground/40">—</span>)}
                       </span>
@@ -411,13 +411,13 @@ export function ResourcePage({ title, table, fields, columns, emptyText, extraFi
                   <div className="px-2 py-3.5 flex items-center justify-end gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
                     <button title="Bewerken"
                       className="h-7 w-7 rounded-lg grid place-items-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                      onClick={(e) => { e.stopPropagation(); editRowPage(row); }}>
+                      onClick={(e) => { e.stopPropagation(); editRowPage(row); }} aria-label="Bewerken">
                       <Pencil className="h-3.5 w-3.5" />
                     </button>
                     <button title="Verwijderen"
                       className="h-7 w-7 rounded-lg grid place-items-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors disabled:opacity-40"
                       onClick={(e) => { e.stopPropagation(); setConfirmId(row.id); }}
-                      disabled={deletingId === row.id}>
+                      disabled={deletingId === row.id} aria-label="Verwijderen">
                       {deletingId === row.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                     </button>
                   </div>
@@ -465,7 +465,7 @@ export function StatusBadge({ value, tone = "default" }: { value: string; tone?:
   }[tone];
   const c = `hsl(var(${token}))`;
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold capitalize"
+    <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold capitalize"
       style={{ background: `hsl(var(${token}) / 0.1)`, color: c, borderColor: `hsl(var(${token}) / 0.35)`, boxShadow: `0 1px 1.5px hsl(var(${token}) / 0.08)` }}>
       <span className="dot" style={{ background: c, width: 6, height: 6 }} />
       {value ? value.replace(/_/g, " ") : "—"}

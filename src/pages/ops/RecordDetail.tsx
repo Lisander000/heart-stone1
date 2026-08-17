@@ -83,7 +83,7 @@ export default function RecordDetail() {
             className="flex items-start justify-between gap-4 flex-wrap"
           >
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground mb-1.5">{cfg.label}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground mb-1.5">{cfg.label}</p>
               <div className="flex items-center gap-3 flex-wrap">
                 <h1 className="font-display text-[1.75rem] leading-tight font-semibold tracking-tight text-foreground leading-none">
                   {cfg.title(row)}
@@ -98,8 +98,7 @@ export default function RecordDetail() {
               <button
                 onClick={() => setConfirmOpen(true)} disabled={removing}
                 className="h-9 w-9 rounded-xl border border-border bg-card grid place-items-center text-muted-foreground hover:border-destructive/40 hover:text-destructive transition-colors disabled:opacity-40"
-                title="Verwijderen"
-              >
+                title="Verwijderen" aria-label="Verwijderen">
                 {removing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
               </button>
               <Link
@@ -123,7 +122,7 @@ export default function RecordDetail() {
           <motion.div variants={fadeUp} className="grid gap-px bg-border rounded-xl overflow-hidden border border-border" style={{ gridTemplateColumns: `repeat(${kpis.length}, minmax(0,1fr))` }}>
             {kpis.map((k, i) => (
               <div key={i} className="bg-card px-4 py-3.5">
-                <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{k.label}</div>
+                <div className="text-2xs font-medium uppercase tracking-wider text-muted-foreground">{k.label}</div>
                 <div className="mt-1 font-display text-xl font-semibold text-foreground capitalize leading-none">{k.value}</div>
               </div>
             ))}
@@ -138,7 +137,7 @@ export default function RecordDetail() {
               className="group flex items-center justify-between gap-3 rounded-2xl border border-border bg-card px-5 py-4 hover:border-primary/30 transition-all card-hover"
             >
               <div>
-                <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Gekoppelde order</div>
+                <div className="text-2xs font-medium uppercase tracking-wider text-muted-foreground">Gekoppelde order</div>
                 <div className="mt-1 font-mono text-sm text-foreground">{order.order_number} · {order.customer_name ?? "—"}</div>
               </div>
               <ExternalLink className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary transition-colors" />

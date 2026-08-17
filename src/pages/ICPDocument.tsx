@@ -174,7 +174,7 @@ function SectionCard({ icon: Icon, title, accent, children }: { icon: ElementTyp
 function FieldTile({ label, value, editing, onChange, area }: { label: string; value: string; editing: boolean; onChange: (v: string) => void; area?: boolean }) {
   return (
     <div className="rounded-xl bg-muted/40 px-3 py-2.5">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">{label}</p>
+      <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">{label}</p>
       {editing
         ? (area ? <TArea value={value} onChange={onChange} rows={3} /> : <TIn value={value} onChange={onChange} />)
         : <p className="text-sm text-foreground leading-relaxed">{value || "—"}</p>}
@@ -259,7 +259,7 @@ export default function ICPDocument() {
             </button>
           ))}
           <button onClick={addPersona}
-            className="text-left p-5 rounded-2xl border-2 border-dashed border-border text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all grid place-items-center min-h-[128px]">
+            className="press-soft text-left p-5 rounded-2xl border-2 border-dashed border-border text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all grid place-items-center min-h-[128px]">
             <span className="flex flex-col items-center gap-1.5"><Plus className="h-6 w-6" /><span className="text-sm font-medium">Nieuwe ICP</span></span>
           </button>
         </div>
@@ -271,7 +271,7 @@ export default function ICPDocument() {
         {editing && (
           <div className="card-soft p-4 mb-6 space-y-2.5">
             <div className="flex items-center justify-between gap-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">ICP {String(idx + 1).padStart(2, "0")}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">ICP {String(idx + 1).padStart(2, "0")}</p>
               <button onClick={() => setConfirmDel(true)} className="text-xs text-muted-foreground hover:text-bad flex items-center gap-1"><Trash2 className="h-3.5 w-3.5" /> Verwijderen</button>
             </div>
             <TIn value={persona.name} onChange={(v) => patch({ name: v })} placeholder="Naam" />
@@ -347,7 +347,7 @@ export default function ICPDocument() {
                 {/* Data evidence */}
                 <motion.section variants={fadeUp}>
                   <div className="flex items-center justify-between mb-3">
-                    <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Data evidence</h2>
+                    <h2 className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">Data evidence</h2>
                     {editing && <AddBtn onClick={() => patch({ dataEvidence: [...persona.dataEvidence, { quote: "", source: "" }] })} />}
                   </div>
                   <div className="space-y-2">
@@ -363,7 +363,7 @@ export default function ICPDocument() {
                           ) : (
                             <>
                               <p className="text-sm text-foreground leading-relaxed italic">{d.quote}</p>
-                              <p className="text-[11px] text-muted-foreground mt-1">— {d.source}</p>
+                              <p className="text-xs text-muted-foreground mt-1">— {d.source}</p>
                             </>
                           )}
                         </div>
@@ -389,12 +389,12 @@ export default function ICPDocument() {
                       </div>
                       {editing
                         ? <div className="flex items-center gap-2 ml-2 shrink-0"><TIn value={a.channelFit} onChange={(v) => patch({ awareness: patchList(persona.awareness, i, { channelFit: v }) })} placeholder="Channel fit" /><RemoveBtn onClick={() => patch({ awareness: persona.awareness.filter((_, j) => j !== i) })} /></div>
-                        : <span className="text-[10px] font-medium text-muted-foreground bg-muted px-2.5 py-1 rounded-full shrink-0">{a.channelFit}</span>}
+                        : <span className="text-2xs font-medium text-muted-foreground bg-muted px-2.5 py-1 rounded-full shrink-0">{a.channelFit}</span>}
                     </div>
                     <div className="p-5 space-y-4">
                       <AwField label="Denkt" value={a.thinks} editing={editing} italic onChange={(v) => patch({ awareness: patchList(persona.awareness, i, { thinks: v }) })} />
                       <div className="p-4 rounded-xl bg-primary/[0.04] border border-border">
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-primary mb-2">Gooodboys aanpak</p>
+                        <p className="text-2xs font-semibold uppercase tracking-wider text-primary mb-2">Gooodboys aanpak</p>
                         {editing
                           ? <TArea value={a.approach} onChange={(v) => patch({ awareness: patchList(persona.awareness, i, { approach: v }) })} rows={3} />
                           : <p className="text-sm text-foreground leading-relaxed">{a.approach}</p>}
@@ -402,7 +402,7 @@ export default function ICPDocument() {
                     </div>
                   </motion.div>
                 ))}
-                {editing && <button onClick={() => patch({ awareness: [...persona.awareness, blankAwareness()] })} className="w-full h-11 rounded-2xl border-2 border-dashed border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:border-foreground/30 flex items-center justify-center gap-1.5"><Plus className="h-4 w-4" /> Stage toevoegen</button>}
+                {editing && <button onClick={() => patch({ awareness: [...persona.awareness, blankAwareness()] })} className="press-soft w-full h-11 rounded-2xl border-2 border-dashed border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:border-foreground/30 flex items-center justify-center gap-1.5"><Plus className="h-4 w-4" /> Stage toevoegen</button>}
               </motion.div>
             )}
 
@@ -423,13 +423,13 @@ function AddBtn({ onClick }: { onClick: () => void }) {
   return <button onClick={onClick} className="text-xs font-medium text-primary hover:text-primary/80 flex items-center gap-1"><Plus className="h-3.5 w-3.5" /> Toevoegen</button>;
 }
 function RemoveBtn({ onClick }: { onClick: () => void }) {
-  return <button onClick={onClick} className="shrink-0 h-7 w-7 grid place-items-center rounded-lg text-muted-foreground/50 hover:text-bad hover:bg-bad/10 transition-colors"><X className="h-4 w-4" /></button>;
+  return <button onClick={onClick} className="shrink-0 h-7 w-7 grid place-items-center rounded-lg text-muted-foreground/50 hover:text-bad hover:bg-bad/10 transition-colors" aria-label="Sluiten"><X className="h-4 w-4" /></button>;
 }
 
 function AwField({ label, value, editing, onChange, italic, muted }: { label: string; value: string; editing: boolean; onChange: (v: string) => void; italic?: boolean; muted?: boolean }) {
   return (
     <div>
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">{label}</p>
+      <p className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">{label}</p>
       {editing
         ? <TArea value={value} onChange={onChange} rows={2} />
         : <p className={`text-sm leading-relaxed ${muted ? "text-muted-foreground" : "text-foreground"} ${italic ? "italic" : ""}`}>{italic ? `"${value}"` : value}</p>}
@@ -441,7 +441,7 @@ function ListEditor({ title, dot, items, editing, onChange }: { title: string; d
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">{title}</h2>
+        <h2 className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">{title}</h2>
         {editing && <AddBtn onClick={() => onChange([...items, ""])} />}
       </div>
       <ul className="space-y-2">
